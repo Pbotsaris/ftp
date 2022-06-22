@@ -11,6 +11,14 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+struct Connection {
+  public:
+    std::string req;
+    std::string res;
+};
+
+typedef void(*ServerCallback)(Connection*);
+
 class Server {
 
 private:
