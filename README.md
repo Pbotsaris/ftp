@@ -57,6 +57,8 @@ on every connection request.
 
 [More info](https://www.ncftp.com/libncftp/doc/ftp_overview.html)
 
+[Protocol](https://datatracker.ietf.org/doc/rfc959/)
+
 ## List with FTP accepted command
 
 | Command | Description                                                                                                                                                                  |
@@ -96,7 +98,7 @@ on every connection request.
 |STAT    	|	Returns information on the server status, including the status of the current connection                                                                                     |
 |STOR    	|	Accept the data and to store the data as a file at the server site                                                                                                           |
 |STOU    	|	Store file uniquely.                                                                                                                                                         |
-|STRU    	|	Set file transfer structure.                                                                                                                                                 |
+|~STRU~ 	|	~Set file transfer structure.~(DO NOT IMPLEMENT)                                                                                                                               |
 |SYST    	|	Return system type.                                                                                                                                                          |
 |THMB     | 	Streamlined FTP Command Extensions	Get a thumbnail of a remote image file                                                                                                 |
 |TYPE    	|	Sets the transfer mode (ASCII/Binary).                                                                                                                                       |
@@ -144,7 +146,7 @@ on every connection request.
 450         |	Requested file action not taken.                                                                                                                                              |
 451         |	Requested action aborted. Local error in processing.                                                                                                                          |
 452         |	Requested action not taken. Insufficient storage space in system. File unavailable (e.g., file busy).                                                                         |
-500 series  |  Syntax error, command unrecognized and the requested action did not take place. This may include errors such as command line too long.                                       |
+500 series  | Syntax error, command unrecognized and the requested action did not take place. This may include errors such as command line too long.                                        |
 501         |	Syntax error in parameters or arguments.                                                                                                                                      |
 502         |	Command not implemented.                                                                                                                                                      |
 503         |	Bad sequence of commands.                                                                                                                                                     |
@@ -160,3 +162,24 @@ on every connection request.
 631         |	Integrity protected reply.                                                                                                                                                    |
 632         |	Confidentiality and integrity protected reply.                                                                                                                                |
 633         |	Confidentiality protected reply.                                                                                                                                              |
+
+
+## Datatypes
+While transfering data, the FTP supports a few datatypes. Some of them are undated and will not be mentioned here. The revelevant ones are as follows
+
+**ASCII (TYPE A)**: Used for text.  This type has optional formats that were intended for printers and not relevant to this implemtation. The program will 
+use the **Non-print** only(aka`format control of N`).
+
+**Image or Binary mode (TYPE I)** The sending machine sends each file byte by byte, and the recipient stores the bytestream as it receives it. This is our main file transfer mode.
+
+## File transfer structure
+Organizational types to be implemented is the `F` or **FILE** which is the file structure in a UNIX system. 
+
+## Log in 
+Uses the `USER` and `PASS` command for for authetication. May also provide an anonymous access.
+
+
+## Syntax
+
+`ftp://[user[:password]@]host[:port]/url-path`
+
