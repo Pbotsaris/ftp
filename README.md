@@ -57,4 +57,48 @@ on every connection request.
 
 [More info](https://www.ncftp.com/libncftp/doc/ftp_overview.html)
 
+## List with FTP accepted command
+
+| Command | Description                                                                                                                                                                  |
+|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|ABOR    	|	Abort an active file transfer.                                                                                                                                               |
+|ACCT    	|	Account information.                                                                                                                                                         |
+|ALLO    	|	Allocate sufficient disk space to receive a file.                                                                                                                            |
+|APPE    	|	Append (with create)                                                                                                                                                         |
+|AVBL     |	Streamlined FTP Command Extensions	Get the available space                                                                                                                  |
+|CDUP    	|	Change to Parent Directory.                                                                                                                                                  |
+|CSID     |	Streamlined FTP Command Extensions	Client / Server Identification                                                                                                           |
+|DELE    	|	Delete file.                                                                                                                                                                 |
+|DSIZ     |	Streamlined FTP Command Extensions	Get the directory size                                                                                                                   |
+|HELP    	|	Returns usage documentation on a command if specified, else a general help document is returned.                                                                             |
+|LIST    	|	Returns information of a file or directory if specified, else information of the current working directory is returned.                                                      |
+|MFCT     |	The 'MFMT', 'MFCT', and 'MFF' Command Extensions for FTP	Modify the creation time of a file.                                                                                |
+|MFF	     |  The 'MFMT', 'MFCT', and 'MFF' Command Extensions for FTP	Modify fact (the last modification time, creation time, UNIX group/owner/mode of a file).                        |
+|MFMT     |  The 'MFMT', 'MFCT', and 'MFF' Command Extensions for FTP	Modify the last modification time of a file.                                                                       |
+|MKD	     | 	Make directory.                                                                                                                                                            |
+|MODE    	|	Sets the transfer mode (Stream, Block, or Compressed).                                                                                                                       |
+|NLST    	|	Returns a list of file names in a specified directory.                                                                                                                       |
+|NOOP    	|	No operation (dummy packet; used mostly on keepalives).                                                                                                                      |
+|PASS    	|	Authentication password.                                                                                                                                                     |
+|PASV    	|	Enter passive mode.                                                                                                                                                          |
+|PORT    	|	Specifies an address and port to which the server should connect.                                                                                                            |
+|PWD	     | 	Print working directory. Returns the current directory of the host.                                                                                                        |
+|QUIT    	|	Disconnect.                                                                                                                                                                  |
+|REIN    	|	Re initializes the connection.                                                                                                                                               |
+|RETR    	|	Retrieve a copy of the file                                                                                                                                                  |
+|RMD	     | 	Remove a directory.                                                                                                                                                        |
+|RMDA     | 	Streamlined FTP Command Extensions	Remove a directory tree                                                                                                                |
+|RNFR    	|	Rename from.                                                                                                                                                                 |
+|RNTO    	|	Rename to.                                                                                                                                                                   |
+|SITE    	|	Sends site specific commands to remote server (like SITE IDLE 60 or SITE UMASK 002). Inspect SITE HELP output for complete list of supported commands.                       |
+|SMNT    	|	Mount file structure.                                                                                                                                                        |
+|SPSV     | 	FTP Extension Allowing IP Forwarding (NATs)	Use single port passive mode (only one TCP port number for both control connections and passive-mode data connections)         |
+|STAT    	|	Returns information on the server status, including the status of the current connection                                                                                     |
+|STOR    	|	Accept the data and to store the data as a file at the server site                                                                                                           |
+|STOU    	|	Store file uniquely.                                                                                                                                                         |
+|STRU    	|	Set file transfer structure.                                                                                                                                                 |
+|SYST    	|	Return system type.                                                                                                                                                          |
+|THMB     | 	Streamlined FTP Command Extensions	Get a thumbnail of a remote image file                                                                                                 |
+|TYPE    	|	Sets the transfer mode (ASCII/Binary).                                                                                                                                       |
+|USER    	|	Authentication username.
 
