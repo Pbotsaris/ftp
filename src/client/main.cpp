@@ -14,6 +14,9 @@ int main(void)
 
   int client_socket = socket(AF_INET, SOCK_STREAM, 0);
 
+  /* clear address struct */
+  bzero(&client_addr, sizeof(client_addr));
+
   client_addr.sin_family = AF_INET;
   client_addr.sin_port = htons(PORT);
 
