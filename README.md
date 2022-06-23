@@ -178,6 +178,29 @@ Organizational types to be implemented is the `F` or **FILE** which is the file 
 ## Log in 
 Uses the `USER` and `PASS` command for for authetication. May also provide an anonymous access.
 
+## Data Transfers
+
+**Stream mode (MODE S)**: Data is sent as a continuous stream, relieving FTP from doing any processing. Rather, all processing is left up to TCP. No End-of-file indicator is needed, unless the data is divided into records.
+
+**Block mode (MODE B)**: Designed primarily for transferring record-oriented files (STRU R), although can also be used to transfer stream-oriented (STRU F) text files. FTP puts each record (or line) of data into several blocks (block header, byte count, and data field) and then passes it on to TCP.[8]
+
+**Compressed mode (MODE C)**: Extends MODE B with data compression using run-length encoding.
+
+Most contemporary FTP clients and servers do not implement MODE B or MODE C.
+
+### Stream mode
+
+         In a record structured file EOR and EOF will each be indicated
+         by a two-byte control code.  The first byte of the control code
+         will be all ones, the escape character.  The second byte will
+         have the low order bit on and zeros elsewhere for EOR and the
+         second low order bit on for EOF; that is, the byte will have
+         value 1 for EOR and value 2 for EOF.  EOR and EOF may be
+         indicated together on the last byte transmitted by turning both
+         low order bits on (i.e., the value 3).  If a byte of all ones
+         was intended to be sent as data, it should be repeated in the
+         second byte of the control code.
+
 
 ## Syntax
 
