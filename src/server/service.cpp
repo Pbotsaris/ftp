@@ -20,6 +20,5 @@ void Service::main_loop() {
 
     m_ctrlconn.respond(req);
 
-    std::cout << req.m_raw << "\n";
   }
 }

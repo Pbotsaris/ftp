@@ -93,13 +93,10 @@ void Connection::accept_connection() {
 
   socklen_t client_addr_len = sizeof(m_address);
 
-  std::cout << "Waiting to accept\n";
-
   m_connected_socket =
       accept(m_local_socket, reinterpret_cast<struct sockaddr *>(&m_address),
              &client_addr_len);
 
-  std::cout << "accepted\n";
 
   if (m_connected_socket < 0)
     throw "error accepting connecting\n";
