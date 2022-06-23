@@ -7,9 +7,7 @@ int main(void) {
     server.main_loop();
 
   } catch (const char *msg) {
-
-    std::cout << msg << "\n";
-
+     std::cout << msg << "\n";
   }
 
   return 0;

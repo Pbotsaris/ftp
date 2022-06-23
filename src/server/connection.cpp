@@ -104,7 +104,7 @@ void Connection::accept_connection() {
     throw "error accepting connecting\n";
 }
 
-void Connection::receive(Request &req) {
+void Connection::receive(Request &t_req) {
 
   char read_buffer[BUFFER_SIZE] = {0};
   int read_count = 0;
@@ -115,7 +115,7 @@ void Connection::receive(Request &req) {
     int read_size = recv(m_connected_socket, &read_buffer[read_count], 1, MSG_DONTWAIT);
 
     if(read_count >= MAX_READ_SIZE) {
-       req.m_raw.append(read_buffer);
+       t_req.m_raw.append(read_buffer);
        memset(read_buffer, 0, BUFFER_SIZE);
        read_count = 0;
     }
@@ -129,11 +129,11 @@ void Connection::receive(Request &req) {
     read_count++;
   }
 
-   req.m_raw.append(read_buffer);
+   t_req.m_raw.append(read_buffer);
 }
 
-void Connection::respond(Request &req) {
+void Connection::respond(Request &t_req) {
 
-  std::string msg = reply::messages[req.m_reply];
+  std::string msg = reply::messages[t_req.m_reply];
   send(m_connected_socket, msg.c_str(), msg.size(), 0);
 }

@@ -26,7 +26,7 @@ namespace networking {
     sockaddr_in m_address;
   
   public:
-    Connection(int t_port, conn_mode mode = passive);
+    Connection(int t_port, conn_mode t_mode = passive);
     ~Connection();
   
     void config_addr();
@@ -36,8 +36,8 @@ namespace networking {
     void connect_socket();
     void accept_connection();
     void socket_listen();
-    void receive(Request &req);
-    void respond(Request &req);
+    void receive(Request &t_req);
+    void respond(Request &t_req);
   };
 }
 

@@ -2,7 +2,10 @@
 
 using namespace networking;
 
-Service::Service(int t_port) : m_ctrlconn(t_port), m_dataconn(t_port, active) {
+Service::Service(int t_port)
+  : m_ctrlconn(t_port),
+  m_dataconn(t_port, active) ,
+  m_req(Request()) {
   m_ctrlconn.set_socket_options();
   m_ctrlconn.config_addr();
 }
@@ -13,14 +16,13 @@ void Service::setup() {
 }
 
 void Service::main_loop() {
-  while (!quit) {
-    auto req = Request();
+  while (!m_quit) {
     m_ctrlconn.accept_connection();
-    m_ctrlconn.receive(req);
+    m_ctrlconn.receive(m_req);
 
-    req.m_reply = reply::r_212;
+    m_req.m_reply = reply::r_212;
 
-    m_ctrlconn.respond(req);
+    m_ctrlconn.respond(m_req);
 
   }
 }
