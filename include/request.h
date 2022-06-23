@@ -3,7 +3,8 @@
 #include <vector>
 #include "reply.hpp"
 
-namespace request {
+
+namespace networking {
 
 enum status{init, loaded, parsed, ready};
 

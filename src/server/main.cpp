@@ -2,7 +2,7 @@
 
 int main(void) {
   try {
-    auto server = Service(4000);
+    auto server = networking::Service(4000);
     server.setup();
     server.main_loop();
 

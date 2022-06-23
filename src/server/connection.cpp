@@ -1,5 +1,7 @@
 #include "../../include/connection.h"
 
+using namespace networking;
+
 /*  This constants will impact how many times a c++ string gets appended  
  *  larger buffer will yield less appends.
  */
@@ -102,7 +104,7 @@ void Connection::accept_connection() {
     throw "error accepting connecting\n";
 }
 
-void Connection::receive(request::Request &req) {
+void Connection::receive(Request &req) {
 
   char read_buffer[BUFFER_SIZE] = {0};
   int read_count = 0;
@@ -130,7 +132,7 @@ void Connection::receive(request::Request &req) {
    req.m_raw.append(read_buffer);
 }
 
-void Connection::respond(request::Request &req) {
+void Connection::respond(Request &req) {
 
   std::string msg = reply::messages[req.m_reply];
   send(m_connected_socket, msg.c_str(), msg.size(), 0);

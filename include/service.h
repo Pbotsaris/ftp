@@ -8,17 +8,19 @@
  *     2. dataconn for data transfer.
  */
 
-class Service {
-private:
-  bool       quit;
-  Connection m_ctrlconn;
-  Connection m_dataconn;
-
-public:
-  Service(int port);
-
-  void setup();
-  void main_loop();
-};
+namespace networking {
+  class Service {
+  private:
+    bool       quit;
+    Connection m_ctrlconn;
+    Connection m_dataconn;
+  
+  public:
+    Service(int port);
+  
+    void setup();
+    void main_loop();
+  };
+}
 
 #endif

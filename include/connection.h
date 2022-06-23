@@ -14,29 +14,31 @@
 
 #include "request.h"
 
-enum conn_mode { active, passive };
-
-class Connection {
-private:
-  int         m_port;
-  conn_mode   m_mode;
-  int         m_local_socket;
-  int         m_connected_socket;
-  sockaddr_in m_address;
-
-public:
-  Connection(int t_port, conn_mode mode = passive);
-  ~Connection();
-
-  void config_addr();
-  void config_addr(const std::string &t_ip);
-  void set_socket_options();
-  void bind_socket();
-  void connect_socket();
-  void accept_connection();
-  void socket_listen();
-  void receive(request::Request &req);
-  void respond(request::Request &req);
-};
+namespace networking {
+  enum conn_mode { active, passive };
+  
+  class Connection {
+  private:
+    int         m_port;
+    conn_mode   m_mode;
+    int         m_local_socket;
+    int         m_connected_socket;
+    sockaddr_in m_address;
+  
+  public:
+    Connection(int t_port, conn_mode mode = passive);
+    ~Connection();
+  
+    void config_addr();
+    void config_addr(const std::string &t_ip);
+    void set_socket_options();
+    void bind_socket();
+    void connect_socket();
+    void accept_connection();
+    void socket_listen();
+    void receive(Request &req);
+    void respond(Request &req);
+  };
+}
 
 #endif
