@@ -1,12 +1,16 @@
-#include "../../include/server.h"
+#include "../../include/service.h"
 
-int main (void)
-{
-  auto server = Server(4000, 5);
+int main(void) {
+  try {
+    auto server = Service(4000);
+    server.setup();
+    server.main_loop();
 
-  server.set_socket_options();
-  server.config_addr();
-  server.bind_socket();
-  server.slisten();
-  server.receive();
+  } catch (const char *msg) {
+
+    std::cout << msg << "\n";
+
+  }
+
+  return 0;
 }

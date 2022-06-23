@@ -27,11 +27,12 @@ int main(void)
   if(client_fd < 0)
     std::cout << "connection error" << "\n";
 
-  char msg[] = "hello from client";
+  char msg[] = "hello from client!\n";
   char buffer[256] = {0};
 
-  send(client_socket, msg, strlen(msg), 0);
-  recv(client_socket, buffer, 256, 0);
+   send(client_socket, msg, strlen(msg), 0);
+
+   int n = recv(client_socket, buffer, 256, 0);
 
   std::cout << buffer << "\n";
 

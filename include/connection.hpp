@@ -1,43 +1,42 @@
-#ifndef SERVER_H
-#define SERVER_H
-#include <cstdio>
+#ifndef CONNECTION_H
+#define CONNECTION_H
+
 #include <exception>
 #include <iostream>
+#include <string>
+
+/* C headers */
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <string>
-#include <strings.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
 
-struct Connection {
-  public:
-    std::string req;
-    std::string res;
-};
+enum conn_mode { active, passive };
+const int QUEUE_SIZE = 5;
 
-typedef void(*ServerCallback)(Connection*);
-
-class Server {
-
+class Connection {
 private:
   int         m_port;
-  int         m_queue_size;      /* maximum size of the backlog queue is 5 */
+  conn_mode   m_mode;
   int         m_socket;
   int         m_connected_socket;
   sockaddr_in m_server_addr;
   sockaddr_in m_client_addr;
 
 public:
-  Server(int t_port, int t_queue_size);
+  Connection(int t_port, conn_mode mode = passive);
+  ~Connection();
 
   void config_addr();
-  void config_addr(std::string &t_ip);
+  void config_addr(const std::string &t_ip);
   void set_socket_options();
   void bind_socket();
-  void slisten();
+  void connect_socket();
+  void accept_connection();
+  void socket_listen();
   void receive();
+  void respond(const std::string &msg);
 };
 
 #endif
