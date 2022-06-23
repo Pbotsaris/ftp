@@ -19,10 +19,9 @@ class Connection {
 private:
   int         m_port;
   conn_mode   m_mode;
-  int         m_socket;
+  int         m_local_socket;
   int         m_connected_socket;
-  sockaddr_in m_server_addr;
-  sockaddr_in m_client_addr;
+  sockaddr_in m_address;
 
 public:
   Connection(int t_port, conn_mode mode = passive);
