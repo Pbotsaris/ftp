@@ -137,7 +137,7 @@ on every connection request.
 331         |	User name okay, need password.                                                                                                                                                |
 332         |	Need account for login.                                                                                                                                                       |
 350         |	Requested file action pending further information                                                                                                                             |
-400         |  Series	The command was not accepted and the requested action did not take place, but the error condition is temporary and the action may be requested again.                 |
+400 series  | The command was not accepted and the requested action did not take place, but the error condition is temporary and the action may be requested again.                 |
 421         |	Service not available, closing control connection. This may be a reply to any command if the service knows it must shut down.                                                 |
 425         |	Can't open data connection.                                                                                                                                                   |
 426         |	Connection closed; transfer aborted.                                                                                                                                          |
@@ -158,7 +158,7 @@ on every connection request.
 551         |	Requested action aborted. Page type unknown.                                                                                                                                  |
 552         |	Requested file action aborted. Exceeded storage allocation (for current directory or dataset).                                                                                |
 553         |	Requested action not taken. File name not allowed.                                                                                                                            |
-600         |  Series	Replies regarding confidentiality and integrity                                                                                                                       |
+600 series  | Replies regarding confidentiality and integrity                                                                                                                       |
 631         |	Integrity protected reply.                                                                                                                                                    |
 632         |	Confidentiality and integrity protected reply.                                                                                                                                |
 633         |	Confidentiality protected reply.                                                                                                                                              |

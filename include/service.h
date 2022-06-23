@@ -1,6 +1,6 @@
 #ifndef SERVER_H
 #define SERVER_H
-#include "connection.hpp"
+#include "connection.h"
 
 /*
  *  A Service corresponds single user interaction with the server and consists of two connections: 

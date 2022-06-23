@@ -12,8 +12,14 @@ void Service::setup() {
 
 void Service::main_loop() {
   while (!quit) {
+    auto req = request::Request();
     m_ctrlconn.accept_connection();
-    m_ctrlconn.receive();
-    m_ctrlconn.respond("Message Received!\n");
+    m_ctrlconn.receive(req);
+
+    req.m_reply = reply::r_212;
+
+    m_ctrlconn.respond(req);
+
+    std::cout << req.m_raw << "\n";
   }
 }

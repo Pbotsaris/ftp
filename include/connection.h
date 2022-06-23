@@ -12,8 +12,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "request.h"
+
 enum conn_mode { active, passive };
-const int QUEUE_SIZE = 5;
 
 class Connection {
 private:
@@ -34,8 +35,8 @@ public:
   void connect_socket();
   void accept_connection();
   void socket_listen();
-  void receive();
-  void respond(const std::string &msg);
+  void receive(request::Request &req);
+  void respond(request::Request &req);
 };
 
 #endif

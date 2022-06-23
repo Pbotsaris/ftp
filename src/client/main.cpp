@@ -27,7 +27,7 @@ int main(void)
   if(client_fd < 0)
     std::cout << "connection error" << "\n";
 
-  char msg[] = "hello from client!\n";
+  char msg[] = "Hello from client! very long how much time I can do this because is longer than the buffer I have and will it create a problem\r\n";
   char buffer[256] = {0};
 
    send(client_socket, msg, strlen(msg), 0);

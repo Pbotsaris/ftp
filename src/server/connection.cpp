@@ -1,5 +1,14 @@
-#include "../../include/connection.hpp"
-#include <sys/socket.h>
+#include "../../include/connection.h"
+
+/*  This constants will impact how many times a c++ string gets appended  
+ *  larger buffer will yield less appends.
+ */
+
+static const int BUFFER_SIZE = 100; 
+static const int MAX_READ_SIZE = BUFFER_SIZE - 2;
+
+/* This QUEUE_SIZE configures the number of queuing requests for each connection */
+static const int QUEUE_SIZE = 5;
 
 Connection::Connection(int t_port, conn_mode t_mode)
     : m_port(t_port), m_mode(t_mode), m_connected_socket(0) {
@@ -96,16 +105,36 @@ void Connection::accept_connection() {
     throw "error accepting connecting\n";
 }
 
-void Connection::receive() {
-  char buffer[256] = {0};
+void Connection::receive(request::Request &req) {
 
-  int res = recv(m_connected_socket, buffer, 256, 0);
-  std::cout << buffer << "\n";
+  char read_buffer[BUFFER_SIZE] = {0};
+  int read_count = 0;
 
-  if (res < 0)
-    throw "error receiving data\n";
+  while(1){
+
+    /* MSG_DONTWAIT will prevent the loop from hanging if mandatory \n is missing from the command  */
+    int read_size = recv(m_connected_socket, &read_buffer[read_count], 1, MSG_DONTWAIT);
+
+    if(read_count >= MAX_READ_SIZE) {
+       req.m_raw.append(read_buffer);
+       memset(read_buffer, 0, BUFFER_SIZE);
+       read_count = 0;
+    }
+
+    if (read_size < 0)
+      throw "error receiving data\n";
+
+    if(read_buffer[read_count] == '\n')
+        break;
+
+    read_count++;
+  }
+
+   req.m_raw.append(read_buffer);
 }
 
-void Connection::respond(const std::string &msg) {
+void Connection::respond(request::Request &req) {
+
+  std::string msg = reply::messages[req.m_reply];
   send(m_connected_socket, msg.c_str(), msg.size(), 0);
 }
