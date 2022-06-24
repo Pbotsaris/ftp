@@ -7,49 +7,46 @@ namespace commands {
   
   enum name {
     /* No arguments */
-     CDUP = 0,
-     QUIT = 2, 
-     PASV = 3, 
-     STOU = 4,
-     ABOR = 5,
+     CDUP = 0,     // cd ..
+     QUIT = 2,     // disconnect (in ftp)
+     PASV = 3,     // passive mode
+//   ABOR = 5,     // no support
      PWD  = 6,
-     SYST = 7,
+     SYST = 7,     // returns OS
      NOOP = 8,
 
-    /* Single argument */
-     USER = 100,
-     PASS = 101,
-     ACCT = 102,
-     CWD  = 103,
-     SMNT = 104,
-     REIN = 105,
-     PORT = 106,
-     TYPE = 107,
-     STRU = 108,
-     MODE = 109,
-     RETR = 110,
-     STOR = 111,
-     APPE = 112,
-     REST = 113,
-     RNFR = 114,
-     RNTO = 115,
-     DELE = 116,
-     RMD  = 117,
-     MKD  = 118,
-     LIST = 119,
-     NLST = 120,
-     SITE = 121,
-
-    /* List argument */
-     ALLO = 1000,
-     STAT = 1001,
-     HELP = 1002,
+    /* With argument */
+     USER = 9,
+     PASS = 10,
+     ACCT = 12,
+     CWD  = 13,    // cd
+//   SMNT = 14,    no support
+//   REIN = 15,    no support
+     PORT = 16,
+     TYPE = 17,
+//   STRU = 18,    no support, only single structure.
+//   MODE = 19,    no support, stream only.
+     RETR = 20,    // get
+//   STOR = 21,    no support. Only unique files are created.
+     STOU = 22,    // send
+//   APPE = 23,    handled by client.
+     REST = 24,    // restart
+     RNFR = 25,    // rename
+     RNTO = 26,    // rename
+     DELE = 27,
+     RMD  = 28,
+     MKD  = 29,
+     LIST = 30,
+     NLST = 31,
+     SITE = 32,
+//   ALLO = 33,  no support
+     HELP = 34,  // rhelp (in ftp)
+     STAT = 35,  // rstatus (in ftp)
   };
 
   enum type {
     no_argument,
-    single_argument,
-    list_argument,
+    with_argument,
   };
 
   static std::map<std::string, name > find {
@@ -58,26 +55,26 @@ namespace commands {
     { "CDUP", CDUP }, 
     { "QUIT", QUIT }, 
     { "PASV", PASV },
-    { "STOU", STOU },
-    { "ABOR", ABOR },
+//  { "ABOR", ABOR },  no support
     { "PWD" , PWD  },
     { "SYST", SYST }, 
     { "NOOP", NOOP },
                       
-    /* single argument */
+    /* With argument */
     { "USER", USER },
     { "PASS", PASS },
     { "ACCT", ACCT },
     { "CWD ", CWD  },
-    { "SMNT", SMNT },
-    { "REIN", REIN },
+//  { "SMNT", SMNT },  no support
+//  { "REIN", REIN },  no support
     { "PORT", PORT },
     { "TYPE", TYPE },
-    { "STRU", STRU },
-    { "MODE", MODE },
+//  { "STRU", STRU },  no support
+//  { "MODE", MODE },  no support
     { "RETR", RETR },
-    { "STOR", STOR },
-    { "APPE", APPE },
+    { "STOU", STOU },
+//  { "STOR", STOR },  no support
+//  { "APPE", APPE },  no support
     { "REST", REST },
     { "RNFR", RNFR },
     { "RNTO", RNTO },
@@ -87,9 +84,7 @@ namespace commands {
     { "LIST", LIST },
     { "NLST", NLST },
     { "SITE", SITE },
-
-     /* list argument */
-    { "ALLO", ALLO }, /* list integers argument */
+//  { "ALLO", ALLO },  no support
     { "STAT", STAT }, 
     { "HELP", HELP }, 
   };
@@ -98,11 +93,8 @@ namespace commands {
   struct Utils {
     static type get_type(name t_command) {
 
-      if(t_command >= ALLO)
-        return list_argument;
-
-      else if(t_command >= USER)
-        return single_argument;
+      if(t_command >= USER)
+        return with_argument;
 
       else
         return no_argument;

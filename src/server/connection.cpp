@@ -99,9 +99,9 @@ void Connection::accept_connection() {
       accept(m_local_socket, reinterpret_cast<struct sockaddr *>(&m_address),
              &client_addr_len);
 
-
   if (m_connected_socket < 0)
     throw "error accepting connecting\n";
+
 }
 
 void Connection::receive(Request &t_req) {
@@ -109,27 +109,27 @@ void Connection::receive(Request &t_req) {
   char read_buffer[BUFFER_SIZE] = {0};
   int read_count = 0;
 
-  while(1){
+ while(1){
 
-    /* MSG_DONTWAIT will prevent the loop from hanging if mandatory \n is missing from the command  */
-    int read_size = recv(m_connected_socket, &read_buffer[read_count], 1, MSG_DONTWAIT);
+   /* MSG_DONTWAIT will prevent the loop from hanging if mandatory \n is missing from the command  */
+   int read_size = recv(m_connected_socket, &read_buffer[read_count], 1, 0);
 
-    if(read_count >= MAX_READ_SIZE) {
-       t_req.m_raw.append(read_buffer);
-       memset(read_buffer, 0, BUFFER_SIZE);
-       read_count = 0;
-    }
+   if(read_count >= MAX_READ_SIZE) {
+      t_req.m_raw.append(read_buffer);
+      memset(read_buffer, 0, BUFFER_SIZE);
+      read_count = 0;
+   }
 
-    if (read_size < 0)
-      throw "error receiving data\n";
+   if (read_size < 0)
+     throw "error receiving data\n";
 
-    if(read_buffer[read_count] == '\n')
-        break;
+   if(read_buffer[read_count] == '\n')
+       break;
 
-    read_count++;
-  }
+   read_count++;
+ }
 
-   t_req.m_raw.append(read_buffer);
+  t_req.m_raw.append(read_buffer);
 }
 
 void Connection::respond(Request &t_req) {

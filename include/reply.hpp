@@ -36,70 +36,70 @@ namespace networking {
       static std::map<code, std::string> messages {
   
       /***** 100 series  ****/
-      { r_100,  "The requested action being initiated.\n"},                                                          
-      { r_110,	"Restart marker replay.\n"},                                                       
-      { r_120,	"Service ready in nnn minutes.\n"},                                                                                                                                
-      { r_125,	"Data connection already open; transfer starting.\n"},                                                                                                             
-      { r_150,	"File status okay; about to open data connection.\n"},
+      { r_100,  "100 The requested action being initiated.\n"},                                                          
+      { r_110,	"110 Restart marker replay.\n"},                                                       
+      { r_120,	"120 Service ready.\n"},                                                                                                                                
+      { r_125,	"125 Data connection already open; transfer starting.\n"},                                                                                                             
+      { r_150,	"150 File status okay; about to open data connection.\n"},
   
       /***** 200 series  ****/
-      { r_200,  "Ok\n"},                                                                                                      
-      { r_202,	"Command not implemented, superfluous at this site.\n"},                                                                                                           
-      { r_211,	"System status, or system help reply.\n"},                                                              
-      { r_212,	"Directory status.\n"},                                                                                                                                            
-      { r_213,	"File status.\n"},                                
-      { r_214,	"Help message:  \n"},  /* Append help message */             
-      { r_215,	" system type\n"},   /* Prepend a system type NAME*/                                                                    
-      { r_220,	"Service ready for new user.\n"},                                                                                                                                  
-      { r_221,	"Service closing control connection.\n"},                                                                                                                          
-      { r_225,	"Data connection open; no transfer in progress.\n"},                                                                                                               
-      { r_226,	"Closing data connection. Requested file action successful.\n"},
-      { r_227,	"Entering Passive Mode.\n"},                                                                                                                   
-      { r_228,	"Entering Long Passive Mode.\n"},                                                                                                            
-      { r_229,	"Entering Extended Passive Mode.\n"},                                                                                                                   
-      { r_230,	"User logged in, proceed.\n"},                                                                                                          
-      { r_231,	"User logged out; service terminated.\n"},                                                                                                                         
-      { r_232,	"Logout command noted, will complete when transfer done.\n"},                                                                                                      
+      { r_200,  "200 Ok\n"},                                                                                                      
+      { r_202,	"202 Command not implemented, superfluous at this site.\n"},                                                                                                           
+      { r_211,	"211 System status, or system help reply.\n"},                                                              
+      { r_212,	"212 Directory status.\n"},                                                                                                                                            
+      { r_213,	"213 File status.\n"},                                
+      { r_214,	"214 Help message:  \n"},  /* Append help message */             
+      { r_215,	"215 system type\n"},   /* Prepend a system type NAME*/                                                                    
+      { r_220,	"220 Service ready for new user.\n"},                                                                                                                                  
+      { r_221,	"221 Service closing control connection.\n"},                                                                                                                          
+      { r_225,	"225 Data connection open; no transfer in progress.\n"},                                                                                                               
+      { r_226,	"226 Closing data connection. Requested file action successful.\n"},
+      { r_227,	"227 Entering Passive Mode.\n"},                                                                                                                   
+      { r_228,	"228 Entering Long Passive Mode.\n"},                                                                                                            
+      { r_229,	"229 Entering Extended Passive Mode.\n"},                                                                                                                   
+      { r_230,	"230 User logged in, proceed.\n"},                                                                                                          
+      { r_231,	"231 User logged out; service terminated.\n"},                                                                                                                         
+      { r_232,	"232 Logout command noted, will complete when transfer done.\n"},                                                                                                      
       //{ r_234,	"Specifies that the server accepts the authentication mechanism specifie"},                       
-      { r_250,	"Requested file action okay, completed.\n"},                                                                                                                       
-      { r_257,	"  created.\n"}, /* Prepend PATHNAME */                                                                                                                                       
+      { r_250,	"250 Requested file action okay, completed.\n"},                                                                                                                       
+      { r_257,	"257 created.\n"}, /* Prepend PATHNAME */                                                                                                                                       
   
       /***** 300 series  ****/
-      { r_300,  "The command has been accepted, but the requested action is on hold, pending receipt of further information.\n"},                                                 
-      { r_331,	"User name okay, need password.\n"},                                                                                                                               
-      { r_332,	"Need account for login.\n"},                                                                                                                                      
-      { r_350,	"Requested file action pending further information.\n"},                                                                                                            
+      { r_300,  "300 The command has been accepted, but the requested action is on hold, pending receipt of further information.\n"},                                                 
+      { r_331,	"331 User name okay, need password.\n"},                                                                                                                               
+      { r_332,	"332 Need account for login.\n"},                                                                                                                                      
+      { r_350,	"350 Requested file action pending further information.\n"},                                                                                                            
   
       /***** 400 series  ****/
-      { r_400,  "The command was not accepted and the requested action did not take place, but the error condition is temporary and the action may be requested again.\n"},        
-      { r_421,	"Service not available, closing control connection.\n"}, /* This may be a reply to any command if the service knows it must shut down. */                                
-      { r_425,	"Can't open data connection.\n"},                                                                                                                                  
-      { r_426,	"Connection closed; transfer aborted.\n"},                                                                                                                         
-      { r_430,	"Invalid username or password.\n"},                                                                                                                                 
-      { r_434,	"Requested host unavailable.\n"},                                                                                                                                  
-      { r_450,	"Requested file action not taken.\n"},                                                                                                                             
-      { r_451,	"Requested action aborted. Local error in processing.\n"},                                                                                                         
-      { r_452,	"Requested action not taken. Insufficient storage space in system. File unavailable (e.g., file busy).\n"},                                                        
+      { r_400,  "400 The command was not accepted and the requested action did not take place, but the error condition is temporary and the action may be requested again.\n"},        
+      { r_421,	"421 Service not available, closing control connection.\n"}, /* This may be a reply to any command if the service knows it must shut down. */                                
+      { r_425,	"425 Can't open data connection.\n"},                                                                                                                                  
+      { r_426,	"426 Connection closed; transfer aborted.\n"},                                                                                                                         
+      { r_430,	"430 Invalid username or password.\n"},                                                                                                                                 
+      { r_434,	"434 Requested host unavailable.\n"},                                                                                                                                  
+      { r_450,	"450 Requested file action not taken.\n"},                                                                                                                             
+      { r_451,	"451 Requested action aborted. Local error in processing.\n"},                                                                                                         
+      { r_452,	"452 Requested action not taken. Insufficient storage space in system. File unavailable (e.g., file busy).\n"},                                                        
   
       /***** 500 series  ****/
-      { r_500,  "Syntax error.\n"},
-      { r_501,	"Syntax error in parameters or arguments.\n"},                                                                                                                     
-      { r_502,	"Command not implemented.\n"},                                                                                                                                     
-      { r_503,	"Bad sequence of commands.\n"},                                                                                                                                    
-      { r_504,	"Command not implemented for that parameter.\n"},                                                                                                                  
-      { r_530,	"Not logged in.\n"},                                                                                                                                               
-      { r_532,	"Need account for storing files.\n"},                                                                                                                              
+      { r_500,  "500 Syntax error.\n"},
+      { r_501,	"501 Syntax error in parameters or arguments.\n"},                                                                                                                     
+      { r_502,	"502 Command not implemented.\n"},                                                                                                                                     
+      { r_503,	"503 Bad sequence of commands.\n"},                                                                                                                                    
+      { r_504,	"504 Command not implemented for that parameter.\n"},                                                                                                                  
+      { r_530,	"530 Not logged in.\n"},                                                                                                                                               
+      { r_532,	"532 Need account for storing files.\n"},                                                                                                                              
       //{ r_534,	"Could Not Connect to Server - Requires SSL."},                                                                                                            
-      { r_550,	"Requested action not taken. File unavailable (e.g., file not found, no access).\n"},                                                                              
+      { r_550,	"550 Requested action not taken. File unavailable (e.g., file not found, no access).\n"},                                                                              
       // { r_551,	"Requested action aborted. Page type unknown."},                                                                                                              
-      { r_552,	"Requested file action aborted. Exceeded storage allocation (for current directory or dataset).\n"}, 
-      { r_553,	"Requested action not taken. File name not allowed.\n"},                                                                                                           
+      { r_552,	"552 Requested file action aborted. Exceeded storage allocation (for current directory or dataset).\n"}, 
+      { r_553,	"553 Requested action not taken. File name not allowed.\n"},                                                                                                           
   
       /***** 600 series  ****/
-      { r_600,   "Replies regarding confidentiality and integrity.\n"},
-      { r_631,	"Integrity protected reply.\n"},                                                                                                                                   
-      { r_632,	"Confidentiality and integrity protected reply.\n"},                                                                                                               
-      { r_633,	"Confidentiality protected reply.\n"},                                                                                                                             
+      { r_600,  "600 Replies regarding confidentiality and integrity.\n"},
+      { r_631,	"631 Integrity protected reply.\n"},                                                                                                                                   
+      { r_632,	"632 Confidentiality and integrity protected reply.\n"},                                                                                                               
+      { r_633,	"633 Confidentiality protected reply.\n"},                                                                                                                             
     };
   }
 }
