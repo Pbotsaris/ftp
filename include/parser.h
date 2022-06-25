@@ -6,8 +6,6 @@
 
 namespace parsing {
 
-typedef std::vector<std::string> StringVector;
-
 class Parser {
   struct Private;
 

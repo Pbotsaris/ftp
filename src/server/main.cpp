@@ -1,10 +1,11 @@
-#include "../../include/service.h"
 #include "../../include/parser.h"
-#include "../../include/request.h"
 #include "../../include/reply.hpp"
+#include "../../include/request.h"
+#include "../../include/service.h"
+#include "../../include/users.h"
 
 int main(void) {
- 
+
   try {
     auto server = networking::Service(4000);
     server.setup();
