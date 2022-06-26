@@ -16,6 +16,7 @@ enum status{init, loaded, parsed, ready};
     reply::code               m_reply;
     commands::name            m_command;
     std::string               m_argument;
+    std::string               m_current_user;
 
    Request();
   };

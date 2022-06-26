@@ -10,7 +10,7 @@ namespace commands {
      CDUP = 0,     // cd ..
      QUIT = 2,     // disconnect (in ftp)
      PASV = 3,     // passive mode
-//   ABOR = 5,     // no support
+//   ABOR = 5,     no support
      PWD  = 6,
      SYST = 7,     // returns OS
      NOOP = 8,
@@ -102,7 +102,6 @@ namespace commands {
     }
 
   };
-
 
 }
 

@@ -1,17 +1,21 @@
 #ifndef PARSER_H
+#include <iostream>
 #define PARSER_H
 #include "commands.hpp"
+#include "utils.h"
 #include "request.h"
-#include <iostream>
 
 namespace parsing {
 
-class Parser {
+struct Parser {
   struct Private;
+  static void parse(networking::Request &t_req);
 
-public:
-
-  void parse(networking::Request &t_req);
+private:
+  static void parse_command(networking::Request &t_req,
+                            utils::StringVector t_commands);
+  static void parse_argument(networking::Request &t_req,
+                             utils::StringVector t_commands);
 };
 
 } // namespace parsing
