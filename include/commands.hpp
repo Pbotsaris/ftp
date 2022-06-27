@@ -20,8 +20,8 @@ namespace commands {
      PASS = 10,
 //   ACCT = 12,    no support
      CWD  = 13,    // cd
-//   SMNT = 14,    no support
 //   REIN = 15,    no support
+//   SMNT = 14,    no support
      PORT = 16,
      TYPE = 17,
 //   STRU = 18,    no support, only single structure.

@@ -39,6 +39,8 @@ namespace networking {
     void socket_listen();
     void receive(Request &t_req);
     void respond(Request &t_req);
+    int get_port();
+
   };
 }
 

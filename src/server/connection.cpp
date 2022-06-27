@@ -144,3 +144,8 @@ void Connection::respond(Request &t_req) {
   std::string msg = reply::messages[t_req.m_reply];
   send(m_connected_socket, msg.c_str(), msg.size(), 0);
 }
+
+
+int Connection::get_port(){
+  return m_port;
+}

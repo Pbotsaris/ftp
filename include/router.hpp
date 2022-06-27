@@ -12,6 +12,7 @@ namespace router {
   static std::map<commands::name, Controller> route {
    { commands::name::USER, controllers::Accounts::verify_user},
    { commands::name::PASS, controllers::Accounts::verify_password},
+    {commands::name::QUIT, [](networking::Request& t_req){ t_req.m_reply = networking::reply::r_221;}}
   };
 
 

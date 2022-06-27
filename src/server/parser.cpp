@@ -11,6 +11,7 @@ static const int ARGUMENT = 1;
 void Parser::parse_command(networking::Request &t_req,
                            utils::StringVector t_commands) {
   try {
+    utils::Helpers::trim_string(t_commands[COMMAND]);
     t_req.m_command = commands::find.at(t_commands[COMMAND]);
 
   } catch (std::exception &err) {
@@ -30,7 +31,7 @@ void Parser::parse_argument(networking::Request &t_req,
 
     t_req.m_reply = networking::reply::r_501;
     t_req.m_valid = false;
-    LOG_ERROR("Could not parse aargument.");
+    LOG_ERROR("Could not parse argument.");
   }
 }
 
@@ -52,7 +53,7 @@ TEST_CASE("Parser raw command") {
   SUBCASE("With argument") {
 
     auto req = networking::Request();
-    req.m_raw = "USER marina";
+    req.m_raw = "USER marina\n";
 
     Parser::parse(req);
 
@@ -63,7 +64,7 @@ TEST_CASE("Parser raw command") {
   SUBCASE("wihtout argument") {
 
     auto req = networking::Request();
-    req.m_raw = "QUIT";
+    req.m_raw = "QUIT\n";
 
     Parser::parse(req);
 

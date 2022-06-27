@@ -26,9 +26,10 @@ namespace networking {
   public:
     Service(int t_port);
   
-    void setup();
-    void handshake();
-    void main_loop();
+    void control_setup();
+    void control_handshake();
+    void control_loop();
+    void control_disconnect();
   };
 }
 

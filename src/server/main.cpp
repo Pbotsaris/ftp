@@ -30,9 +30,9 @@ int main(void) {
 
  try {
    auto service = networking::Service(4000);
-   service.setup();
-   service.handshake();
-   service.main_loop();
+   service.control_setup();
+   service.control_handshake();
+   service.control_loop();
 
  } catch (const char *msg) {
    LOG_ERROR(msg);
