@@ -17,10 +17,7 @@ struct Service::Private {
         /* responds logged in as anonynous */
         t_self.m_req.m_reply = reply::r_331; 
       }
-      return;
     }
-
-    LOG_DEBUG("Invalid user: %s.", t_self.m_req.m_argument.c_str());
   }
 
   static void login(Service &t_self) {
@@ -28,8 +25,10 @@ struct Service::Private {
     if (t_self.m_logged_in)
       return;
 
-    if (was_pass_success_command(t_self))
+    if (was_pass_success_command(t_self)){
       t_self.m_logged_in = true;
+      LOG_INFO("User %s is logged in.", t_self.m_user.c_str());
+    }
 
   }
 
@@ -45,6 +44,15 @@ struct Service::Private {
   static bool was_pass_success_command(Service &t_self) {
     return t_self.m_req.m_command == commands::PASS &&
            t_self.m_req.m_reply == reply::r_230;
+  }
+
+
+  static void reset_request(Service &t_self){
+    t_self.m_req = Request();
+
+    if(!t_self.m_user.empty())
+       t_self.m_req.m_current_user = t_self.m_user;
+
   }
 };
 
@@ -83,5 +91,7 @@ void Service::main_loop() {
     Private::login(*this);
 
     m_ctrlconn.respond(m_req);
+
+    Private::reset_request(*this);
   }
 }

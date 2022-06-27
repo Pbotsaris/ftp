@@ -18,7 +18,7 @@ namespace commands {
     /* With argument */
      USER = 9,
      PASS = 10,
-     ACCT = 12,
+//   ACCT = 12,    no support
      CWD  = 13,    // cd
 //   SMNT = 14,    no support
 //   REIN = 15,    no support
@@ -63,7 +63,7 @@ namespace commands {
     /* With argument */
     { "USER", USER },
     { "PASS", PASS },
-    { "ACCT", ACCT },
+//  { "ACCT", ACCT },  no support
     { "CWD ", CWD  },
 //  { "SMNT", SMNT },  no support
 //  { "REIN", REIN },  no support

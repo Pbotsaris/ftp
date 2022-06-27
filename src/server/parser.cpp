@@ -1,4 +1,6 @@
 #include "../../include/parser.h"
+#include "../../include/doctest.h"
+#include <array>
 #include <exception>
 
 using namespace parsing;
@@ -43,4 +45,39 @@ void Parser::parse(networking::Request &t_req) {
     return;
 
   parse_argument(t_req, split_command);
+}
+
+TEST_CASE("Parser raw command") {
+
+  SUBCASE("With argument") {
+
+    auto req = networking::Request();
+    req.m_raw = "USER marina";
+
+    Parser::parse(req);
+
+    CHECK(req.m_command == commands::USER);
+    CHECK(req.m_argument == "marina");
+  }
+
+  SUBCASE("wihtout argument") {
+
+    auto req = networking::Request();
+    req.m_raw = "QUIT";
+
+    Parser::parse(req);
+
+    CHECK(req.m_command == commands::QUIT);
+    CHECK(req.m_argument.empty());
+  }
+
+  SUBCASE("syntax error") {
+    auto req = networking::Request();
+    req.m_raw = "WRONG";
+
+    Parser::parse(req);
+
+    CHECK(req.m_reply == networking::reply::r_502);
+    CHECK(req.m_argument.empty());
+  }
 }

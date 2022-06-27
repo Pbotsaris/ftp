@@ -19,6 +19,7 @@ enum status{init, loaded, parsed, ready};
     std::string               m_current_user;
 
    Request();
+
   };
 
 }
