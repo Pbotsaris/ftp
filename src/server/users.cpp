@@ -1,9 +1,10 @@
 #include "../../include/users.h"
+#include "../../include/doctest.h"
 #include <iostream>
 
 using namespace controllers;
 
-std::string Accounts::ANONYMOUS_USER = "Anonynous";
+std::string Accounts::ANONYMOUS_USER = "anonynous";
 std::string Accounts::ANONYMOUS_PASSWORD = "0";
 
 static const char PATH[] = ".users";
@@ -21,7 +22,7 @@ void Accounts::verify_user(networking::Request &t_req) {
   if (verify(t_req.m_argument, pw))
     t_req.m_reply = networking::reply::r_331;
   else
-    t_req.m_reply = networking::reply::r_430; // invalid 
+    t_req.m_reply = networking::reply::r_430; // invalid
 }
 
 void Accounts::verify_password(networking::Request &t_req) {
@@ -76,7 +77,68 @@ bool Accounts::has_user(utils::StringVector &t_user_acc, std::string &t_user) {
 
 bool Accounts::has_password(utils::StringVector &t_user_acc,
                             std::string &t_user, std::string &t_password) {
-  
-//  LOG_DEBUG("|%s|<>|%s| -- |%s|<>|%s|", t_user_acc[USER].c_str(), t_user.c_str(), t_user_acc[PASSWORD].c_str(), t_password.c_str());
+
   return t_user_acc[USER] == t_user && t_user_acc[PASSWORD] == t_password;
+}
+
+TEST_CASE("User Controller") {
+
+  SUBCASE("verify exiting user") {
+
+    auto req = networking::Request();
+    req.m_command = commands::USER;
+    req.m_argument = "pedro";
+
+    Accounts::verify_user(req);
+
+    CHECK(req.m_reply == networking::reply::r_331);
+  }
+
+  SUBCASE("verify exiting password") {
+
+    auto req = networking::Request();
+    req.m_current_user = "pedro";
+    req.m_command = commands::PASS;
+    req.m_argument = "drops";
+
+    Accounts::verify_password(req);
+
+    CHECK(req.m_reply == networking::reply::r_230);
+  }
+
+ SUBCASE("verify bad password") {
+
+    auto req = networking::Request();
+    req.m_current_user = "pedro";
+    req.m_command = commands::PASS;
+    req.m_argument = "wrong";
+
+    Accounts::verify_password(req);
+
+    CHECK(req.m_reply == networking::reply::r_430);
+  }
+
+
+  SUBCASE("verify non-exiting user") {
+
+    auto req = networking::Request();
+    req.m_command = commands::USER;
+    req.m_argument = "jonas";
+
+    Accounts::verify_user(req);
+
+    CHECK(req.m_reply == networking::reply::r_430);
+  }
+
+  SUBCASE("missing user / syntax error ") {
+
+    auto req = networking::Request();
+    req.m_command = commands::USER;
+    req.m_argument = "";
+
+    Accounts::verify_user(req);
+
+    CHECK(req.m_reply == networking::reply::r_501);
+  }
+
 }

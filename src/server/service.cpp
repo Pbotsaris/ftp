@@ -15,7 +15,8 @@ struct Service::Private {
       {
         t_self.m_logged_in = true;
         /* responds logged in as anonynous */
-        t_self.m_req.m_reply = reply::r_331; 
+        t_self.m_req.m_reply = reply::r_230; 
+       LOG_INFO("User %s is logged in.", t_self.m_user.c_str());
       }
     }
   }
