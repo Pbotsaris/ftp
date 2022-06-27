@@ -10,13 +10,13 @@
 int main(void) {
 
  try {
-   auto server = networking::Service(4000);
-   server.setup();
-   server.handshake();
-   server.main_loop();
+   auto service = networking::Service(4000);
+   service.setup();
+   service.handshake();
+   service.main_loop();
 
  } catch (const char *msg) {
-   std::cout << msg << "\n";
+   LOG_ERROR(msg);
  }
 
   return 0;

@@ -73,12 +73,14 @@ void Connection::socket_listen() {
     throw "Cannot listen on an active connection\n";
 
   listen(m_local_socket, QUEUE_SIZE);
+  
+  LOG_INFO("Listening on port%d ...\n", m_port);
 }
 
 void Connection::connect_socket() {
 
   if (m_mode == passive)
-    throw "Cannot call connect with passive connection\n";
+    throw "Cannot call \'connect\' with passive connection\n";
 
   m_connected_socket =
       connect(m_local_socket, reinterpret_cast<struct sockaddr *>(&m_address),
@@ -91,7 +93,7 @@ void Connection::connect_socket() {
 void Connection::accept_connection() {
 
   if (m_mode == active)
-    throw "Cannot accept in an active connection\n";
+    throw "Cannot \'accept\' in an active connection\n";
 
   socklen_t client_addr_len = sizeof(m_address);
 
@@ -102,6 +104,9 @@ void Connection::accept_connection() {
   if (m_connected_socket < 0)
     throw "error accepting connecting\n";
 
+
+  LOG_INFO("Accepted connection to socket.\n");
+
 }
 
 void Connection::receive(Request &t_req) {
@@ -111,8 +116,8 @@ void Connection::receive(Request &t_req) {
 
  while(1){
 
-   /* MSG_DONTWAIT will prevent the loop from hanging if mandatory \n is missing from the command  */
    int read_size = recv(m_connected_socket, &read_buffer[read_count], 1, 0);
+
 
    if(read_count >= MAX_READ_SIZE) {
       t_req.m_raw.append(read_buffer);
@@ -130,6 +135,8 @@ void Connection::receive(Request &t_req) {
  }
 
   t_req.m_raw.append(read_buffer);
+
+   LOG_DEBUG("Message Received: %s", t_req.m_raw.c_str());
 }
 
 void Connection::respond(Request &t_req) {

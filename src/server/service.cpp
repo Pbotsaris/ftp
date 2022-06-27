@@ -14,10 +14,13 @@ struct Service::Private {
       if (was_annonymous_user(t_self))
       {
         t_self.m_logged_in = true;
-        /* responds as logged in for anonynous */
+        /* responds logged in as anonynous */
         t_self.m_req.m_reply = reply::r_331; 
       }
+      return;
     }
+
+    LOG_DEBUG("Invalid user: %s.", t_self.m_req.m_argument.c_str());
   }
 
   static void login(Service &t_self) {
@@ -25,8 +28,9 @@ struct Service::Private {
     if (t_self.m_logged_in)
       return;
 
-    if (was_pas_success_command(t_self))
+    if (was_pass_success_command(t_self))
       t_self.m_logged_in = true;
+
   }
 
   static bool was_user_success_command(Service &t_self) {
@@ -38,7 +42,7 @@ struct Service::Private {
     return t_self.m_user == controllers::Accounts::ANONYMOUS_USER;
   }
 
-  static bool was_pas_success_command(Service &t_self) {
+  static bool was_pass_success_command(Service &t_self) {
     return t_self.m_req.m_command == commands::PASS &&
            t_self.m_req.m_reply == reply::r_230;
   }
@@ -57,6 +61,7 @@ void Service::setup() {
 }
 
 void Service::handshake() {
+  
   m_ctrlconn.accept_connection();
   m_req.m_reply = reply::r_120;
   m_ctrlconn.respond(m_req);

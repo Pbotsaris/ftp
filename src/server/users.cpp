@@ -20,6 +20,9 @@ void Accounts::verify_user(networking::Request &t_req) {
 
   if (verify(t_req.m_argument, pw))
     t_req.m_reply = networking::reply::r_331;
+  else
+    t_req.m_reply = networking::reply::r_332; // need an account
+                                              //
 }
 
 void Accounts::verify_password(networking::Request &t_req) {
@@ -69,6 +72,7 @@ void Accounts::create_file() {
 }
 
 bool Accounts::has_user(utils::StringVector &t_user_acc, std::string &t_user) {
+   LOG_DEBUG("|%s<>%s|", t_user_acc[USER].c_str(), t_user.c_str());
   return t_user_acc[USER] == t_user;
 }
 

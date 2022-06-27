@@ -4,6 +4,7 @@
 #include "commands.hpp"
 #include "utils.h"
 #include "request.h"
+#include "logger.hpp"
 
 namespace parsing {
 

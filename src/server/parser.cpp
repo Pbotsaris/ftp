@@ -14,6 +14,7 @@ void Parser::parse_command(networking::Request &t_req,
   } catch (std::exception &err) {
     t_req.m_reply = networking::reply::r_502;
     t_req.m_valid = false;
+    LOG_ERROR("Could not parse command.");
   };
 }
 
@@ -21,11 +22,13 @@ void Parser::parse_argument(networking::Request &t_req,
                             utils::StringVector t_commands) {
   try {
     t_req.m_argument = t_commands.at(ARGUMENT);
+    utils::Helpers::trim_string(t_req.m_argument);
 
   } catch (std::exception &err) {
 
     t_req.m_reply = networking::reply::r_501;
     t_req.m_valid = false;
+    LOG_ERROR("Could not parse aargument.");
   }
 }
 

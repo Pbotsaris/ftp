@@ -3,6 +3,7 @@
 #include "utils.h"
 #include "request.h"
 #include "reply.hpp"
+#include "logger.hpp"
 #include <fstream>
 #include <string>
 

@@ -13,6 +13,7 @@
 #include <unistd.h>
 
 #include "request.h"
+#include "logger.hpp"
 
 namespace networking {
   enum conn_mode { active, passive };

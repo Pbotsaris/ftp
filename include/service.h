@@ -5,6 +5,7 @@
 #include "parser.h"
 #include "request.h"
 #include "router.hpp"
+#include "logger.hpp"
 
 /*
  *   A Service corresponds single user interaction with the server and consists of two connections: 
