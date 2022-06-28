@@ -28,9 +28,9 @@ namespace commands {
 //   MODE = 19,    no support, stream only.
      RETR = 20,    // get
 //   STOR = 21,    no support. Only unique files are created.
-     STOU = 22,    // send
 //   APPE = 23,    handled by client.
      REST = 24,    // restart
+     STOU = 22,    // send
      RNFR = 25,    // rename
      RNTO = 26,    // rename
      DELE = 27,

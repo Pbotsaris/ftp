@@ -16,7 +16,9 @@ struct DiskManager {
   const static std::string M_SYS_PATH;
 
   static void init(disk::Disk &t_disk);
+  /* Callbacks */
   static void change_directory(networking::Request &t_req);
+  static void change_up_directory(networking::Request &t_req);
 
   private:
   /* CWD */

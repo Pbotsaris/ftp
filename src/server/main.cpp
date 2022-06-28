@@ -21,7 +21,6 @@ int test()
   return -1;
 }
 
-
 int main(void) {
 
       int res = test();

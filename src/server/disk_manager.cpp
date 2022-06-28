@@ -16,6 +16,11 @@ void DiskManager::init(Disk &t_disk) {
   fs::create_directories(M_ROOT);
 };
 
+void DiskManager::change_up_directory(networking::Request &t_req){
+  t_req.m_argument = "..";
+  change_directory(t_req);
+}
+
 void DiskManager::change_directory(networking::Request &t_req) {
 
   if (is_absolute_path(t_req.m_argument)) {
@@ -31,7 +36,6 @@ void DiskManager::change_directory(networking::Request &t_req) {
   int resulting_dir_level = count_resuling_dir_level(paths);
 
   if (t_req.m_disk.m_dir_level + resulting_dir_level < 0) {
-    std::cout << "this was called\n";
     change_bad_path(t_req);
     return;
   }
