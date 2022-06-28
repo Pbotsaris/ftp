@@ -10,22 +10,36 @@ const std::string DiskManager::M_SYS_PATH = fs::current_path();
 
 void DiskManager::init(Disk &t_disk) {
   t_disk.m_user_path = "/";
-  t_disk.m_system_path = M_SYS_PATH + "/" + M_ROOT;
+  t_disk.m_system_path = create_system_root_path();
   t_disk.m_dir_level = 0;
 
   fs::create_directories(M_ROOT);
 };
 
-void DiskManager::change_up_directory(networking::Request &t_req){
+void DiskManager::change_up_directory(networking::Request &t_req) {
   t_req.m_argument = "..";
   change_directory(t_req);
 }
 
-void DiskManager::print_working_directory(networking::Request &t_req){
+void DiskManager::print_working_directory(networking::Request &t_req) {
 
   t_req.m_reply = networking::reply::r_257;
   t_req.m_reply_msg = t_req.m_disk.m_user_path;
+}
+void DiskManager::make_directory(networking::Request &t_req) {
 
+  if (is_absolute_path(t_req.m_argument)) {
+    fs::create_directories(create_system_root_path() + t_req.m_argument);
+    t_req.m_reply_msg = t_req.m_argument + "created.";
+
+  } else {
+    fs::create_directories(t_req.m_disk.m_system_path + "/" + t_req.m_argument);
+    t_req.m_reply_msg = is_working_dir_root(t_req) ?
+        t_req.m_disk.m_user_path + t_req.m_argument + " created." :
+        t_req.m_disk.m_user_path + "/" + t_req.m_argument + " created.";
+  }
+
+  t_req.m_reply = networking::reply::r_257;
 }
 
 void DiskManager::change_directory(networking::Request &t_req) {
@@ -39,14 +53,12 @@ void DiskManager::change_directory(networking::Request &t_req) {
   utils::StringVector paths =
       utils::Helpers::split_string(t_req.m_argument, "/");
 
-
   int resulting_dir_level = count_resuling_dir_level(paths);
 
   if (t_req.m_disk.m_dir_level + resulting_dir_level < 0) {
     change_bad_path(t_req);
     return;
   }
-
 
   update_paths(t_req, paths);
   remove_trailing_slash(t_req);
@@ -113,13 +125,18 @@ bool DiskManager::is_absolute_path(std::string &t_path) {
   return t_path[0] == '/';
 }
 
+bool DiskManager::is_working_dir_root(networking::Request &t_req) {
+  return t_req.m_disk.m_user_path == "/";
+}
+
 void DiskManager::remove_trailing_slash(networking::Request &t_req) {
   if (t_req.m_disk.m_system_path.back() == '/')
     t_req.m_disk.m_system_path.erase(t_req.m_disk.m_system_path.end() - 1,
                                      t_req.m_disk.m_system_path.end());
 
   /* size() > 1 skips single a single backslash */
-  if (t_req.m_disk.m_user_path.back() == '/' && t_req.m_disk.m_user_path.size() > 1) 
+  if (t_req.m_disk.m_user_path.back() == '/' &&
+      t_req.m_disk.m_user_path.size() > 1)
     t_req.m_disk.m_user_path.erase(t_req.m_disk.m_user_path.end() - 1,
                                    t_req.m_disk.m_user_path.end());
 }
@@ -139,6 +156,10 @@ int DiskManager::count_resuling_dir_level(utils::StringVector &t_paths) {
   }
 
   return count;
+}
+
+std::string DiskManager::create_system_root_path() {
+  return M_SYS_PATH + "/" + M_ROOT;
 }
 
 TEST_CASE("Disk Manager") {
@@ -209,7 +230,6 @@ TEST_CASE("Disk Manager") {
     CHECK(req.m_disk.m_user_path == "/");
     CHECK(req.m_disk.m_system_path == system_root_path);
   }
-
 
   SUBCASE("change dir with absolute path") {
     Disk disk;
