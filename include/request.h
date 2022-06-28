@@ -12,6 +12,7 @@ namespace networking {
     std::string               m_raw;
     bool                      m_valid;
     reply::code               m_reply;
+    std::string               m_reply_msg;
     commands::name            m_command;
     std::string               m_argument;
     std::string               m_current_user;

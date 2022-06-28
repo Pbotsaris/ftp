@@ -19,6 +19,7 @@ struct DiskManager {
   /* Callbacks */
   static void change_directory(networking::Request &t_req);
   static void change_up_directory(networking::Request &t_req);
+  static void print_working_directory(networking::Request &t_req);
 
   private:
   /* CWD */

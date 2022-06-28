@@ -141,7 +141,13 @@ void Connection::receive(Request &t_req) {
 
 void Connection::respond(Request &t_req) {
 
-  std::string msg = reply::messages[t_req.m_reply];
+  std::string msg;
+
+  if(t_req.m_reply_msg.empty())
+     msg = reply::messages[t_req.m_reply];
+  else
+    msg = reply::Utils::append_message(t_req.m_reply, t_req.m_reply_msg);
+
   int res = send(m_connected_socket, msg.c_str(), msg.size(), 0);
 
   if(res < 0)

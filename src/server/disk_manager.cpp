@@ -21,6 +21,13 @@ void DiskManager::change_up_directory(networking::Request &t_req){
   change_directory(t_req);
 }
 
+void DiskManager::print_working_directory(networking::Request &t_req){
+
+  t_req.m_reply = networking::reply::r_257;
+  t_req.m_reply_msg = t_req.m_disk.m_user_path;
+
+}
+
 void DiskManager::change_directory(networking::Request &t_req) {
 
   if (is_absolute_path(t_req.m_argument)) {

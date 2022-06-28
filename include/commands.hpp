@@ -98,9 +98,7 @@ namespace commands {
 
       else
         return no_argument;
-
     }
-
   };
 
 }
