@@ -27,15 +27,19 @@ void DiskManager::change_directory(networking::Request &t_req) {
   utils::StringVector paths =
       utils::Helpers::split_string(t_req.m_argument, "/");
 
+
   int resulting_dir_level = count_resuling_dir_level(paths);
 
   if (t_req.m_disk.m_dir_level + resulting_dir_level < 0) {
+    std::cout << "this was called\n";
     change_bad_path(t_req);
     return;
   }
 
+
   update_paths(t_req, paths);
   remove_trailing_slash(t_req);
+  t_req.m_disk.m_dir_level = t_req.m_disk.m_dir_level + resulting_dir_level;
 }
 
 /* PRIVATE */
@@ -194,6 +198,7 @@ TEST_CASE("Disk Manager") {
     CHECK(req.m_disk.m_user_path == "/");
     CHECK(req.m_disk.m_system_path == system_root_path);
   }
+
 
   SUBCASE("change dir with absolute path") {
     Disk disk;

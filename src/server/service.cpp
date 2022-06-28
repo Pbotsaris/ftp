@@ -97,6 +97,8 @@ void Service::control_handshake() {
   m_ctrlconn.accept_connection();
   m_req.m_reply = reply::r_120;
   m_ctrlconn.respond(m_req);
+
+  LOG_DEBUG("responded with 120....");
 }
 
 void Service::control_loop() {
@@ -109,8 +111,7 @@ void Service::control_loop() {
 
     /* router delegates to a controller depending on command */
     router::route[m_req.m_command](m_req);
-
-    /* Sets user and login only on USER and PASS commands*/
+      /* Sets user and login only on USER and PASS commands*/
     Private::set_user(*this);
     Private::login(*this);
 

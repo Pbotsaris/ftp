@@ -90,7 +90,7 @@ namespace networking {
       { r_530,	"530 Not logged in.\n"},                                                                                                                                               
       { r_532,	"532 Need account for storing files.\n"},                                                                                                                              
       //{ r_534,	"Could Not Connect to Server - Requires SSL."},                                                                                                            
-      { r_550,	"550 Requested action not taken. File unavailable (e.g., file not found, no access).\n"},                                                                              
+      { r_550,	"550 Requested action not taken. File or directory does not exist.\n"},                                                                              
       // { r_551,	"Requested action aborted. Page type unknown."},                                                                                                              
       { r_552,	"552 Requested file action aborted. Exceeded storage allocation (for current directory or dataset).\n"}, 
       { r_553,	"553 Requested action not taken. File name not allowed.\n"},                                                                                                           

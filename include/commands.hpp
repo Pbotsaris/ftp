@@ -64,7 +64,7 @@ namespace commands {
     { "USER", USER },
     { "PASS", PASS },
 //  { "ACCT", ACCT },  no support
-    { "CWD ", CWD  },
+    { "CWD", CWD },
 //  { "SMNT", SMNT },  no support
 //  { "REIN", REIN },  no support
     { "PORT", PORT },
