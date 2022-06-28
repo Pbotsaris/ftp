@@ -1,5 +1,7 @@
 #include "../../include/parser.h"
 #include "../../include/doctest.h"
+#include "../../include/disk.h"
+
 #include <array>
 #include <exception>
 
@@ -50,10 +52,15 @@ void Parser::parse(networking::Request &t_req) {
 
 TEST_CASE("Parser raw command") {
 
+  disk::Disk disk;
+  disk.m_dir_level = 0;
+  disk.m_system_path = "example";
+  disk.m_user_path = "example";
+
   SUBCASE("With argument") {
 
-    auto req = networking::Request();
-    req.m_raw = "USER marina\n";
+    auto req = networking::Request(disk);
+    req.m_raw = "USER marina";
 
     Parser::parse(req);
 
@@ -61,9 +68,9 @@ TEST_CASE("Parser raw command") {
     CHECK(req.m_argument == "marina");
   }
 
-  SUBCASE("wihtout argument") {
+  SUBCASE("without argument") {
 
-    auto req = networking::Request();
+    auto req = networking::Request(disk);
     req.m_raw = "QUIT\n";
 
     Parser::parse(req);
@@ -73,7 +80,7 @@ TEST_CASE("Parser raw command") {
   }
 
   SUBCASE("syntax error") {
-    auto req = networking::Request();
+    auto req = networking::Request(disk);
     req.m_raw = "WRONG";
 
     Parser::parse(req);
