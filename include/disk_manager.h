@@ -14,10 +14,12 @@ namespace controllers {
 struct DiskManager {
   const static std::string M_ROOT;
   const static std::string M_SYS_PATH;
+  static std::string m_rename_from;
 
   static void init(disk::Disk &t_disk);
-
   /* Callbacks */
+  static void rename_from(networking::Request &t_req);
+  static void rename_to(networking::Request &t_req);
   static void change_up_directory(networking::Request &t_req);
   static void print_working_directory(networking::Request &t_req);
   static void make_directory(networking::Request &t_req);
@@ -40,6 +42,8 @@ struct DiskManager {
   static bool is_working_dir_root(networking::Request &t_req);
 
   /* Path Manipulation */
+
+  static std::string build_system_path(networking::Request &t_req);
   static std::string join_to_user_path(networking::Request &t_req, std::string path_to_join);
   static std::string join_to_system_path(networking::Request &t_req, std::string path_to_join);
   static std::string create_system_root_path();
@@ -48,8 +52,6 @@ struct DiskManager {
   static void remove_trailing_slash(networking::Request &t_req);
   static int count_resuling_dir_level(utils::StringVector &t_paths);
   static int count_directory_items(std::string &t_path);
-
-
 
 };
 

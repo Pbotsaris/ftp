@@ -9,6 +9,7 @@ namespace fs = std::__fs::filesystem;
 
 const std::string DiskManager::M_ROOT = ".root";
 const std::string DiskManager::M_SYS_PATH = fs::current_path();
+std::string DiskManager::m_rename_from = "";
 
 void DiskManager::init(Disk &t_disk) {
   t_disk.m_user_path = "/";
@@ -17,6 +18,32 @@ void DiskManager::init(Disk &t_disk) {
 
   fs::create_directories(M_ROOT);
 };
+
+void DiskManager::rename_from(networking::Request &t_req) {
+  std::string rename_from = build_system_path(t_req);
+
+  if (path_exists(rename_from)){
+     m_rename_from = rename_from;
+     t_req.m_reply = networking::reply::r_350;
+    }
+  else{
+     t_req.m_reply = networking::reply::r_550;
+  }
+};
+
+void DiskManager::rename_to(networking::Request &t_req) {
+
+  std::string rename_to = build_system_path(t_req);
+
+  try {
+  fs::rename(m_rename_from, rename_to);
+  } catch(std::exception &_err) {
+     t_req.m_reply = networking::reply::r_450;
+     return;
+  }
+
+     t_req.m_reply = networking::reply::r_250;
+}
 
 void DiskManager::change_up_directory(networking::Request &t_req) {
   t_req.m_argument = "..";
@@ -28,6 +55,7 @@ void DiskManager::print_working_directory(networking::Request &t_req) {
   t_req.m_reply = networking::reply::r_257;
   t_req.m_reply_msg = t_req.m_disk.m_user_path;
 }
+
 void DiskManager::make_directory(networking::Request &t_req) {
 
   if (is_absolute_path(t_req.m_argument)) {
@@ -45,11 +73,7 @@ void DiskManager::make_directory(networking::Request &t_req) {
 
 void DiskManager::remove_directory(networking::Request &t_req) {
 
-  auto to_delete = is_absolute_path(t_req.m_argument)
-                       ? create_system_root_path() + "/" + t_req.m_argument
-                       : join_to_system_path(t_req, t_req.m_argument);
-
-  LOG_DEBUG(to_delete.c_str());
+  auto to_delete =  build_system_path(t_req);
 
   if (path_exists(to_delete)) {
     remove_directory_when_valid(t_req, to_delete);
@@ -83,7 +107,8 @@ void DiskManager::change_directory(networking::Request &t_req) {
 
 /* PRIVATE */
 
-void DiskManager::update_paths(networking::Request &t_req, const utils::StringVector &t_paths) {
+void DiskManager::update_paths(networking::Request &t_req,
+                               const utils::StringVector &t_paths) {
 
   std::string user_path = t_req.m_disk.m_user_path;
   std::string system_path = t_req.m_disk.m_system_path;
@@ -113,7 +138,8 @@ void DiskManager::update_paths(networking::Request &t_req, const utils::StringVe
   }
 }
 
-void DiskManager::remove_directory_when_valid(networking::Request &t_req, std::string &t_to_delete) {
+void DiskManager::remove_directory_when_valid(networking::Request &t_req,
+                                              std::string &t_to_delete) {
   try {
     int items = count_directory_items(t_to_delete);
     if (items == 0) { // dir must have 0 items to be deleted.
@@ -122,7 +148,8 @@ void DiskManager::remove_directory_when_valid(networking::Request &t_req, std::s
 
     } else {
       t_req.m_reply = networking::reply::r_532; // repurposed 532. See readme.
-      t_req.m_reply_msg = "Unable to remove. " + join_to_user_path(t_req, t_req.m_argument) +
+      t_req.m_reply_msg = "Unable to remove. " +
+                          join_to_user_path(t_req, t_req.m_argument) +
                           " contains " + std::to_string(items) + " item(s).";
     }
   } catch (std::exception &_err) {
@@ -133,19 +160,16 @@ void DiskManager::remove_directory_when_valid(networking::Request &t_req, std::s
 
 void DiskManager::change_bad_path(networking::Request &t_req) {
   LOG_ERROR("CWD to unexisting directory");
-  t_req.m_valid = false;
   t_req.m_reply = networking::reply::r_550; /* file unavailable */
 }
 
 void DiskManager::change_valid_path(networking::Request &t_req) {
-  t_req.m_valid = true;
   t_req.m_reply = networking::reply::r_250;
 }
 
 void DiskManager::change_absolute_path(networking::Request &t_req) {
   t_req.m_disk.m_user_path = t_req.m_argument;
   t_req.m_disk.m_system_path = M_SYS_PATH + "/" + M_ROOT + t_req.m_argument;
-  t_req.m_valid = true;
   t_req.m_reply = networking::reply::r_250;
 }
 
@@ -160,6 +184,12 @@ bool DiskManager::is_absolute_path(std::string &t_path) {
 
 bool DiskManager::is_working_dir_root(networking::Request &t_req) {
   return t_req.m_disk.m_user_path == "/";
+}
+
+std::string DiskManager::build_system_path(networking::Request &t_req) {
+  return is_absolute_path(t_req.m_argument)
+             ? create_system_root_path() + "/" + t_req.m_argument
+             : join_to_system_path(t_req, t_req.m_argument);
 }
 
 std::string DiskManager::join_to_user_path(networking::Request &t_req,
@@ -297,7 +327,7 @@ TEST_CASE("Disk Manager") {
     CHECK(req.m_disk.m_system_path == system_root_path + "/" + "test/inside");
   }
 
-  SUBCASE("Change dir down by then up by two") {
+  SUBCASE("Change dir down one then up by two") {
     Disk disk;
     DiskManager::init(disk);
     auto req = networking::Request(disk);

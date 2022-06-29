@@ -18,6 +18,8 @@ static std::map<commands::name, Controller> route {
     {commands::name::PWD, controllers::DiskManager::print_working_directory},
     {commands::name::MKD, controllers::DiskManager::make_directory},
     {commands::name::RMD, controllers::DiskManager::remove_directory},
+    {commands::name::RNFR, controllers::DiskManager::rename_from},
+    {commands::name::RNTO, controllers::DiskManager::rename_to},
     {commands::name::QUIT, [](networking::Request &t_req) { t_req.m_reply = networking::reply::r_221; }}
 };
 
