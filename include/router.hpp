@@ -4,15 +4,19 @@
 
 #include "disk_manager.h"
 #include "request.h"
-#include "users.h"
+#include "accounts.h"
+#include "system_info.h"
 
 namespace router {
 
 typedef void (*Controller)(networking::Request &);
 
 static std::map<commands::name, Controller> route {
+    /* Accounts */
     {commands::name::USER, controllers::Accounts::verify_user},
     {commands::name::PASS, controllers::Accounts::verify_password},
+
+    /* Disk */
     {commands::name::CWD, controllers::DiskManager::change_directory },
     {commands::name::CDUP, controllers::DiskManager::change_up_directory},
     {commands::name::PWD, controllers::DiskManager::print_working_directory},
@@ -20,6 +24,12 @@ static std::map<commands::name, Controller> route {
     {commands::name::RMD, controllers::DiskManager::remove_directory},
     {commands::name::RNFR, controllers::DiskManager::rename_from},
     {commands::name::RNTO, controllers::DiskManager::rename_to},
+
+    /* System Info */
+    {commands::name::SYST, controllers::SystemInfo::system_os},
+    {commands::name::HELP, controllers::SystemInfo::help},
+
+
     {commands::name::QUIT, [](networking::Request &t_req) { t_req.m_reply = networking::reply::r_221; }}
 };
 

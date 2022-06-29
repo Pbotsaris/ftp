@@ -38,7 +38,7 @@ namespace commands {
      MKD  = 29,
      LIST = 30,
      NLST = 31,
-     SITE = 32,
+//   SITE = 32,
 //   ALLO = 33,  no support
      HELP = 34,  // rhelp (in ftp)
      STAT = 35,  // rstatus (in ftp)
@@ -47,54 +47,83 @@ namespace commands {
   enum type {
     no_argument,
     with_argument,
+    zero_or_more_arguments,
   };
 
   static std::map<std::string, name > find {
 
     /* No arguments */
-    { "CDUP", CDUP }, 
-    { "QUIT", QUIT }, 
+    { "CDUP", CDUP },  // done
+    { "QUIT", QUIT },  // done
     { "PASV", PASV },
 //  { "ABOR", ABOR },  no support
-    { "PWD" , PWD  },
-    { "SYST", SYST }, 
+    { "PWD" , PWD  },  // done
+    { "SYST", SYST },  // done
     { "NOOP", NOOP },
                       
     /* With argument */
-    { "USER", USER },
-    { "PASS", PASS },
+    { "USER", USER },  // done
+    { "PASS", PASS },  // done
 //  { "ACCT", ACCT },  no support
-    { "CWD", CWD },
+    { "CWD", CWD },    // done
 //  { "SMNT", SMNT },  no support
 //  { "REIN", REIN },  no support
     { "PORT", PORT },
     { "TYPE", TYPE },
 //  { "STRU", STRU },  no support
 //  { "MODE", MODE },  no support
-    { "RETR", RETR },
+    { "RETR", RETR }, 
     { "STOU", STOU },
 //  { "STOR", STOR },  no support
 //  { "APPE", APPE },  no support
     { "REST", REST },
-    { "RNFR", RNFR },
-    { "RNTO", RNTO },
+    { "RNFR", RNFR },  // done
+    { "RNTO", RNTO },  // done
     { "DELE", DELE },
-    { "RMD" , RMD  },
-    { "MKD" , MKD  },
+    { "RMD" , RMD  },  // done
+    { "MKD" , MKD  },  // done
     { "LIST", LIST },
     { "NLST", NLST },
-    { "SITE", SITE },
+ // { "SITE", SITE },  no support
 //  { "ALLO", ALLO },  no support
     { "STAT", STAT }, 
-    { "HELP", HELP }, 
+    { "HELP", HELP },  // done
   };
 
+  static std::map<std::string, std::string > help {
+    {  "CDUP", "Change to parent directory."}, 
+    {  "QUIT", "Disconnects from server."}, 
+    {  "PASV", "Enter passive mode."},
+    {  "PWD", "Print working directory." }, 
+    {  "SYST", "Get server operating system"}, 
+    {  "NOOP", "No Operation (used mostly on keepalives)."},
+    {  "USER", "Authenticate username."},
+    {  "PASS", "Authenticate passowrd."},
+    {  "CWD", "Change directory." },
+    {  "PORT", "Specifies an address and port to which the server should connect."},
+    {  "TYPE", "Sets the transfer mode to ASCII or Binary(Image)"},
+    {  "RETR", "Retrives a copy of a file."},
+    {  "STOU", "Stores a file uniquely."},
+    {  "REST", "Restart the transfer for a specific point(marker)."},
+    {  "RNFR", "Select the file to rename."},
+    {  "RNTO", "Sets the new filename to rename to."},
+    {  "DELE", "Deletes a file."},
+    {  "RMD", "Removes a directory." },
+    {  "MKD", "Creates a directory." },
+    {  "LIST", "Returns info of a file or directory if specified, else info of the current working directory."},
+    {  "NLST", "Returns a list of filenames in a specified directory."},
+    {  "STAT", "Returns the server status, including the status of the current connection."}, 
+    {  "HELP", "Display help of an specific command."}, 
+  };
 
   struct Utils {
     static type get_type(name t_command) {
 
-      if(t_command >= USER)
+      if(t_command >= USER && t_command < STAT)
         return with_argument;
+
+      else if(t_command >= STAT)
+        return zero_or_more_arguments;
 
       else
         return no_argument;

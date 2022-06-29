@@ -327,7 +327,7 @@ TEST_CASE("Disk Manager") {
     CHECK(req.m_disk.m_system_path == system_root_path + "/" + "test/inside");
   }
 
-  SUBCASE("Change dir down one then up by two") {
+  SUBCASE("Change dir down one by then up by two") {
     Disk disk;
     DiskManager::init(disk);
     auto req = networking::Request(disk);

@@ -88,8 +88,8 @@ static std::map<code, std::string> messages{
     {r_211, "211 System status, or system help reply.\n"},
     {r_212, "212 Directory status.\n"},
     {r_213, "213 File status.\n"},
-    {r_214, "214 Help message:  \n"}, /* Append help message */
-    {r_215, "215 system type\n"},     /* Prepend a system type NAME*/
+    {r_214, "214 "}, /* Append help message */
+    {r_215, "215 system type: "},     /* Append a system name*/
     {r_220, "220 Service ready for new user.\n"},
     {r_221, "221 Service closing control connection.\n"},
     {r_225, "225 Data connection open; no transfer in progress.\n"},
