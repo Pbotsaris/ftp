@@ -113,26 +113,15 @@ static std::map<code, std::string> messages{
     {r_350, "350 Requested file action pending further information.\n"},
 
     /***** 400 series  ****/
-    {r_400, "400 The command was not accepted and the requested action did not "
-            "take place, but the error condition is temporary and the action "
-            "may be requested again.\n"},
-    {r_421,
-     "421 Service not available, closing control connection.\n"}, /* This may be
-                                                                     a reply to
-                                                                     any command
-                                                                     if the
-                                                                     service
-                                                                     knows it
-                                                                     must shut
-                                                                     down. */
+    {r_400, "400 The command was not accepted. May be requested again.\n"},
+    {r_421, "421 Service not available, closing control connection.\n"}, 
     {r_425, "425 Can't open data connection.\n"},
     {r_426, "426 Connection closed; transfer aborted.\n"},
     {r_430, "430 Invalid username or password.\n"},
     {r_434, "434 Requested host unavailable.\n"},
     {r_450, "450 Requested file action not taken.\n"},
     {r_451, "451 Requested action aborted. Local error in processing.\n"},
-    {r_452, "452 Requested action not taken. Insufficient storage space in "
-            "system. File unavailable (e.g., file busy).\n"},
+    {r_452, "452 Requested action not taken. Insufficient storage space.\n"},
 
     /***** 500 series  ****/
     {r_500, "500 Syntax error.\n"},
@@ -141,13 +130,11 @@ static std::map<code, std::string> messages{
     {r_503, "503 Bad sequence of commands.\n"},
     {r_504, "504 Command not implemented for that parameter.\n"},
     {r_530, "530 Not logged in.\n"},
-    {r_532, "532 Need account for storing files.\n"},
+    {r_532, "532 "},  // repurposed 532. See readme.
     //{ r_534,	"Could Not Connect to Server - Requires SSL."},
-    {r_550,
-     "550 Requested action not taken. File or directory does not exist.\n"},
+    {r_550, "550 Requested action not taken. File or directory does not exist.\n"},
     // { r_551,	"Requested action aborted. Page type unknown."},
-    {r_552, "552 Requested file action aborted. Exceeded storage allocation "
-            "(for current directory or dataset).\n"},
+    {r_552, "552 Requested file action aborted. Exceeded storage allocation.\n"},
     {r_553, "553 Requested action not taken. File name not allowed.\n"},
 
     /***** 600 series  ****/
