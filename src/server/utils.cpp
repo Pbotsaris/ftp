@@ -3,7 +3,20 @@
 
 #include <algorithm>
 
+#if __unix || __unix__
+namespace fs = std::filesystem;
+
+#elif __APPLE__ || __MACH__
+namespace fs = std::__fs::filesystem;
+
+#endif
+
+
 using namespace utils;
+
+const std::string PathHelpers::M_ROOT = ".root";
+const std::string PathHelpers::M_SYS_PATH = fs::current_path();
+
 
 StringVector Helpers::split_string(std::string &s, std::string del) {
   int start = 0;
@@ -57,6 +70,46 @@ void Helpers::trim_right(std::string &s) {
               .base(),
           s.end());
 }
+
+
+/* PATH HELPERS */
+
+bool PathHelpers::path_exists(std::string &t_path) {
+  const fs::path p(t_path);
+  return fs::exists(p);
+}
+
+bool PathHelpers::is_absolute_path(std::string &t_path) {
+  return t_path[0] == '/';
+}
+
+bool PathHelpers::is_working_dir_root(networking::Request &t_req) {
+  return t_req.m_disk.m_user_path == "/";
+}
+
+std::string PathHelpers::build_system_path(networking::Request &t_req) {
+  return is_absolute_path(t_req.m_argument)
+             ? create_system_root_path() + "/" + t_req.m_argument
+             : join_to_system_path(t_req, t_req.m_argument);
+}
+
+std::string PathHelpers::join_to_user_path(networking::Request &t_req,
+                                           std::string path_to_join) {
+  return is_working_dir_root(t_req)
+             ? t_req.m_disk.m_user_path + path_to_join
+             : t_req.m_disk.m_user_path + "/" + path_to_join;
+}
+
+std::string PathHelpers::join_to_system_path(networking::Request &t_req,
+                                             std::string path_to_join) {
+  return t_req.m_disk.m_system_path + "/" + path_to_join;
+}
+
+std::string PathHelpers::create_system_root_path() {
+
+  return M_SYS_PATH + "/" + M_ROOT;
+}
+
 
 TEST_CASE("Helpers") {
 
