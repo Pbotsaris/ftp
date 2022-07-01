@@ -4,13 +4,15 @@
 #include <string>
 
 // stop unused variable warning when looping with `for(auto &some_var : some_enumerable)
-#define MON_Internal_UnusedStringify(macro_arg_string_literal) #macro_arg_string_literal
-#define MONUnusedParameter(macro_arg_parameter) _Pragma(MON_Internal_UnusedStringify(unused(macro_arg_parameter)))
+#define MON_Internal_UnusedStringify(macro_arg_string_literal)                 \
+#macro_arg_string_literal
+#define MONUnusedParameter(macro_arg_parameter)                                \
+  _Pragma(MON_Internal_UnusedStringify(unused(macro_arg_parameter)))
 
 using namespace controllers;
 using namespace disk;
 
-#if __linux__ 
+#if __linux__
 namespace fs = std::filesystem;
 
 #elif __APPLE__ || __MACH__
@@ -28,16 +30,15 @@ void DiskManager::init(Disk &t_disk) {
   fs::create_directories(utils::PathHelpers::M_ROOT);
 };
 
-  void DiskManager::rename_from(networking::Request &t_req) {
+void DiskManager::rename_from(networking::Request &t_req) {
 
   std::string rename_from = utils::PathHelpers::build_system_path(t_req);
 
-  if (utils::PathHelpers::path_exists(rename_from)){
-     m_rename_from = rename_from;
-     t_req.m_reply = networking::reply::r_350;
-    }
-  else{
-     t_req.m_reply = networking::reply::r_550;
+  if (utils::PathHelpers::path_exists(rename_from)) {
+    m_rename_from = rename_from;
+    t_req.m_reply = networking::reply::r_350;
+  } else {
+    t_req.m_reply = networking::reply::r_550;
   }
 };
 
@@ -46,13 +47,13 @@ void DiskManager::rename_to(networking::Request &t_req) {
   std::string rename_to = utils::PathHelpers::build_system_path(t_req);
 
   try {
-  fs::rename(m_rename_from, rename_to);
-  } catch(std::exception &_err) {
-     t_req.m_reply = networking::reply::r_450;
-     return;
+    fs::rename(m_rename_from, rename_to);
+  } catch (std::exception &_err) {
+    t_req.m_reply = networking::reply::r_450;
+    return;
   }
 
-     t_req.m_reply = networking::reply::r_250;
+  t_req.m_reply = networking::reply::r_250;
 }
 
 void DiskManager::change_up_directory(networking::Request &t_req) {
@@ -69,13 +70,16 @@ void DiskManager::print_working_directory(networking::Request &t_req) {
 void DiskManager::make_directory(networking::Request &t_req) {
 
   if (utils::PathHelpers::is_absolute_path(t_req.m_argument)) {
-    fs::create_directories(utils::PathHelpers::create_system_root_path() + t_req.m_argument);
+    fs::create_directories(utils::PathHelpers::create_system_root_path() +
+                           t_req.m_argument);
     t_req.m_reply_msg = t_req.m_argument + " created.";
 
   } else {
-    fs::create_directories(utils::PathHelpers::join_to_system_path(t_req, t_req.m_argument));
+    fs::create_directories(
+        utils::PathHelpers::join_to_system_path(t_req, t_req.m_argument));
     t_req.m_reply_msg =
-        utils::PathHelpers::join_to_user_path(t_req, t_req.m_argument) + " created.";
+        utils::PathHelpers::join_to_user_path(t_req, t_req.m_argument) +
+        " created.";
   }
 
   t_req.m_reply = networking::reply::r_257;
@@ -83,7 +87,7 @@ void DiskManager::make_directory(networking::Request &t_req) {
 
 void DiskManager::remove_directory(networking::Request &t_req) {
 
-  auto to_delete =  utils::PathHelpers::build_system_path(t_req);
+  auto to_delete = utils::PathHelpers::build_system_path(t_req);
 
   if (utils::PathHelpers::path_exists(to_delete)) {
     remove_directory_when_valid(t_req, to_delete);
@@ -101,7 +105,7 @@ void DiskManager::change_directory(networking::Request &t_req) {
   }
 
   utils::StringVector paths =
-      utils::Helpers::split_string(t_req.m_argument, "/");
+      utils::StringHelpers::split_string(t_req.m_argument, "/");
 
   int resulting_dir_level = count_resuling_dir_level(paths);
 
@@ -126,15 +130,15 @@ void DiskManager::update_paths(networking::Request &t_req,
   for (auto &path : t_paths) {
 
     if (path == "..") {
-      utils::Helpers::remove_last_path(user_path);
-      utils::Helpers::remove_last_path(system_path);
+      user_path = utils::PathHelpers::remove_last_path(user_path);
+      system_path = utils::PathHelpers::remove_last_path(system_path);
     } else if (path == ".") {
       continue;
     }
 
     else {
-      utils::Helpers::add_to_path(user_path, path);
-      utils::Helpers::add_to_path(system_path, path);
+     user_path = utils::PathHelpers::add_to_path(user_path, path);
+     system_path = utils::PathHelpers::add_to_path(system_path, path);
     }
   }
 
@@ -158,9 +162,10 @@ void DiskManager::remove_directory_when_valid(networking::Request &t_req,
 
     } else {
       t_req.m_reply = networking::reply::r_532; // repurposed 532. See readme.
-      t_req.m_reply_msg = "Unable to remove. " +
-                          utils::PathHelpers::join_to_user_path(t_req, t_req.m_argument) +
-                          " contains " + std::to_string(items) + " item(s).";
+      t_req.m_reply_msg =
+          "Unable to remove. " +
+          utils::PathHelpers::join_to_user_path(t_req, t_req.m_argument) +
+          " contains " + std::to_string(items) + " item(s).";
     }
   } catch (std::exception &_err) {
     t_req.m_reply = networking::reply::r_532;
@@ -179,7 +184,8 @@ void DiskManager::change_valid_path(networking::Request &t_req) {
 
 void DiskManager::change_absolute_path(networking::Request &t_req) {
   t_req.m_disk.m_user_path = t_req.m_argument;
-  t_req.m_disk.m_system_path = utils::PathHelpers::M_SYS_PATH + "/" + utils::PathHelpers::M_ROOT + t_req.m_argument;
+  t_req.m_disk.m_system_path = utils::PathHelpers::M_SYS_PATH + "/" +
+                               utils::PathHelpers::M_ROOT + t_req.m_argument;
   t_req.m_reply = networking::reply::r_250;
 }
 
@@ -226,7 +232,6 @@ TEST_CASE("Disk Manager") {
 
   std::string system_path = fs::current_path();
   std::string system_root_path = system_path + "/" + ".root";
-
 
   // make directories for testing
   fs::create_directories(utils::PathHelpers::M_ROOT + "/test");
@@ -341,7 +346,7 @@ TEST_CASE("Disk Manager") {
     CHECK(req.m_reply == networking::reply::r_550);
   }
 
-      /* remove after tests */
-      fs::remove_all(utils::PathHelpers::M_ROOT + "./test/inside");
-      fs::remove_all(utils::PathHelpers::M_ROOT + "/test");
+  /* remove after tests */
+  fs::remove_all(utils::PathHelpers::M_ROOT + "./test/inside");
+  fs::remove_all(utils::PathHelpers::M_ROOT + "/test");
 }

@@ -13,7 +13,7 @@ static const int ARGUMENT = 1;
 void Parser::parse_command(networking::Request &t_req,
                            utils::StringVector t_commands) {
   try {
-    utils::Helpers::trim_string(t_commands[COMMAND]);
+    utils::StringHelpers::trim_string(t_commands[COMMAND]);
 
     t_req.m_command = commands::find.at(t_commands[COMMAND]);
 
@@ -28,7 +28,7 @@ void Parser::parse_argument(networking::Request &t_req,
                             utils::StringVector t_commands) {
   try {
     t_req.m_argument = t_commands.at(ARGUMENT);
-    utils::Helpers::trim_string(t_req.m_argument);
+    utils::StringHelpers::trim_string(t_req.m_argument);
 
   } catch (std::exception &err) {
 
@@ -41,7 +41,7 @@ void Parser::parse_argument(networking::Request &t_req,
 void Parser::parse(networking::Request &t_req) {
 
 
-  utils::StringVector split_command = utils::Helpers::split_string(t_req.m_raw);
+  utils::StringVector split_command = utils::StringHelpers::split_string(t_req.m_raw);
   parse_command(t_req, split_command);
 
 

@@ -50,7 +50,7 @@ bool Accounts::verify(std::string &t_user, std::string &t_password) {
   while (readfile) {
     readfile >> user_acc;
     utils::StringVector user_acc_split =
-        utils::Helpers::split_string(user_acc, ":");
+        utils::StringHelpers::split_string(user_acc, ":");
 
     if (t_password.empty() ? has_user(user_acc_split, t_user)
                            : has_password(user_acc_split, t_user, t_password)) {
