@@ -3,9 +3,20 @@
 #include <exception>
 #include <string>
 
+#define MON_Internal_UnusedStringify(macro_arg_string_literal) #macro_arg_string_literal
+#define MONUnusedParameter(macro_arg_parameter) _Pragma(MON_Internal_UnusedStringify(unused(macro_arg_parameter)))
+
 using namespace controllers;
 using namespace disk;
+
+#if __unix || __unix__
+namespace fs = std::filesystem;
+
+#elif __APPLE__ || __MACH__
 namespace fs = std::__fs::filesystem;
+
+#endif
+
 
 const std::string DiskManager::M_ROOT = ".root";
 const std::string DiskManager::M_SYS_PATH = fs::current_path();
@@ -205,6 +216,7 @@ std::string DiskManager::join_to_system_path(networking::Request &t_req,
 }
 
 std::string DiskManager::create_system_root_path() {
+
   return M_SYS_PATH + "/" + M_ROOT;
 }
 
@@ -240,6 +252,8 @@ int DiskManager::count_resuling_dir_level(utils::StringVector &t_paths) {
 int DiskManager::count_directory_items(std::string &t_path) {
   int count = 0;
   for (auto &_file : fs::directory_iterator(t_path)) {
+    MONUnusedParameter(_file);
+
     count++;
   }
   return count;
@@ -249,6 +263,13 @@ TEST_CASE("Disk Manager") {
 
   std::string system_path = fs::current_path();
   std::string system_root_path = system_path + "/" + ".root";
+
+
+
+  // make directories for testing
+  
+  fs::create_directories(DiskManager::M_ROOT + "/test");
+  fs::create_directories(DiskManager::M_ROOT + "/test/inside");
 
   SUBCASE("change dir to path") {
 
@@ -358,4 +379,8 @@ TEST_CASE("Disk Manager") {
 
     CHECK(req.m_reply == networking::reply::r_550);
   }
+
+      /* remove after tests */
+      fs::remove_all(DiskManager::M_ROOT + "./test/inside");
+      fs::remove_all(DiskManager::M_ROOT + "/test");
 }

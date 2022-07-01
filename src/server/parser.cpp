@@ -51,7 +51,7 @@ void Parser::parse(networking::Request &t_req) {
   if (!t_req.m_valid || type == commands::type::no_argument)
     return;
 
-  if(commands::zero_or_more_arguments && split_command.size() < 2) /* if no argument is passed */
+  if(type == commands::zero_or_more_arguments && split_command.size() < 2) /* if no argument is passed */
     return;
 
 

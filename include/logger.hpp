@@ -4,6 +4,7 @@
 #include <map>
 #include <stdlib.h>
 #include <tuple>
+#include <string.h>
 
 #define DEBUG  /* remove this macro remove debug logs */
 
@@ -74,7 +75,7 @@ public:
 
 private:
   static const char *last_pathname(const char *t_file, int c = '/') {
-    return std::strrchr(t_file, c) ? std::strrchr(t_file, c) + 1 : t_file;
+    return strrchr(t_file, c) ? strrchr(t_file, c) + 1 : t_file;
   }
 };
 } // namespace logger

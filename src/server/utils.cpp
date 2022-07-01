@@ -1,6 +1,8 @@
 #include "../../include/utils.h"
 #include "../../include/doctest.h"
 
+#include <algorithm>
+
 using namespace utils;
 
 StringVector Helpers::split_string(std::string &s, std::string del) {

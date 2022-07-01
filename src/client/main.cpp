@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <string.h>
 #include <arpa/inet.h>
 #include <stdio.h>
 #include <sys/socket.h>
@@ -22,7 +23,7 @@ int main(void)
 
   inet_pton(AF_INET, LOCALHOST, &client_addr.sin_addr); /* set address to localhost */
 
-  int client_fd = connect(client_socket, (struct sockaddr *) &client_addr, sizeof(client_addr));
+  int client_fd = connect(client_socket, reinterpret_cast<struct sockaddr *>(&client_addr), sizeof(client_addr));
 
   if(client_fd < 0)
     std::cout << "connection error" << "\n";
@@ -32,7 +33,7 @@ int main(void)
 
    send(client_socket, msg, strlen(msg), 0);
 
-   int n = recv(client_socket, buffer, 256, 0);
+   recv(client_socket, buffer, 256, 0);
 
   std::cout << buffer << "\n";
 
