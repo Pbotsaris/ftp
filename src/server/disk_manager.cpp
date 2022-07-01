@@ -3,13 +3,14 @@
 #include <exception>
 #include <string>
 
+// stop unused variable warning when looping with `for(auto &some_var : some_enumerable)
 #define MON_Internal_UnusedStringify(macro_arg_string_literal) #macro_arg_string_literal
 #define MONUnusedParameter(macro_arg_parameter) _Pragma(MON_Internal_UnusedStringify(unused(macro_arg_parameter)))
 
 using namespace controllers;
 using namespace disk;
 
-#if __unix || __unix__
+#if __linux__ 
 namespace fs = std::filesystem;
 
 #elif __APPLE__ || __MACH__
@@ -17,23 +18,21 @@ namespace fs = std::__fs::filesystem;
 
 #endif
 
-
-const std::string DiskManager::M_ROOT = ".root";
-const std::string DiskManager::M_SYS_PATH = fs::current_path();
 std::string DiskManager::m_rename_from = "";
 
 void DiskManager::init(Disk &t_disk) {
   t_disk.m_user_path = "/";
-  t_disk.m_system_path = create_system_root_path();
+  t_disk.m_system_path = utils::PathHelpers::create_system_root_path();
   t_disk.m_dir_level = 0;
 
-  fs::create_directories(M_ROOT);
+  fs::create_directories(utils::PathHelpers::M_ROOT);
 };
 
-void DiskManager::rename_from(networking::Request &t_req) {
-  std::string rename_from = build_system_path(t_req);
+  void DiskManager::rename_from(networking::Request &t_req) {
 
-  if (path_exists(rename_from)){
+  std::string rename_from = utils::PathHelpers::build_system_path(t_req);
+
+  if (utils::PathHelpers::path_exists(rename_from)){
      m_rename_from = rename_from;
      t_req.m_reply = networking::reply::r_350;
     }
@@ -44,7 +43,7 @@ void DiskManager::rename_from(networking::Request &t_req) {
 
 void DiskManager::rename_to(networking::Request &t_req) {
 
-  std::string rename_to = build_system_path(t_req);
+  std::string rename_to = utils::PathHelpers::build_system_path(t_req);
 
   try {
   fs::rename(m_rename_from, rename_to);
@@ -69,14 +68,14 @@ void DiskManager::print_working_directory(networking::Request &t_req) {
 
 void DiskManager::make_directory(networking::Request &t_req) {
 
-  if (is_absolute_path(t_req.m_argument)) {
-    fs::create_directories(create_system_root_path() + t_req.m_argument);
+  if (utils::PathHelpers::is_absolute_path(t_req.m_argument)) {
+    fs::create_directories(utils::PathHelpers::create_system_root_path() + t_req.m_argument);
     t_req.m_reply_msg = t_req.m_argument + " created.";
 
   } else {
-    fs::create_directories(join_to_system_path(t_req, t_req.m_argument));
+    fs::create_directories(utils::PathHelpers::join_to_system_path(t_req, t_req.m_argument));
     t_req.m_reply_msg =
-        join_to_user_path(t_req, t_req.m_argument) + " created.";
+        utils::PathHelpers::join_to_user_path(t_req, t_req.m_argument) + " created.";
   }
 
   t_req.m_reply = networking::reply::r_257;
@@ -84,9 +83,9 @@ void DiskManager::make_directory(networking::Request &t_req) {
 
 void DiskManager::remove_directory(networking::Request &t_req) {
 
-  auto to_delete =  build_system_path(t_req);
+  auto to_delete =  utils::PathHelpers::build_system_path(t_req);
 
-  if (path_exists(to_delete)) {
+  if (utils::PathHelpers::path_exists(to_delete)) {
     remove_directory_when_valid(t_req, to_delete);
   } else {
     t_req.m_reply = networking::reply::r_550;
@@ -95,7 +94,7 @@ void DiskManager::remove_directory(networking::Request &t_req) {
 
 void DiskManager::change_directory(networking::Request &t_req) {
 
-  if (is_absolute_path(t_req.m_argument)) {
+  if (utils::PathHelpers::is_absolute_path(t_req.m_argument)) {
     change_absolute_path(t_req);
     remove_trailing_slash(t_req);
     return;
@@ -139,7 +138,7 @@ void DiskManager::update_paths(networking::Request &t_req,
     }
   }
 
-  if (path_exists(system_path)) {
+  if (utils::PathHelpers::path_exists(system_path)) {
     t_req.m_disk.m_user_path = user_path;
     t_req.m_disk.m_system_path = system_path;
     change_valid_path(t_req);
@@ -160,7 +159,7 @@ void DiskManager::remove_directory_when_valid(networking::Request &t_req,
     } else {
       t_req.m_reply = networking::reply::r_532; // repurposed 532. See readme.
       t_req.m_reply_msg = "Unable to remove. " +
-                          join_to_user_path(t_req, t_req.m_argument) +
+                          utils::PathHelpers::join_to_user_path(t_req, t_req.m_argument) +
                           " contains " + std::to_string(items) + " item(s).";
     }
   } catch (std::exception &_err) {
@@ -180,44 +179,8 @@ void DiskManager::change_valid_path(networking::Request &t_req) {
 
 void DiskManager::change_absolute_path(networking::Request &t_req) {
   t_req.m_disk.m_user_path = t_req.m_argument;
-  t_req.m_disk.m_system_path = M_SYS_PATH + "/" + M_ROOT + t_req.m_argument;
+  t_req.m_disk.m_system_path = utils::PathHelpers::M_SYS_PATH + "/" + utils::PathHelpers::M_ROOT + t_req.m_argument;
   t_req.m_reply = networking::reply::r_250;
-}
-
-bool DiskManager::path_exists(std::string &t_path) {
-  const fs::path p(t_path);
-  return fs::exists(p);
-}
-
-bool DiskManager::is_absolute_path(std::string &t_path) {
-  return t_path[0] == '/';
-}
-
-bool DiskManager::is_working_dir_root(networking::Request &t_req) {
-  return t_req.m_disk.m_user_path == "/";
-}
-
-std::string DiskManager::build_system_path(networking::Request &t_req) {
-  return is_absolute_path(t_req.m_argument)
-             ? create_system_root_path() + "/" + t_req.m_argument
-             : join_to_system_path(t_req, t_req.m_argument);
-}
-
-std::string DiskManager::join_to_user_path(networking::Request &t_req,
-                                           std::string path_to_join) {
-  return is_working_dir_root(t_req)
-             ? t_req.m_disk.m_user_path + path_to_join
-             : t_req.m_disk.m_user_path + "/" + path_to_join;
-}
-
-std::string DiskManager::join_to_system_path(networking::Request &t_req,
-                                             std::string path_to_join) {
-  return t_req.m_disk.m_system_path + "/" + path_to_join;
-}
-
-std::string DiskManager::create_system_root_path() {
-
-  return M_SYS_PATH + "/" + M_ROOT;
 }
 
 void DiskManager::remove_trailing_slash(networking::Request &t_req) {
@@ -265,11 +228,9 @@ TEST_CASE("Disk Manager") {
   std::string system_root_path = system_path + "/" + ".root";
 
 
-
   // make directories for testing
-  
-  fs::create_directories(DiskManager::M_ROOT + "/test");
-  fs::create_directories(DiskManager::M_ROOT + "/test/inside");
+  fs::create_directories(utils::PathHelpers::M_ROOT + "/test");
+  fs::create_directories(utils::PathHelpers::M_ROOT + "/test/inside");
 
   SUBCASE("change dir to path") {
 
@@ -381,6 +342,6 @@ TEST_CASE("Disk Manager") {
   }
 
       /* remove after tests */
-      fs::remove_all(DiskManager::M_ROOT + "./test/inside");
-      fs::remove_all(DiskManager::M_ROOT + "/test");
+      fs::remove_all(utils::PathHelpers::M_ROOT + "./test/inside");
+      fs::remove_all(utils::PathHelpers::M_ROOT + "/test");
 }

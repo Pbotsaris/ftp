@@ -12,12 +12,10 @@
 
 namespace controllers {
 struct DiskManager {
-  const static std::string M_ROOT;
-  const static std::string M_SYS_PATH;
   static std::string m_rename_from;
 
-  static void init(disk::Disk &t_disk);
   /* Callbacks */
+  static void init(disk::Disk &t_disk);
   static void rename_from(networking::Request &t_req);
   static void rename_to(networking::Request &t_req);
   static void change_up_directory(networking::Request &t_req);
@@ -35,18 +33,6 @@ struct DiskManager {
 
   /* RMD Helpers */
   static void remove_directory_when_valid(networking::Request &t_req, std::string &t_to_delete);
-
-  /*  Conditional Checks */
-  static bool path_exists(std::string &t_path);
-  static bool is_absolute_path(std::string &t_path);
-  static bool is_working_dir_root(networking::Request &t_req);
-
-  /* Path Manipulation */
-
-  static std::string build_system_path(networking::Request &t_req);
-  static std::string join_to_user_path(networking::Request &t_req, std::string path_to_join);
-  static std::string join_to_system_path(networking::Request &t_req, std::string path_to_join);
-  static std::string create_system_root_path();
 
   /* Misc */
   static void remove_trailing_slash(networking::Request &t_req);
