@@ -1,9 +1,21 @@
 #include "../../include/system_info.h"
 #include "../../include/logger.hpp"
+#include "../../include/doctest.h"
+#include "../../include/disk_manager.h"
 #include <algorithm>
 #include <exception>
 
 using namespace controllers;
+
+#if __linux__ 
+namespace fs = std::filesystem;
+
+#elif __APPLE__ || __MACH__
+namespace fs = std::__fs::filesystem;
+
+#endif
+
+
 
 void SystemInfo::system_os(networking::Request &t_req) {
 
@@ -14,11 +26,8 @@ void SystemInfo::system_os(networking::Request &t_req) {
 void SystemInfo::help(networking::Request &t_req) {
 
   if (t_req.m_argument.empty()) {
-
     list_help(t_req);
-
   } else {
-
     to_upper(t_req.m_argument);
     get_help(t_req);
   }
@@ -35,10 +44,30 @@ void SystemInfo::get_help(networking::Request &t_req) {
   t_req.m_reply = networking::reply::r_214;
 }
 
+void SystemInfo::status(networking::Request &t_req) {
+
+  if (t_req.m_argument.empty()) {
+    // TODO: Check if during file transfer.
+    // return information about the transfer.
+    // returns an error if a file is not transfering
+  }
+  // return information about a path
+  else {
+
+    for (const auto & entry : fs::directory_iterator(t_req.m_argument)) {
+        std::cout << entry.path() << std::endl;
+
+    }
+    
+  }
+}
+
+/* PRIVATE */
+
 void SystemInfo::list_help(networking::Request &t_req) {
 
-   int count = 0;
-   t_req.m_reply_msg = "Available Commands:";
+  int count = 0;
+  t_req.m_reply_msg = "Available Commands:";
 
   for (auto const &help_command : commands::help) {
 
@@ -73,3 +102,17 @@ std::string SystemInfo::get_os_name() {
 void SystemInfo::to_upper(std::string &t_str) {
   std::transform(t_str.begin(), t_str.end(), t_str.begin(), ::toupper);
 }
+
+//
+//TEST_CASE("System Info") {
+//
+//   Disk disk;
+//   DiskManager::init(disk);
+//   auto req = netowrking::Request(disk);
+//   req.m_argument = "/";
+//
+//   SysSystemInfo::status(req);
+//
+//    
+//
+//}

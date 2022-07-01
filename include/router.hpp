@@ -30,6 +30,8 @@ static std::map<commands::name, Controller> route {
     {commands::name::HELP, controllers::SystemInfo::help},
 
 
+    /* Other */
+    {commands::name::NOOP, [](networking::Request &t_req) { t_req.m_reply = networking::reply::r_200; }},
     {commands::name::QUIT, [](networking::Request &t_req) { t_req.m_reply = networking::reply::r_221; }}
 };
 
