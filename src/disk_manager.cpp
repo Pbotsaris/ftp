@@ -1,5 +1,5 @@
-#include "../../include/disk_manager.h"
-#include "../../include/doctest.h"
+#include "../include/disk_manager.h"
+#include "../include/doctest.h"
 #include <exception>
 #include <string>
 

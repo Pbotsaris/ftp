@@ -1,11 +1,12 @@
 #ifndef SYSTEM_INFO_H
 #define SYSTEM_INFO_H
-
 #include <filesystem>
 #include <fstream>
 
 #include "logger.hpp"
 #include "request.h"
+#include "disk.h"
+#include "disk_manager.h"
 
 namespace controllers {
 

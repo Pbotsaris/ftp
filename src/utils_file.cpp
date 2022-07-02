@@ -1,5 +1,5 @@
-#include "../../include/utils_file.h"
-#include "../../include/logger.hpp"
+#include "../include/utils_file.h"
+#include "../include/logger.hpp"
 
 #if __linux__ 
 namespace fs = std::filesystem;

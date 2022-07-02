@@ -1,6 +1,6 @@
-#include "../../include/parser.h"
-#include "../../include/doctest.h"
-#include "../../include/disk.h"
+#include "../include/parser.h"
+#include "../include/doctest.h"
+#include "../include/disk.h"
 
 #include <array>
 #include <exception>

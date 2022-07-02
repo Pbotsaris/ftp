@@ -1,6 +1,5 @@
-#include "../../include/accounts.h"
-#include "../../include/doctest.h"
-#include <iostream>
+#include "../include/accounts.h"
+#include "../include/doctest.h"
 
 using namespace controllers;
 

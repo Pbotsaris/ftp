@@ -1,9 +1,5 @@
-#include "../../include/system_info.h"
-#include "../../include/disk.h"
-#include "../../include/disk_manager.h"
-#include "../../include/doctest.h"
-#include "../../include/logger.hpp"
-#include <algorithm>
+#include "../include/system_info.h"
+#include "../include/doctest.h"
 #include <exception>
 
 using namespace controllers;

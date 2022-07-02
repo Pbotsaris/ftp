@@ -1,11 +1,11 @@
-#include "../../include/parser.h"
-#include "../../include/reply.hpp"
-#include "../../include/request.h"
-#include "../../include/service.h"
-#include "../../include/accounts.h"
-#include "../../include/logger.hpp"
+#include "../include/parser.h"
+#include "../include/reply.hpp"
+#include "../include/request.h"
+#include "../include/service.h"
+#include "../include/accounts.h"
+#include "../include/logger.hpp"
 #define DOCTEST_CONFIG_IMPLEMENT
-#include "../../include/doctest.h"
+#include "../include/doctest.h"
 
 int test()
 {
