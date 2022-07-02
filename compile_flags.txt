@@ -1,6 +1,9 @@
 -Wall
 -Wextrar
 -Iinclude 
+-Iinclude/utils
+-Iinclude/networking
+-Iinclude/controllers
 -Wpedantic
 -std=c++17
 -Wcast-qual
