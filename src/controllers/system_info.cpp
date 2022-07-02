@@ -1,5 +1,5 @@
-#include "../include/system_info.h"
-#include "../include/doctest.h"
+#include "system_info.hpp"
+#include "doctest.h"
 #include <exception>
 
 using namespace controllers;

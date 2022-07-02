@@ -1,0 +1,9 @@
+-Wall
+-Wextrar
+-Iinclude 
+-Wpedantic
+-std=c++17
+-Wcast-qual
+-Wnon-virtual-dtor
+-Woverloaded-virtual
+-Wold-style-cast

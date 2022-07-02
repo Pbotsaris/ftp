@@ -2,10 +2,10 @@
 #ifndef ROUTER_HPP
 #define ROUTER_HPP
 
-#include "disk_manager.h"
-#include "request.h"
-#include "accounts.h"
-#include "system_info.h"
+#include "disk_manager.hpp"
+#include "request.hpp"
+#include "accounts.hpp"
+#include "system_info.hpp"
 
 namespace router {
 

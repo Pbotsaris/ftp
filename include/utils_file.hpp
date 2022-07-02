@@ -1,7 +1,7 @@
 #ifndef UTILS_FILE_H
 #define UTILS_FILE_H
-#include "request.h"
-#include "utils_path.h"
+#include "request.hpp"
+#include "utils_path.hpp"
 #include <filesystem>
 #include <fstream>
 

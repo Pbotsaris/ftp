@@ -1,5 +1,5 @@
-#include "../include/accounts.h"
-#include "../include/doctest.h"
+#include "accounts.hpp"
+#include "doctest.h"
 
 using namespace controllers;
 

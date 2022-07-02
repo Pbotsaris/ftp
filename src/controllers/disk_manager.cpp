@@ -1,5 +1,5 @@
-#include "../include/disk_manager.h"
-#include "../include/doctest.h"
+#include "disk_manager.hpp"
+#include "doctest.h"
 #include <exception>
 #include <string>
 
@@ -81,7 +81,6 @@ void DiskManager::make_directory(networking::Request &t_req) {
         utils::PathHelpers::join_to_user_path(t_req, t_req.m_argument) +
         " created.";
   }
-
   t_req.m_reply = networking::reply::r_257;
 }
 

@@ -1,7 +1,7 @@
 #ifndef ACCOUNT_H
 #define ACCOUNT_H
-#include "utils.h"
-#include "request.h"
+#include "utils.hpp"
+#include "request.hpp"
 #include "reply.hpp"
 #include "logger.hpp"
 #include <fstream>

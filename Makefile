@@ -1,35 +1,37 @@
 PROGRAM=ftp
-BIN=bin
 CFLAGS += -Wall -Wextra -g3 -Iinclude -fsanitize=address 
 CPP_FLAGS = -Wpedantic -std=c++17 -Wcast-qual -Wnon-virtual-dtor -Woverloaded-virtual -Wold-style-cast
 CC=clang++
 RM=rm -rf
+BIN_DIR=bin
+OBJ_DIR=obj
+SRC_DIR=src
 
-$(shell mkdir -p obj bin obj/server obj/client)
+TARGET=$(BIN_DIR)/$(PROGRAM)
 
-# SERVER ############
-SERVER_TARGET=$(BIN)/$(PROGRAM)
-SERVER_OBJ=obj
-SERVER_SRC=src
-SERVER_SRCS=$(wildcard $(SERVER_SRC)/*.cpp)
-SERVER_OBJS=$(patsubst $(SERVER_SRC)/%.cpp, $(SERVER_OBJ)/%.o, $(SERVER_SRCS))
+all: compile_root compile_networking compile_controllers compile_utils link
 
-all: make_server
+link: 
+	$(CC) -o $(TARGET) $(wildcard $(OBJ_DIR)/*.o) $(CFLAGS) $(CPP_FLAGS)
 
-# SERVER ############
-make_server: $(SERVER_TARGET)
+compile_root:
+	 $(MAKE) -C $(SRC_DIR)
 
-$(SERVER_TARGET): $(SERVER_OBJS)
-	$(CC) -o $(SERVER_TARGET) $(SERVER_OBJS) $(CFLAGS) $(CPP_FLAGS)
+compile_networking:
+	 $(MAKE) -C $(SRC_DIR)/networking
 
-$(SERVER_OBJ)/%.o: $(SERVER_SRC)/%.cpp
-	$(CC) $(CFLAGS) $(CPP_FLAGS) -c $< -o $@
+compile_controllers:
+	 $(MAKE) -C $(SRC_DIR)/controllers
 
-run: ${SERVER_TARGET}
-	./${SERVER_TARGET}
+compile_utils:
+	 $(MAKE) -C $(SRC_DIR)/utils
+
+
+run: ${TARGET}
+	./${TARGET}
 
 clean:
-	$(RM) $(SERVER_TARGET) $(BIN)/*.dSYM $(SERVER_OBJ)/*.o 
+	$(RM) $(TARGET) $(BIN_DIR)/*.dSYM $(OBJ_DIR)/*.o 
 
 .PHONY:
-	all run clean 
+	all run clean compile_root compile_utils compile_networking compile_controllers compile_root

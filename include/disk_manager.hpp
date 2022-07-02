@@ -1,8 +1,8 @@
 #ifndef DISK_MANAGER_H
 #define DISK_MANAGER_H
-#include "disk.h"
-#include "request.h"
-#include "utils.h"
+#include "disk.hpp"
+#include "request.hpp"
+#include "utils.hpp"
 #include "logger.hpp"
 #include "reply.hpp"
 #include <filesystem>

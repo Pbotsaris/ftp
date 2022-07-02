@@ -1,6 +1,5 @@
 #ifndef CONNECTION_H
 #define CONNECTION_H
-
 #include <exception>
 #include <iostream>
 #include <string>
@@ -12,7 +11,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "request.h"
+#include "request.hpp"
 #include "logger.hpp"
 
 namespace networking {

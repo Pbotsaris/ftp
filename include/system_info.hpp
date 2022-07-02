@@ -4,9 +4,9 @@
 #include <fstream>
 
 #include "logger.hpp"
-#include "request.h"
-#include "disk.h"
-#include "disk_manager.h"
+#include "request.hpp"
+#include "disk.hpp"
+#include "disk_manager.hpp"
 
 namespace controllers {
 

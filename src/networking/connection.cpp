@@ -1,4 +1,4 @@
-#include "../include/connection.h"
+#include "connection.hpp"
 
 using namespace networking;
 

@@ -1,13 +1,13 @@
 #ifndef SERVICE_H
 #define SERVICE_H
 #include <map>
-#include "connection.h"
-#include "parser.h"
-#include "request.h"
+#include "connection.hpp"
+#include "parser.hpp"
+#include "request.hpp"
 #include "router.hpp"
 #include "logger.hpp"
-#include "disk.h"
-#include "disk_manager.h"
+#include "disk.hpp"
+#include "disk_manager.hpp"
 
 /*
  *   A Service corresponds single user interaction with the server and consists of two connections: 

@@ -2,8 +2,8 @@
 #include <iostream>
 #define PARSER_H
 #include "commands.hpp"
-#include "utils.h"
-#include "request.h"
+#include "utils.hpp"
+#include "request.hpp"
 #include "logger.hpp"
 
 namespace parsing {
