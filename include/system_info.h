@@ -17,10 +17,9 @@ namespace controllers {
     private:
     static void        get_help(networking::Request &t_req);
     static void        list_help(networking::Request &t_req);
+    static void        list_directory_items(networking::Request &t_req);
 
     static std::string get_os_name();
-
-    static void        to_upper(std::string &t_str);
 
 
   };

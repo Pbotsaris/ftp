@@ -1,21 +1,20 @@
 #include "../../include/system_info.h"
-#include "../../include/logger.hpp"
-#include "../../include/doctest.h"
+#include "../../include/disk.h"
 #include "../../include/disk_manager.h"
+#include "../../include/doctest.h"
+#include "../../include/logger.hpp"
 #include <algorithm>
 #include <exception>
 
 using namespace controllers;
 
-#if __linux__ 
+#if __linux__
 namespace fs = std::filesystem;
 
 #elif __APPLE__ || __MACH__
 namespace fs = std::__fs::filesystem;
 
 #endif
-
-
 
 void SystemInfo::system_os(networking::Request &t_req) {
 
@@ -28,7 +27,7 @@ void SystemInfo::help(networking::Request &t_req) {
   if (t_req.m_argument.empty()) {
     list_help(t_req);
   } else {
-    to_upper(t_req.m_argument);
+    utils::StringHelpers::to_upper(t_req.m_argument);
     get_help(t_req);
   }
 }
@@ -53,12 +52,7 @@ void SystemInfo::status(networking::Request &t_req) {
   }
   // return information about a path
   else {
-
-    for (const auto & entry : fs::directory_iterator(t_req.m_argument)) {
-        std::cout << entry.path() << std::endl;
-
-    }
-    
+    list_directory_items(t_req);
   }
 }
 
@@ -81,6 +75,18 @@ void SystemInfo::list_help(networking::Request &t_req) {
   t_req.m_reply = networking::reply::r_214;
 }
 
+void SystemInfo::list_directory_items(networking::Request &t_req) {
+
+  try {
+    t_req.m_reply_msg = utils::FileHelpers::list_dir_filenames(t_req);
+    t_req.m_reply = networking::reply::r_212;
+
+  } catch (std::string &err) {
+    t_req.m_reply = networking::reply::r_550;
+    LOG_ERROR(err.c_str());
+  }
+}
+
 std::string SystemInfo::get_os_name() {
 #ifdef _WIN32
   return " Windows 32-bit";
@@ -99,20 +105,38 @@ std::string SystemInfo::get_os_name() {
 #endif
 }
 
-void SystemInfo::to_upper(std::string &t_str) {
-  std::transform(t_str.begin(), t_str.end(), t_str.begin(), ::toupper);
-}
+TEST_CASE("System Info") {
 
-//
-//TEST_CASE("System Info") {
-//
-//   Disk disk;
-//   DiskManager::init(disk);
-//   auto req = netowrking::Request(disk);
-//   req.m_argument = "/";
-//
-//   SysSystemInfo::status(req);
-//
-//    
-//
-//}
+  fs::create_directories(utils::PathHelpers::M_ROOT + "/first_dir");
+  fs::create_directories(utils::PathHelpers::M_ROOT + "/second_dir");
+  fs::create_directories(utils::PathHelpers::M_ROOT + "/third_dir");
+
+  SUBCASE("List existing directory names") {
+
+    disk::Disk disk;
+    DiskManager::init(disk);
+    auto req = networking::Request(disk);
+    req.m_argument = "/";
+
+    SystemInfo::status(req);
+
+    CHECK(req.m_reply == networking::reply::r_212);
+    CHECK(req.m_reply_msg == "first_dir second_dir third_dir ");
+  }
+
+  SUBCASE("List unexisting directory names") {
+
+    disk::Disk disk;
+    DiskManager::init(disk);
+    auto req = networking::Request(disk);
+    req.m_argument = "bad/path";
+
+    SystemInfo::status(req);
+
+    CHECK(req.m_reply == networking::reply::r_550);
+  }
+
+  fs::remove_all(utils::PathHelpers::M_ROOT + "/first_dir");
+  fs::remove_all(utils::PathHelpers::M_ROOT + "/second_dir");
+  fs::remove_all(utils::PathHelpers::M_ROOT + "/third_dir");
+}
