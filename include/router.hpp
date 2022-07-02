@@ -28,6 +28,7 @@ static std::map<commands::name, Controller> route {
     /* System Info */
     {commands::name::SYST, controllers::SystemInfo::system_os},
     {commands::name::HELP, controllers::SystemInfo::help},
+    {commands::name::STAT, controllers::SystemInfo::status},
 
 
     /* Other */

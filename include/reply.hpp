@@ -86,7 +86,7 @@ static std::map<code, std::string> messages{
     {r_200, "200 Ok\n"},
     {r_202, "202 Command not implemented, superfluous at this site.\n"},
     {r_211, "211 System status, or system help reply.\n"},
-    {r_212, "212 Directory status.\n"},
+    {r_212, "212 Directory status: "},
     {r_213, "213 File status.\n"},
     {r_214, "214 "}, /* Append help message */
     {r_215, "215 system type: "},     /* Append a system name*/
