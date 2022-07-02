@@ -41,13 +41,9 @@ std::string PathHelpers::join_to_user_path(const networking::Request &t_req,
 
 std::string PathHelpers::join_to_system_path(const networking::Request &t_req,
                                              const std::string path_to_join) {
-
-  if (is_working_dir_root(t_req)) {
-    return t_req.m_disk.m_system_path;
-
-  } else {
-    return t_req.m_disk.m_system_path + "/" + path_to_join;
-  }
+  return t_req.m_argument == "/"
+             ? t_req.m_disk.m_system_path
+             : t_req.m_disk.m_system_path + "/" + path_to_join;
 }
 
 std::string PathHelpers::create_system_root_path() {
@@ -80,4 +76,7 @@ std::string PathHelpers::remove_last_path(const std::string &t_path) {
 std::string PathHelpers::extract_last_path(const std::string &t_path) {
   return t_path.substr(t_path.find_last_of("\\/") + 1, t_path.size());
 };
+
+
+
 
