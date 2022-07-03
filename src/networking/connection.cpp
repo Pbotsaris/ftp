@@ -74,7 +74,7 @@ void Connection::socket_listen() {
 
   listen(m_local_socket, QUEUE_SIZE);
   
-  LOG_INFO("Listening on port%d ...\n", m_port);
+  LOG_INFO("Listening on port %d ...\n", m_port);
 }
 
 void Connection::connect_socket() {

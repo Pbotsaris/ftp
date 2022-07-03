@@ -14,8 +14,10 @@ namespace controllers {
 struct DiskManager {
   static std::string m_rename_from;
 
-  /* Callbacks */
+  /* Disk initializer */
   static void        init(disk::Disk &t_disk);
+
+  /* Callbacks */
   static void        rename_from(networking::Request &t_req);
   static void        rename_to(networking::Request &t_req);
   static void        change_up_directory(networking::Request &t_req);

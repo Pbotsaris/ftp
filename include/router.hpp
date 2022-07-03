@@ -6,6 +6,7 @@
 #include "request.hpp"
 #include "accounts.hpp"
 #include "system_info.hpp"
+#include "data_manager.hpp"
 
 namespace router {
 
@@ -30,6 +31,9 @@ static std::map<commands::name, Controller> route {
     {commands::name::HELP, controllers::SystemInfo::help},
     {commands::name::STAT, controllers::SystemInfo::status},
 
+
+    /* Data Management */
+    {commands::name::PORT, controllers::DataManager::port},
 
     /* Other */
     {commands::name::NOOP, [](networking::Request &t_req) { t_req.m_reply = networking::reply::r_200; }},

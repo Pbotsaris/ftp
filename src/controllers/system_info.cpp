@@ -50,8 +50,7 @@ void SystemInfo::status(networking::Request &t_req) {
     return;
     // return information about a path
   }
-  std::string path =
-      utils::PathHelpers::join_to_system_path(t_req, t_req.m_argument);
+  std::string path = utils::PathHelpers::join_to_system_path(t_req, t_req.m_argument);
 
   if (utils::PathHelpers::is_path_directory(path))
     list_directory_items(t_req);
