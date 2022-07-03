@@ -1,5 +1,7 @@
 #include "system_info.hpp"
 #include "doctest.h"
+#include "utils_file.hpp"
+#include "utils_path.hpp"
 #include <exception>
 
 using namespace controllers;
@@ -45,11 +47,16 @@ void SystemInfo::status(networking::Request &t_req) {
     // TODO: Check if during file transfer.
     // return information about the transfer.
     // returns an error if a file is not transfering
+    return;
+    // return information about a path
   }
-  // return information about a path
-  else {
+  std::string path =
+      utils::PathHelpers::join_to_system_path(t_req, t_req.m_argument);
+
+  if (utils::PathHelpers::is_path_directory(path))
     list_directory_items(t_req);
-  }
+  else
+    get_file_stat(t_req);
 }
 
 /* PRIVATE */
@@ -82,6 +89,20 @@ void SystemInfo::list_directory_items(networking::Request &t_req) {
     LOG_ERROR(err.c_str());
   }
 }
+
+void SystemInfo::get_file_stat(networking::Request &t_req) {
+
+  try {
+    t_req.m_reply_msg = utils::FileHelpers::stat_file(t_req);
+    t_req.m_reply = networking::reply::r_214;
+
+  } catch (std::string &err) {
+    t_req.m_reply = networking::reply::r_550;
+    LOG_ERROR(err.c_str());
+  }
+}
+
+/* PRIVATE */
 
 std::string SystemInfo::get_os_name() {
 #ifdef _WIN32

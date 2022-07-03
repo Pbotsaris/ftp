@@ -1,4 +1,6 @@
 #include "utils_path.hpp"
+#include <filesystem>
+#include <system_error>
 
 #if __unix || __unix__
 namespace fs = std::filesystem;
@@ -24,6 +26,18 @@ bool PathHelpers::is_absolute_path(const std::string &t_path) {
 
 bool PathHelpers::is_working_dir_root(const networking::Request &t_req) {
   return t_req.m_disk.m_user_path == "/";
+}
+
+bool PathHelpers::is_path_directory(const std::string &t_path) {
+  std::error_code err;
+  err.clear();
+  fs::file_status status = fs::status(t_path, err);
+
+  if (err.value()) {
+    return false;
+  }
+
+  return fs::is_directory(status);
 }
 
 std::string PathHelpers::build_system_path(const networking::Request &t_req) {
@@ -76,7 +90,3 @@ std::string PathHelpers::remove_last_path(const std::string &t_path) {
 std::string PathHelpers::extract_last_path(const std::string &t_path) {
   return t_path.substr(t_path.find_last_of("\\/") + 1, t_path.size());
 };
-
-
-
-

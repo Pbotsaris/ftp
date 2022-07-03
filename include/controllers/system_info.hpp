@@ -19,10 +19,9 @@ namespace controllers {
     static void        get_help(networking::Request &t_req);
     static void        list_help(networking::Request &t_req);
     static void        list_directory_items(networking::Request &t_req);
+    static void        get_file_stat(networking::Request &t_req);
 
     static std::string get_os_name();
-
-
   };
 
 }
