@@ -7,37 +7,22 @@
 #include "accounts.hpp"
 #include "system_info.hpp"
 #include "data_manager.hpp"
+#include "connection.hpp"
 
-namespace router {
+namespace routing {
 
-typedef void (*Controller)(networking::Request &);
+typedef void (*ControlController)(networking::Request &);
+typedef void (*DataController)(networking::Request &, networking::Connection &);
 
-static std::map<commands::name, Controller> route {
-    /* Accounts */
-    {commands::name::USER, controllers::Accounts::verify_user},
-    {commands::name::PASS, controllers::Accounts::verify_password},
+struct Router{
+   static void route(const commands::name t_command, networking::Request &t_req, networking::Connection &t_dataconn);
 
-    /* Disk */
-    {commands::name::CWD, controllers::DiskManager::change_directory },
-    {commands::name::CDUP, controllers::DiskManager::change_up_directory},
-    {commands::name::PWD, controllers::DiskManager::print_working_directory},
-    {commands::name::MKD, controllers::DiskManager::make_directory},
-    {commands::name::RMD, controllers::DiskManager::remove_directory},
-    {commands::name::RNFR, controllers::DiskManager::rename_from},
-    {commands::name::RNTO, controllers::DiskManager::rename_to},
-
-    /* System Info */
-    {commands::name::SYST, controllers::SystemInfo::system_os},
-    {commands::name::HELP, controllers::SystemInfo::help},
-    {commands::name::STAT, controllers::SystemInfo::status},
+  private:
+   static std::map<commands::name, ControlController> m_ctrlrouter;
+   static std::map<commands::name, DataController> m_datarouter;
 
 
-    /* Data Management */
-    {commands::name::PORT, controllers::DataManager::port},
-
-    /* Other */
-    {commands::name::NOOP, [](networking::Request &t_req) { t_req.m_reply = networking::reply::r_200; }},
-    {commands::name::QUIT, [](networking::Request &t_req) { t_req.m_reply = networking::reply::r_221; }}
+   static bool is_control_router(const commands::name);
 };
 
 } // namespace router

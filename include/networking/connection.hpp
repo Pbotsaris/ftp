@@ -26,6 +26,7 @@ namespace networking {
     sockaddr_in m_address;
   
   public:
+    Connection();
     Connection(int t_port, conn_mode t_mode = passive);
     ~Connection();
   
@@ -39,6 +40,8 @@ namespace networking {
     void receive(Request &t_req);
     void respond(Request &t_req);
     int get_port();
+    void set_port(int t_port);
+    void set_mode(conn_mode t_mode);
 
   };
 }

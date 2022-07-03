@@ -19,6 +19,7 @@ namespace networking {
   class Service {
     struct          Private;
     bool            m_quit;
+
     /* Connections */
     Connection      m_ctrlconn;
     Connection      m_dataconn;
@@ -29,7 +30,7 @@ namespace networking {
     std::string     m_user;
 
     /* Disk Manager */
-    disk::Disk      m_disk;
+    disk::Disk      m_disk;  /* server disk paths */
 
   
   public:
@@ -39,6 +40,7 @@ namespace networking {
     void control_handshake();
     void control_loop();
     void control_disconnect();
+
   };
 }
 

@@ -117,6 +117,8 @@ namespace commands {
   };
 
   struct Utils {
+
+
     static type get_type(name t_command) {
 
       if(t_command >= USER && t_command < STAT)

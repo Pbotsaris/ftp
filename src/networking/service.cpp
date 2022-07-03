@@ -92,6 +92,7 @@ void Service::control_setup() {
   m_ctrlconn.socket_listen();
 }
 
+
 void Service::control_handshake() {
 
   m_ctrlconn.accept_connection();
@@ -110,7 +111,8 @@ void Service::control_loop() {
     parsing::Parser::parse(m_req);
 
     /* router delegates to a controller depending on command */
-    router::route[m_req.m_command](m_req);
+    routing::Router::route(m_req.m_command, m_req, m_dataconn);
+
     /* Sets user and login only on USER and PASS commands*/
     Private::set_user(*this);
     Private::login(*this);
@@ -131,3 +133,7 @@ void Service::control_disconnect() {
   int ctrl_port = m_ctrlconn.get_port();
   m_ctrlconn = Connection(ctrl_port); // restablish new connection
 }
+
+/* PRIVATE */
+
+

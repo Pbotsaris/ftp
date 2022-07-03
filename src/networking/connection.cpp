@@ -154,7 +154,14 @@ void Connection::respond(Request &t_req) {
     throw "Could not respond\n";
 }
 
-
 int Connection::get_port(){
   return m_port;
+}
+
+void Connection::set_port(int t_port){
+  m_port = t_port;
+}
+
+void Connection::set_mode(conn_mode t_mode){
+  m_mode = t_mode;
 }

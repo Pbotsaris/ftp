@@ -343,7 +343,7 @@ TEST_CASE("Disk Manager") {
     DiskManager::change_directory(req);
 
     CHECK(req.m_reply == networking::reply::r_550);
-  }
+}
 
   /* remove after tests */
   fs::remove_all(utils::PathHelpers::M_ROOT + "./test/inside");
