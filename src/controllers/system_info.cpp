@@ -47,6 +47,7 @@ void SystemInfo::status(networking::Request &t_req) {
     // TODO: Check if during file transfer.
     // return information about the transfer.
     // returns an error if a file is not transfering
+     
     return;
     // return information about a path
   }
@@ -80,7 +81,7 @@ void SystemInfo::list_help(networking::Request &t_req) {
 void SystemInfo::list_directory_items(networking::Request &t_req) {
 
   try {
-    t_req.m_reply_msg = utils::FileHelpers::list_dir_filenames(t_req);
+    t_req.m_reply_msg = utils::FileHelpers::list_dir_filenames(t_req, utils::FileHelpers::list_name);
     t_req.m_reply = networking::reply::r_212;
 
   } catch (std::string &err) {

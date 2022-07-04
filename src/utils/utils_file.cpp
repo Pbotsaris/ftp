@@ -4,6 +4,7 @@
 
 /* updated at */
 #include <chrono>
+#include <filesystem>
 #include <iomanip>
 
 /* user & group */
@@ -18,7 +19,8 @@
 
 using namespace utils;
 
-std::string FileHelpers::list_dir_filenames(const networking::Request &t_req) {
+
+std::string FileHelpers::list_dir_filenames(const networking::Request &t_req, listdir_option t_option) {
 
   const std::string path_to_list =
       utils::PathHelpers::join_to_system_path(t_req, t_req.m_argument);
@@ -30,8 +32,15 @@ std::string FileHelpers::list_dir_filenames(const networking::Request &t_req) {
         "' does not exist.";
 
   for (const auto &entry : fs::directory_iterator(path_to_list)) {
-    filenames.append(utils::PathHelpers::extract_last_path(entry.path()) + " ");
+    if(t_option == list_name) {
+      filenames.append(utils::PathHelpers::extract_last_path(entry.path()) + " ");
+    } else {
+      filenames.append(stat_file(entry.path()));
+      filenames.append("\r\n");
+    }
+
   }
+  LOG_DEBUG(filenames.c_str());
 
   return filenames;
 }
@@ -51,6 +60,27 @@ std::string FileHelpers::stat_file(const networking::Request &t_req) {
 }
 
 /* PRIVATE */
+
+std::string FileHelpers::stat_file(const std::string &t_path) {
+
+  std::error_code err;
+  err.clear();
+
+  fs::file_status status = fs::status(t_path, err);
+
+  if(err.value())
+      throw "Could not stat ";
+
+  std::string result  = file_permissions(status.permissions()) + " ";
+
+  result.append(file_group_user(t_path) + " ");
+  result.append(updated_at(t_path) + " ");
+  result.append(utils::PathHelpers::extract_last_path(t_path) + " (");
+  result.append(file_type(status) + ")");
+
+  return result;
+}
+
 
 fs::file_status FileHelpers::file_status_validate(const networking::Request &t_req, const std::string &t_path_to_stat){
 
@@ -73,6 +103,8 @@ fs::file_status FileHelpers::file_status_validate(const networking::Request &t_r
 std::string FileHelpers::file_type(const fs::file_status t_status) {
   if (fs::is_regular_file(t_status))
     return "Regular file";
+if (fs::is_directory(t_status))
+    return "Directory";
   if (fs::is_block_file(t_status))
     return "Block";
   if (fs::is_character_file(t_status))
@@ -110,7 +142,10 @@ std::string FileHelpers::updated_at(const std::string &t_path) {
 
   time << std::asctime(std::localtime(&cftime));
 
-  return time.str();
+  std::string time_str = time.str();
+  time_str.erase(time_str.end() - 1); // remove the '\n'
+
+  return time_str;
 }
 std::string FileHelpers::file_group_user(const std::string &t_path) {
 
@@ -148,8 +183,8 @@ TEST_CASE("File Utils") { // create file to test
   auto req = networking::Request(disk);
   req.m_argument = "test.txt";
 
-  auto stat = FileHelpers::stat_file(req);
-  CHECK(!stat.empty());
+  auto s_stat = FileHelpers::stat_file(req);
+  CHECK(!s_stat.empty());
 
   fs::remove(path);
 }

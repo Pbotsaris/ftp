@@ -7,24 +7,23 @@
 
 #if __linux__ 
 namespace fs = std::filesystem;
-
 #elif __APPLE__ || __MACH__
 namespace fs = std::__fs::filesystem;
-
 #endif
-
 
 namespace utils {
 
 /* NOTE: FileHelpers functions are pure; will never modifies arguments.*/
 
-
 struct FileHelpers {
+  
+ enum listdir_option{list_name, list_stat};
 
-  static std::string list_dir_filenames(const networking::Request &t_req);
+  static std::string list_dir_filenames(const networking::Request &t_req, listdir_option t_option);
   static std::string stat_file(const networking::Request &t_req);
 
   private:
+  static std::string stat_file(const std::string &t_path);
   /* status helpers */
   static fs::file_status file_status_validate(const networking::Request &t_req, const std::string &t_path_to_stat);
   static std::string file_permissions(const fs::perms t_perms);

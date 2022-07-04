@@ -100,7 +100,7 @@ void Connection::accept_connection() {
   socklen_t client_addr_len = sizeof(m_address);
 
   m_connected_socket =
-      accept(m_local_socket, reinterpret_cast<struct sockaddr *>(&m_address),
+       accept(m_local_socket, reinterpret_cast<struct sockaddr *>(&m_address),
              &client_addr_len);
 
 
@@ -170,7 +170,8 @@ void Connection::transfer(Request &t_req) {
 
  LOG_INFO("Closing data connection.");
 
-   close(m_connected_socket);
+ //  close(m_connected_socket);
+   shutdown(m_local_socket, SHUT_RDWR);
   }
 
 int Connection::get_port(){

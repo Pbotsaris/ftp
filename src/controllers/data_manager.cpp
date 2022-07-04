@@ -3,6 +3,7 @@
 #include "disk_manager.hpp"
 #include "doctest.h"
 #include "logger.hpp"
+#include "utils_file.hpp"
 #include <sstream>
 #include <string>
 
@@ -54,7 +55,7 @@ void DataManager::list(networking::Request &t_req,
 
     t_req.m_reply = networking::reply::r_150;
     t_req.m_isdata = true;
-    t_req.m_data.m_ascii = "list of files\n";
+    t_req.m_data.m_ascii = utils::FileHelpers::list_dir_filenames(t_req, utils::FileHelpers::list_stat);
 
   } else {
 
