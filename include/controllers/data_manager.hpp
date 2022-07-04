@@ -12,9 +12,11 @@ struct DataManager {
   static const int M_PORT_SPLIT_POS;
   static const int M_PORT_ARG_LEN;
 
+  /* callbacks */
   static void port(networking::Request &t_req, networking::Connection &t_conn);
-  static void get(networking::Request &t_req, networking::Connection &t_conn);
+  static void retrieve(networking::Request &t_req, networking::Connection &t_conn);
   static void list(networking::Request &t_req, networking::Connection &t_conn);
+  static void type(networking::Request &t_req, networking::Connection &t_conn);
 
   private:
   static void data_connect(utils::StringVector &t_port_argument, networking::Connection &t_conn);
@@ -24,6 +26,8 @@ struct DataManager {
 
   static std::string decimal_to_hex(const std::string t_decimal);
   static int hex_to_decimal(const std::string t_hex);
+
+  static networking::conn_type select_type(std::string &t_type);
 
   /* exception messages */
   static std::string port_length_err(int t_arg_len);

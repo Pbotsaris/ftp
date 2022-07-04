@@ -121,10 +121,10 @@ namespace commands {
 
     static type get_type(name t_command) {
 
-      if(t_command >= USER && t_command < STAT)
+      if(t_command >= USER && t_command < LIST)
         return with_argument;
 
-      else if(t_command >= STAT)
+      else if(t_command >= LIST)
         return zero_or_more_arguments;
 
       else

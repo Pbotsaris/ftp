@@ -1,4 +1,5 @@
 #include "data_manager.hpp"
+#include "connection.hpp"
 #include "disk_manager.hpp"
 #include "doctest.h"
 #include "logger.hpp"
@@ -10,7 +11,8 @@ using namespace controllers;
 const int DataManager::M_PORT_SPLIT_POS = 4;
 const int DataManager::M_PORT_ARG_LEN = 6;
 
-void DataManager::port(networking::Request &t_req, networking::Connection &t_conn) {
+void DataManager::port(networking::Request &t_req,
+                       networking::Connection &t_conn) {
 
   utils::StringVector port_argument =
       utils::StringHelpers::split_string(t_req.m_argument, ",");
@@ -25,16 +27,48 @@ void DataManager::port(networking::Request &t_req, networking::Connection &t_con
   }
 }
 
-void DataManager::get(networking::Request &t_req, networking::Connection &t_conn){
-  LOG_DEBUG("Get was called!");
+void DataManager::type(networking::Request &t_req,
+                       networking::Connection &t_conn) {
+
+  networking::conn_type type = select_type(t_req.m_argument);
+
+  if (type == networking::none) {
+    t_req.m_reply = networking::reply::r_501;
+    return;
+  }
+
+  t_conn.set_type(type);
+  t_req.m_reply = networking::reply::r_200;
 }
 
-void DataManager::list(networking::Request &t_req, networking::Connection &t_conn){
-  LOG_DEBUG("list was called!");
+void DataManager::retrieve(networking::Request &t_req,
+                           networking::Connection &t_conn) {
+
+  LOG_DEBUG("Retrieve was called!");
 }
 
+void DataManager::list(networking::Request &t_req,
+                       networking::Connection &t_conn) {
 
-void DataManager::data_connect(utils::StringVector &t_port_argument, networking::Connection &t_conn) {
+  if (t_conn.get_type() == networking::acii) {
+
+    t_req.m_reply = networking::reply::r_150;
+    t_req.m_isdata = true;
+    t_req.m_data.m_ascii = "list of files\n";
+
+  } else {
+
+    int port = t_conn.get_port();
+    t_conn = networking::Connection(port, networking::active); /* kill connection */
+    t_req.m_reply = networking::reply::r_426;
+    t_req.m_reply_msg = " 'TYPE' must be set to ASCII.";
+  }
+
+    /* restablish connection after transfer */  
+}
+
+void DataManager::data_connect(utils::StringVector &t_port_argument,
+                               networking::Connection &t_conn) {
 
   std::string ip = extract_ip(t_port_argument);
   int port = extract_port(t_port_argument);
@@ -81,6 +115,15 @@ int DataManager::hex_to_decimal(const std::string t_hex) {
   return decimal;
 }
 
+networking::conn_type DataManager::select_type(std::string &t_type) {
+  if (t_type == "A")
+    return networking::acii;
+  else if (t_type == "I")
+    return networking::image;
+  else
+    return networking::none;
+}
+
 std::string DataManager::port_length_err(int t_arg_len) {
 
   std::string err_msg =
@@ -92,14 +135,14 @@ std::string DataManager::port_length_err(int t_arg_len) {
   return err_msg;
 }
 
-//TEST_CASE("Data Manager") {
+// TEST_CASE("Data Manager") {
 //
-//  disk::Disk disk;
-//  DiskManager::init(disk);
-//  auto req = networking::Request(disk);
-//  req.m_argument = "127,0,0,1,211,181";
+//   disk::Disk disk;
+//   DiskManager::init(disk);
+//   auto req = networking::Request(disk);
+//   req.m_argument = "127,0,0,1,211,181";
 //
-//  DataManager::port(req);
+//   DataManager::port(req);
 //
-//  LOG_DEBUG("PORT: %d", req.m_port);
-//}
+//   LOG_DEBUG("PORT: %d", req.m_port);
+// }

@@ -115,8 +115,8 @@ static std::map<code, std::string> messages{
     /***** 400 series  ****/
     {r_400, "400 The command was not accepted. May be requested again.\n"},
     {r_421, "421 Service not available, closing control connection.\n"}, 
-    {r_425, "425 Can't open data connection.\n"},
-    {r_426, "426 Connection closed; transfer aborted.\n"},
+    {r_425, "425 Can't open data connection.\n"}, 
+    {r_426, "426 Connection closed; transfer aborted."}, /* append details. */
     {r_430, "430 Invalid username or password.\n"},
     {r_434, "434 Requested host unavailable.\n"},
     {r_450, "450 Requested file action not taken.\n"},

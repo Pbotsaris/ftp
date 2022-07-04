@@ -41,6 +41,9 @@ namespace networking {
     void control_loop();
     void control_disconnect();
 
+  private:
+    void data_transfer();
+
   };
 }
 

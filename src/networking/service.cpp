@@ -76,7 +76,7 @@ struct Service::Private {
 /* Constructor */
 
 Service::Service(int t_port)
-    : m_ctrlconn(t_port), m_dataconn(t_port++, active), m_logged_in(false),
+    : m_ctrlconn(t_port), m_dataconn(t_port++, active), m_logged_in(false), 
       m_disk() {
 
   controllers::DiskManager::init(m_disk);
@@ -122,6 +122,10 @@ void Service::control_loop() {
 
     Private::will_quit(*this); // ?
     m_ctrlconn.respond(m_req);
+
+    /* transfer data if any */
+    data_transfer();
+
     Private::reset_request(*this);
   }
 
@@ -133,6 +137,21 @@ void Service::control_disconnect() {
   int ctrl_port = m_ctrlconn.get_port();
   m_ctrlconn = Connection(ctrl_port); // restablish new connection
 }
+
+void Service::data_transfer() {
+  if(m_req.m_isdata){
+     m_dataconn.transfer(m_req);
+
+    if(m_req.m_valid){
+      auto req = Request();
+      req.m_reply = reply::r_226;
+      m_ctrlconn.respond(req);
+    }
+
+  }
+     
+}
+
 
 /* PRIVATE */
 

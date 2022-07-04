@@ -12,9 +12,9 @@ static const int MAX_READ_SIZE = BUFFER_SIZE - 2;
 /* This QUEUE_SIZE configures the number of queuing requests for each connection */
 static const int QUEUE_SIZE = 5;
 
-Connection::Connection(int t_port, conn_mode t_mode)
-    : m_port(t_port), m_mode(t_mode), m_connected_socket(0) {
+Connection::Connection(int t_port, conn_mode t_mode, conn_type t_type)
 
+  : m_port(t_port), m_mode(t_mode), m_type(t_type), m_connected_socket(0) {
   /* init to 0 */
   bzero(&m_address, sizeof(m_address));
   m_local_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -74,7 +74,7 @@ void Connection::socket_listen() {
 
   listen(m_local_socket, QUEUE_SIZE);
   
-  LOG_INFO("Listening on port %d ...\n", m_port);
+  LOG_INFO("Listening on port %d.", m_port);
 }
 
 void Connection::connect_socket() {
@@ -88,6 +88,8 @@ void Connection::connect_socket() {
 
   if (m_connected_socket < 0)
     throw "error could not connect to socket\n";
+
+  LOG_INFO("Connected to client socket successfully.");
 }
 
 void Connection::accept_connection() {
@@ -101,12 +103,11 @@ void Connection::accept_connection() {
       accept(m_local_socket, reinterpret_cast<struct sockaddr *>(&m_address),
              &client_addr_len);
 
+
   if (m_connected_socket < 0)
-    throw "error accepting connecting\n";
+    throw "error accepting a connection\n";
 
-
-  LOG_INFO("Accepted connection to socket.\n");
-
+  LOG_INFO("Accepted connection to socket.");
 }
 
 void Connection::receive(Request &t_req) {
@@ -151,8 +152,26 @@ void Connection::respond(Request &t_req) {
   int res = send(m_connected_socket, msg.c_str(), msg.size(), 0);
 
   if(res < 0)
-    throw "Could not respond\n";
+    throw "Could not respond to client\n";
+
 }
+
+void Connection::transfer(Request &t_req) {
+
+  /* TODO: redo this */
+ //  std::string data = m_type == image ? t_req.m_data.m_image : t_req.m_data.m_ascii;
+
+  int res = send(m_local_socket, t_req.m_data.m_ascii.c_str(), t_req.m_data.m_ascii.size(), 0);
+
+  if(res < 0){
+     LOG_ERROR("Could not transfer ASCII data to client.");
+     t_req.m_valid = false;
+  }
+
+ LOG_INFO("Closing data connection.");
+
+   close(m_connected_socket);
+  }
 
 int Connection::get_port(){
   return m_port;
@@ -164,4 +183,12 @@ void Connection::set_port(int t_port){
 
 void Connection::set_mode(conn_mode t_mode){
   m_mode = t_mode;
+}
+
+void Connection::set_type(conn_type t_type){
+  m_type = t_type;
+}
+
+conn_type Connection::get_type(){
+ return m_type;
 }

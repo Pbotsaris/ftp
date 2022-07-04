@@ -30,8 +30,9 @@ std::map<commands::name, ControlController> Router::m_ctrlrouter{
 
 std::map<commands::name, DataController> Router::m_datarouter{
 
+    {commands::name::TYPE, controllers::DataManager::type},
     {commands::name::PORT, controllers::DataManager::port},
-    {commands::name::RETR, controllers::DataManager::get},
+    {commands::name::RETR, controllers::DataManager::retrieve},
     {commands::name::LIST, controllers::DataManager::list},
 };
 
