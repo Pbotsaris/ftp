@@ -1,5 +1,9 @@
 #include "accounts.hpp"
 #include "doctest.h"
+#include "utils.hpp"
+#include "reply.hpp"
+#include "logger.hpp"
+
 
 using namespace controllers;
 

@@ -1,5 +1,8 @@
 #include "utils_path.hpp"
+
+#include <algorithm>
 #include <filesystem>
+#include <fstream>
 #include <system_error>
 
 #if __unix || __unix__

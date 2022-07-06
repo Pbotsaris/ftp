@@ -3,7 +3,6 @@
 #include "request.hpp"
 #include <string>
 #include <vector>
-#include <algorithm>
 
 namespace utils {
 typedef std::vector<std::string> StringVector;

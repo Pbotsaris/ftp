@@ -1,14 +1,9 @@
 #ifndef UTILS_PATH_H
 #define UTILS_PATH_H
 #include "request.hpp"
-#include <algorithm>
-#include <filesystem>
-#include <fstream>
 #include <string>
-//#include <vector>
 
-/* NOTE: PathHelper never modifies arguments and will always return a new
- * string. */
+/* NOTE: PathHelper never modifies arguments and will always return a new string. */
 
 namespace utils {
 struct PathHelpers {
@@ -33,4 +28,3 @@ struct PathHelpers {
 } // namespace utils
 
 #endif // !UTILS_PATH_H
-       //

@@ -2,6 +2,10 @@
 #include "logger.hpp"
 #include "utils_path.hpp"
 
+/* file Streams */
+#include <fstream>
+#include <sstream>
+
 /* updated at */
 #include <chrono>
 #include <filesystem>
@@ -18,7 +22,6 @@
 #include "doctest.h"
 
 using namespace utils;
-
 
 std::string FileHelpers::list_dir_filenames(const networking::Request &t_req, listdir_option t_option) {
 
@@ -40,7 +43,6 @@ std::string FileHelpers::list_dir_filenames(const networking::Request &t_req, li
     }
 
   }
-  LOG_DEBUG(filenames.c_str());
 
   return filenames;
 }

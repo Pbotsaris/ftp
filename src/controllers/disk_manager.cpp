@@ -1,7 +1,8 @@
 #include "disk_manager.hpp"
+#include "logger.hpp"
+
+/* Tests */
 #include "doctest.h"
-#include <exception>
-#include <string>
 
 // stop unused variable warning when looping with `for(auto &some_var : some_enumerable)
 #define MON_Internal_UnusedStringify(macro_arg_string_literal)                 \

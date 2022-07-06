@@ -1,11 +1,10 @@
 #ifndef ACCOUNT_H
 #define ACCOUNT_H
-#include "utils.hpp"
-#include "request.hpp"
-#include "reply.hpp"
-#include "logger.hpp"
 #include <fstream>
 #include <string>
+
+#include "utils.hpp"
+#include "request.hpp"
 
 namespace controllers {
 

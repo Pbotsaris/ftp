@@ -1,4 +1,5 @@
 #include "utils_string.hpp"
+#include <algorithm>
 
 using namespace utils;
 

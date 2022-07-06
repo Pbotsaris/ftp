@@ -1,14 +1,7 @@
 #ifndef DISK_MANAGER_H
 #define DISK_MANAGER_H
-#include "disk.hpp"
 #include "request.hpp"
 #include "utils.hpp"
-#include "logger.hpp"
-#include "reply.hpp"
-#include <filesystem>
-#include <fstream>
-#include <cstdlib>
-#include <iostream>
 
 namespace controllers {
 struct DiskManager {
