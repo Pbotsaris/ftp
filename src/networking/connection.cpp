@@ -16,9 +16,9 @@ Connection::Connection(int t_port, conn_mode t_mode, conn_type t_type)
 
   : m_port(t_port), m_mode(t_mode), m_type(t_type), m_connected_socket(0) {
   /* init to 0 */
-  bzero(&m_address, sizeof(m_address));
-  m_local_socket = socket(AF_INET, SOCK_STREAM, 0);
 
+    create_socket();
+ 
   if (m_local_socket < 0)
     throw "invalid socket";
 };
@@ -170,8 +170,10 @@ void Connection::transfer(Request &t_req) {
 
  LOG_INFO("Closing data connection.");
 
- //  close(m_connected_socket);
    shutdown(m_local_socket, SHUT_RDWR);
+
+   /* creates a new socket after shutdown and clear IP address */
+   create_socket();
   }
 
 int Connection::get_port(){
@@ -192,4 +194,15 @@ void Connection::set_type(conn_type t_type){
 
 conn_type Connection::get_type(){
  return m_type;
+}
+
+
+void Connection::create_socket(){
+
+  bzero(&m_address, sizeof(m_address));
+  m_local_socket = socket(AF_INET, SOCK_STREAM, 0);
+
+  if (m_local_socket < 0)
+    throw "invalid socket";
+
 }

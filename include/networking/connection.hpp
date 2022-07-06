@@ -48,6 +48,9 @@ namespace networking {
     void        set_mode(conn_mode t_mode);
     conn_type   get_type();
     void        set_type(conn_type t_type);
+
+  private:
+    void        create_socket();
   };
 }
 

@@ -19,7 +19,8 @@ void DataManager::port(networking::Request &t_req,
       utils::StringHelpers::split_string(t_req.m_argument, ",");
 
   if (port_argument.size() < M_PORT_ARG_LEN) {
-    throw port_length_err(port_argument.size());
+     LOG_ERROR(port_length_err(port_argument.size()).c_str());
+     t_req.m_reply = networking::reply::r_500;
 
   } else {
 
@@ -75,7 +76,6 @@ void DataManager::data_connect(utils::StringVector &t_port_argument,
   int port = extract_port(t_port_argument);
 
   t_conn.set_port(port);
-  t_conn.set_socket_options();
   t_conn.config_addr(ip);
   t_conn.connect_socket();
 }

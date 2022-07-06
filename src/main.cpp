@@ -40,7 +40,3 @@ int main(void) {
   return 0;
 }
 
-
-//  Class connection. 
-//
-//  Class Service ->  2 connections  1. control  / 2.Data

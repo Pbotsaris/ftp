@@ -83,6 +83,10 @@ Service::Service(int t_port)
   m_req = Request(m_disk);
   m_ctrlconn.set_socket_options();
   m_ctrlconn.config_addr();
+
+
+  /* data options */
+  m_dataconn.set_socket_options();
 }
 
 /* Public */
@@ -148,6 +152,7 @@ void Service::data_transfer() {
       m_ctrlconn.respond(req);
     }
 
+ //   m_dataconn = Connection(m_dataconn.get_port(), active);
   }
      
 }
