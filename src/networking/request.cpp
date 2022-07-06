@@ -2,6 +2,10 @@
 
 using namespace networking;
 
-Request::Request() : m_raw(), m_valid(true), m_isdata(false), m_reply(reply::nocode) {}
+Request::Request(bool t_logged_in)
+    : m_raw(), m_valid(true), m_isdata(false), m_reply(reply::nocode),
+      m_logged_in(t_logged_in) {}
 
-Request::Request(disk::Disk &t_disk) : m_raw(), m_valid(true), m_isdata(false), m_reply(reply::nocode), m_disk(t_disk) {}
+Request::Request(disk::Disk &t_disk, bool t_logged_in)
+    : m_raw(), m_valid(true), m_isdata(false), m_reply(reply::nocode),
+      m_logged_in(t_logged_in), m_disk(t_disk) {}

@@ -20,12 +20,13 @@ namespace networking {
     std::string               m_reply_msg;             /* reply message if any  */
     commands::name            m_command;               /* command name. See commands.hpp */
     std::string               m_argument;              /* command argument if any */
-    std::string               m_current_user;          /* current user to a service */
+    std::string               m_current_user;          /* current of the server generating the request */
+    bool                      m_logged_in;             /* was user logged in when request was generated */
     disk::Disk                m_disk;                  /* path/disk information of the server */
     Data                      m_data;
 
-   Request();
-   Request(disk::Disk &t_disk);
+   Request(bool t_logged_in = false);
+   Request(disk::Disk &t_disk, bool t_logged_in = false);
 
   };
 }

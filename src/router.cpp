@@ -39,12 +39,19 @@ std::map<commands::name, DataController> Router::m_datarouter{
 void Router::route(const commands::name t_command, networking::Request &t_req,
                    networking::Connection &t_dataconn) {
 
-  if (is_control_router(t_command))
-    m_ctrlrouter[t_command](t_req);
-  else
-    m_datarouter[t_command](t_req, t_dataconn);
-}
+  if(require_logged_user(t_command, t_req) && !t_req.m_logged_in){
 
+    t_req.m_reply = networking::reply::r_530;
+    LOG_ERROR("Not allowed - User not logged in.");
+    return;
+  }
+
+  if (is_control_router(t_command))
+     m_ctrlrouter[t_command](t_req);
+  else
+     m_datarouter[t_command](t_req, t_dataconn);
+
+}
 bool Router::is_control_router(const commands::name t_command) {
 
   std::vector<commands::name> control_commands;
@@ -55,4 +62,10 @@ bool Router::is_control_router(const commands::name t_command) {
 
   return std::any_of(control_commands.begin(), control_commands.end(),
                      [t_command](commands::name cmd) { return cmd == t_command; });
+}
+
+bool Router::require_logged_user(const commands::name t_command, networking::Request &t_req){
+  return t_command != commands::USER &&
+         t_command != commands::PASS &&
+         t_command != commands::HELP;
 }

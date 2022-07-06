@@ -47,7 +47,7 @@ struct Service::Private {
   }
 
   static void reset_request(Service &t_self) {
-    t_self.m_req = Request(t_self.m_disk); // resets with current disk state
+    t_self.m_req = Request(t_self.m_disk, t_self.m_logged_in); // resets with current disk state
 
     if (!t_self.m_user.empty())
       t_self.m_req.m_current_user = t_self.m_user;
@@ -80,7 +80,7 @@ Service::Service(int t_port)
       m_disk() {
 
   controllers::DiskManager::init(m_disk);
-  m_req = Request(m_disk);
+  m_req = Request(m_disk, m_logged_in);
   m_ctrlconn.set_socket_options();
   m_ctrlconn.config_addr();
 
@@ -147,7 +147,7 @@ void Service::data_transfer() {
      m_dataconn.transfer(m_req);
 
     if(m_req.m_valid){
-      auto req = Request();
+      auto req = Request(m_logged_in);
       req.m_reply = reply::r_226;
       m_ctrlconn.respond(req);
     }
