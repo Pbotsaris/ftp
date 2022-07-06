@@ -27,6 +27,7 @@ std::string FileHelpers::list_dir_filenames(const networking::Request &t_req, li
 
   const std::string path_to_list =
       utils::PathHelpers::join_to_system_path(t_req, t_req.m_argument);
+
   std::string filenames;
 
   if (!utils::PathHelpers::path_exists(path_to_list))
@@ -51,8 +52,8 @@ std::string FileHelpers::stat_file(const networking::Request &t_req) {
 
   std::string path_to_stat = PathHelpers::join_to_system_path(t_req, t_req.m_argument);
   fs::file_status status   = file_status_validate(t_req, path_to_stat);
-  std::string result       = file_permissions(status.permissions()) + " ";
 
+  std::string result       = file_permissions(status.permissions()) + " ";
   result.append(file_group_user(path_to_stat) + " ");
   result.append(updated_at(path_to_stat) + " ");
   result.append(utils::PathHelpers::extract_last_path(t_req.m_argument) + " (");

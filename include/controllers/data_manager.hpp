@@ -21,6 +21,12 @@ struct DataManager {
   private:
   static void data_connect(utils::StringVector &t_port_argument, networking::Connection &t_conn);
 
+  /* list helpers */
+  static void valid_to_list(networking::Request &t_req);
+  static void invalid_to_list(networking::Request &t_req, networking::Connection &t_conn);
+  static void list_with_argument(networking::Request &t_req);
+
+  /* port helpers */
   static std::string extract_ip(utils::StringVector &t_port_arg);
   static int extract_port(utils::StringVector &t_port_arg);
 

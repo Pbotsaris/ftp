@@ -19,11 +19,10 @@ void DataManager::port(networking::Request &t_req,
       utils::StringHelpers::split_string(t_req.m_argument, ",");
 
   if (port_argument.size() < M_PORT_ARG_LEN) {
-     LOG_ERROR(port_length_err(port_argument.size()).c_str());
-     t_req.m_reply = networking::reply::r_500;
+    LOG_ERROR(port_length_err(port_argument.size()).c_str());
+    t_req.m_reply = networking::reply::r_500;
 
   } else {
-
     data_connect(port_argument, t_conn);
     t_req.m_reply = networking::reply::r_200;
   }
@@ -52,21 +51,11 @@ void DataManager::retrieve(networking::Request &t_req,
 void DataManager::list(networking::Request &t_req,
                        networking::Connection &t_conn) {
 
-  if (t_conn.get_type() == networking::acii) {
+  if (t_conn.get_type() == networking::acii)
+    valid_to_list(t_req);
 
-    t_req.m_reply = networking::reply::r_150;
-    t_req.m_isdata = true;
-    t_req.m_data.m_ascii = utils::FileHelpers::list_dir_filenames(t_req, utils::FileHelpers::list_stat);
-
-  } else {
-
-    int port = t_conn.get_port();
-    t_conn = networking::Connection(port, networking::active); /* kill connection */
-    t_req.m_reply = networking::reply::r_426;
-    t_req.m_reply_msg = " 'TYPE' must be set to ASCII.";
-  }
-
-    /* restablish connection after transfer */  
+  else
+    invalid_to_list(t_req, t_conn);
 }
 
 void DataManager::data_connect(utils::StringVector &t_port_argument,
@@ -78,6 +67,46 @@ void DataManager::data_connect(utils::StringVector &t_port_argument,
   t_conn.set_port(port);
   t_conn.config_addr(ip);
   t_conn.connect_socket();
+}
+
+void DataManager::valid_to_list(networking::Request &t_req) {
+
+  t_req.m_reply = networking::reply::r_150;
+  t_req.m_isdata = true;
+
+  try {
+    if (t_req.m_argument.empty())
+      t_req.m_data.m_ascii = utils::FileHelpers::list_dir_filenames(
+          t_req, utils::FileHelpers::list_stat);
+    else
+       list_with_argument(t_req);
+
+  } catch (std::string &msg) { /* could not list */
+    LOG_ERROR(msg.c_str());
+    t_req.m_isdata = false;
+    t_req.m_reply = networking::reply::r_550;
+  }
+}
+
+void DataManager::list_with_argument(networking::Request &t_req) {
+
+  std::string path =
+      utils::PathHelpers::join_to_system_path(t_req, t_req.m_argument);
+
+  if (utils::PathHelpers::is_path_directory(path))
+    t_req.m_data.m_ascii = utils::FileHelpers::list_dir_filenames(
+        t_req, utils::FileHelpers::list_stat);
+
+  else
+    t_req.m_data.m_ascii = utils::FileHelpers::stat_file(t_req);
+}
+
+void DataManager::invalid_to_list(networking::Request &t_req,
+                                  networking::Connection &t_conn) {
+  t_conn = networking::Connection(t_conn.get_port(),
+                                  networking::active); /* kill connection */
+  t_req.m_reply = networking::reply::r_426;
+  t_req.m_reply_msg = " 'TYPE' must be set to ASCII.";
 }
 
 std::string DataManager::extract_ip(utils::StringVector &t_port_arg) {
@@ -136,14 +165,3 @@ std::string DataManager::port_length_err(int t_arg_len) {
   return err_msg;
 }
 
-// TEST_CASE("Data Manager") {
-//
-//   disk::Disk disk;
-//   DiskManager::init(disk);
-//   auto req = networking::Request(disk);
-//   req.m_argument = "127,0,0,1,211,181";
-//
-//   DataManager::port(req);
-//
-//   LOG_DEBUG("PORT: %d", req.m_port);
-// }
