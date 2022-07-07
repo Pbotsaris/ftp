@@ -14,7 +14,7 @@ static const int QUEUE_SIZE = 5;
 
 Connection::Connection(int t_port, conn_mode t_mode, conn_type t_type)
 
-  : m_port(t_port), m_mode(t_mode), m_type(t_type), m_connected_socket(0) {
+  : m_port(t_port), m_mode(t_mode), m_connected_socket(0), m_type(t_type) {
   /* init to 0 */
 
     create_socket();
@@ -158,23 +158,22 @@ void Connection::respond(Request &t_req) {
 
 void Connection::transfer(Request &t_req) {
 
-  /* TODO: redo this */
- //  std::string data = m_type == image ? t_req.m_data.m_image : t_req.m_data.m_ascii;
+  if(m_type == Connection::ascii)
+    transfer_ascii(t_req);
 
-  int res = send(m_local_socket, t_req.m_data.m_ascii.c_str(), t_req.m_data.m_ascii.size(), 0);
+  else
+    transfer_image(t_req);
 
-  if(res < 0){
-     LOG_ERROR("Could not transfer ASCII data to client.");
-     t_req.m_valid = false;
-  }
+  LOG_INFO("Closing data connection.");
+   
+  reconnect();
+}
 
- LOG_INFO("Closing data connection.");
-
-   shutdown(m_local_socket, SHUT_RDWR);
-
-   /* creates a new socket after shutdown and clear IP address */
-   create_socket();
-  }
+void Connection::reconnect(){
+  shutdown(m_local_socket, SHUT_RDWR);
+  /* creates a new socket after shutdown and clear IP address */
+  create_socket();
+}
 
 int Connection::get_port(){
   return m_port;
@@ -192,7 +191,7 @@ void Connection::set_type(conn_type t_type){
   m_type = t_type;
 }
 
-conn_type Connection::get_type(){
+Connection::conn_type Connection::get_type(){
  return m_type;
 }
 
@@ -204,5 +203,28 @@ void Connection::create_socket(){
 
   if (m_local_socket < 0)
     throw "invalid socket";
+
+}
+
+
+void Connection::transfer_ascii(Request &t_req){
+
+   int res = send(m_local_socket, t_req.m_data.m_ascii.c_str(), t_req.m_data.m_ascii.size(), 0);
+
+  if(res < 0){
+     LOG_ERROR("Could not transfer ASCII data to client.");
+     t_req.m_valid = false;
+  }
+
+
+}
+
+void Connection::transfer_image(Request &t_req){
+   int res = send(m_local_socket, t_req.m_data.m_image.get(), t_req.m_data.m_image_size, 0);
+
+ if(res < 0){
+     LOG_ERROR("Could not transfer Image/Binary data to client.");
+     t_req.m_valid = false;
+  }
 
 }

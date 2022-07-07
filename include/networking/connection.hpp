@@ -16,19 +16,19 @@
 
 namespace networking {
   enum conn_mode { active, passive };
-
-  enum conn_type {none, image, acii};
   
   class Connection {
+
   private:
     int         m_port;
     conn_mode   m_mode;
-    conn_type   m_type;
     int         m_local_socket;
     int         m_connected_socket;
     sockaddr_in m_address;
   
   public:
+    enum conn_type {none, image, ascii};
+
     Connection();
     Connection(int t_port, conn_mode t_mode = passive, conn_type t_type = none);
     ~Connection();
@@ -48,9 +48,14 @@ namespace networking {
     void        set_mode(conn_mode t_mode);
     conn_type   get_type();
     void        set_type(conn_type t_type);
+    void        reconnect();
 
   private:
     void        create_socket();
+    void        transfer_ascii(Request &t_req);
+    void        transfer_image(Request &t_req);
+
+    conn_type   m_type;
   };
 }
 

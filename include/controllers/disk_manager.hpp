@@ -34,6 +34,7 @@ struct DiskManager {
   static int        count_resuling_dir_level(utils::StringVector &t_paths);
   static int        count_directory_items(std::string &t_path);
 
+
 };
 
 } // namespace disk

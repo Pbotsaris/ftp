@@ -23,7 +23,7 @@ private:
   static std::map<commands::name, DataController> m_datarouter;
 
   static bool is_control_router(const commands::name t_command);
-  static bool require_logged_user(const commands::name t_command, networking::Request &t_req);
+  static bool require_logged_user(const commands::name t_command);
 };
 
 } // namespace routing

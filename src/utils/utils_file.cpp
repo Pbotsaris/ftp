@@ -4,6 +4,7 @@
 
 /* file Streams */
 #include <fstream>
+#include <ios>
 #include <sstream>
 
 /* updated at */
@@ -23,7 +24,8 @@
 
 using namespace utils;
 
-std::string FileHelpers::list_dir_filenames(const networking::Request &t_req, listdir_option t_option) {
+std::string FileHelpers::list_dir_filenames(const networking::Request &t_req,
+                                            listdir_option t_option) {
 
   const std::string path_to_list =
       utils::PathHelpers::join_to_system_path(t_req, t_req.m_argument);
@@ -31,18 +33,17 @@ std::string FileHelpers::list_dir_filenames(const networking::Request &t_req, li
   std::string filenames;
 
   if (!utils::PathHelpers::path_exists(path_to_list))
-    throw "Failed listing directory; The path '" +
-        utils::PathHelpers::join_to_user_path(t_req, t_req.m_argument) +
-        "' does not exist.";
+    throw  list_dir_err_msg(t_req);
+        
 
   for (const auto &entry : fs::directory_iterator(path_to_list)) {
-    if(t_option == list_name) {
+    if (t_option == list_name) {
       filenames.append(utils::PathHelpers::extract_last_path(entry.path()) + " ");
+
     } else {
       filenames.append(stat_file(entry.path()));
       filenames.append("\r\n");
     }
-
   }
 
   return filenames;
@@ -50,16 +51,39 @@ std::string FileHelpers::list_dir_filenames(const networking::Request &t_req, li
 
 std::string FileHelpers::stat_file(const networking::Request &t_req) {
 
-  std::string path_to_stat = PathHelpers::join_to_system_path(t_req, t_req.m_argument);
-  fs::file_status status   = file_status_validate(t_req, path_to_stat);
+  std::string path_to_stat =
+      PathHelpers::join_to_system_path(t_req, t_req.m_argument);
 
-  std::string result       = file_permissions(status.permissions()) + " ";
+  fs::file_status status = file_status_validate(t_req, path_to_stat);
+  std::string result = file_permissions(status.permissions()) + " ";
+
   result.append(file_group_user(path_to_stat) + " ");
   result.append(updated_at(path_to_stat) + " ");
   result.append(utils::PathHelpers::extract_last_path(t_req.m_argument) + " (");
   result.append(file_type(status) + ")");
 
   return result;
+}
+
+FileHelpers::AllocTuple FileHelpers::read_bytes(const networking::Request &t_req) {
+
+  std::string path_to_read = PathHelpers::join_to_system_path(t_req, t_req.m_argument);
+
+  validate_path(t_req, path_to_read);
+
+  std::ifstream file(path_to_read, std::ios::in | std::ios::binary | std::ios::ate);
+
+  if (!file.is_open())
+    throw "Could not open file for transfer";
+
+  std::uintmax_t file_size = std::filesystem::file_size(path_to_read);
+  networking::ImageBuffer buffer(new char[file_size]);
+  file.read(buffer.get(), file_size);
+  file.close();
+
+  FileHelpers::AllocTuple alloced (std::move(buffer), file_size);
+  
+  return alloced;
 }
 
 /* PRIVATE */
@@ -71,10 +95,10 @@ std::string FileHelpers::stat_file(const std::string &t_path) {
 
   fs::file_status status = fs::status(t_path, err);
 
-  if(err.value())
-      throw "Could not stat ";
+  if (err.value())
+    throw "Could not stat ";
 
-  std::string result  = file_permissions(status.permissions()) + " ";
+  std::string result = file_permissions(status.permissions()) + " ";
 
   result.append(file_group_user(t_path) + " ");
   result.append(updated_at(t_path) + " ");
@@ -84,29 +108,40 @@ std::string FileHelpers::stat_file(const std::string &t_path) {
   return result;
 }
 
+fs::file_status
+FileHelpers::file_status_validate(const networking::Request &t_req, const std::string &t_path_to_stat) {
 
-fs::file_status FileHelpers::file_status_validate(const networking::Request &t_req, const std::string &t_path_to_stat){
-
-  std::string err_path = PathHelpers::join_to_user_path(t_req, t_req.m_argument);
-
-  if(!PathHelpers::path_exists(t_path_to_stat))
-     throw "Failed to stat; The path " + err_path + "  does not exist.";
+  validate_path(t_req, t_path_to_stat);
 
   std::error_code err;
   err.clear();
 
   fs::file_status status = fs::status(t_path_to_stat, err);
 
-  if(err.value())
-      throw "Could not stat " + err_path;
+  if (err.value()) {
+    std::string user_path =
+        PathHelpers::join_to_user_path(t_req, t_req.m_argument);
+    throw "Could not stat " + user_path;
+  }
 
- return status;
+  return status;
+}
+
+void FileHelpers::validate_path(const networking::Request &t_req,
+                                const std::string &t_path) {
+
+  if (!PathHelpers::path_exists(t_path)) {
+    std::string user_path =
+        PathHelpers::join_to_user_path(t_req, t_req.m_argument);
+
+    throw "Failed to stat; The path " + user_path + "  does not exist.";
+  }
 }
 
 std::string FileHelpers::file_type(const fs::file_status t_status) {
   if (fs::is_regular_file(t_status))
     return "Regular file";
-if (fs::is_directory(t_status))
+  if (fs::is_directory(t_status))
     return "Directory";
   if (fs::is_block_file(t_status))
     return "Block";
@@ -124,15 +159,15 @@ if (fs::is_directory(t_status))
 std::string FileHelpers::file_permissions(const fs::perms t_perms) {
   std::stringstream permissions;
   permissions
-      << ((t_perms & fs::perms::owner_read)   != fs::perms::none ? "r" : "-")
-      << ((t_perms & fs::perms::owner_write)  != fs::perms::none ? "w" : "-")
-      << ((t_perms & fs::perms::owner_exec)   != fs::perms::none ? "x" : "-")
-      << ((t_perms & fs::perms::group_read)   != fs::perms::none ? "r" : "-")
-      << ((t_perms & fs::perms::group_write)  != fs::perms::none ? "w" : "-")
-      << ((t_perms & fs::perms::group_exec)   != fs::perms::none ? "x" : "-")
-      << ((t_perms & fs::perms::others_read)  != fs::perms::none ? "r" : "-")
+      << ((t_perms & fs::perms::owner_read) != fs::perms::none ? "r" : "-")
+      << ((t_perms & fs::perms::owner_write) != fs::perms::none ? "w" : "-")
+      << ((t_perms & fs::perms::owner_exec) != fs::perms::none ? "x" : "-")
+      << ((t_perms & fs::perms::group_read) != fs::perms::none ? "r" : "-")
+      << ((t_perms & fs::perms::group_write) != fs::perms::none ? "w" : "-")
+      << ((t_perms & fs::perms::group_exec) != fs::perms::none ? "x" : "-")
+      << ((t_perms & fs::perms::others_read) != fs::perms::none ? "r" : "-")
       << ((t_perms & fs::perms::others_write) != fs::perms::none ? "w" : "-")
-      << ((t_perms & fs::perms::others_exec)  != fs::perms::none ? "x" : "-");
+      << ((t_perms & fs::perms::others_exec) != fs::perms::none ? "x" : "-");
 
   return permissions.str();
 }
@@ -167,8 +202,15 @@ std::string FileHelpers::file_group_user(const std::string &t_path) {
 }
 
 
-template <typename TP>
-std::time_t FileHelpers::to_time_t(TP tp) {
+std::string FileHelpers::list_dir_err_msg(const networking::Request &t_req) {
+
+  return "Failed listing directory; The path '" +
+         utils::PathHelpers::join_to_user_path(t_req, t_req.m_argument) +
+         "' does not exist.";
+}
+
+
+template <typename TP> std::time_t FileHelpers::to_time_t(TP tp) {
   using namespace std::chrono;
   auto sctp = time_point_cast<system_clock::duration>(tp - TP::clock::now() +
                                                       system_clock::now());
@@ -177,17 +219,30 @@ std::time_t FileHelpers::to_time_t(TP tp) {
 
 /* TESTS */
 
-TEST_CASE("File Utils") { // create file to test
-  std::string path = ".root/test.txt";
-  auto a_file = std::ofstream(path);
+TEST_CASE("File Helpers") { // create file to test
 
-  disk::Disk disk;
-  controllers::DiskManager::init(disk);
-  auto req = networking::Request(disk);
-  req.m_argument = "test.txt";
+  SUBCASE("stat a file") {
+    std::string path = ".root/test.txt";
+    auto a_file = std::ofstream(path);
 
-  auto s_stat = FileHelpers::stat_file(req);
-  CHECK(!s_stat.empty());
+    disk::Disk disk;
+    controllers::DiskManager::init(disk);
+    auto req = networking::Request(disk);
+    req.m_argument = "test.txt";
 
-  fs::remove(path);
+    auto s_stat = FileHelpers::stat_file(req);
+    CHECK(!s_stat.empty());
+
+    fs::remove(path);
+  }
+
+  SUBCASE("Read file from the disk") {
+
+    disk::Disk disk;
+    controllers::DiskManager::init(disk);
+    auto req = networking::Request(disk);
+
+    req.m_argument = "image.png";
+
+  }
 }

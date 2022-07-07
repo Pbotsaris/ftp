@@ -1,15 +1,20 @@
 #ifndef REQUEST_H
 #define REQUEST_H
+#include <cstdint>
 #include <vector>
+#include <memory>
 #include "reply.hpp"
 #include "disk.hpp"
 #include"commands.hpp"
 
 namespace networking {
 
+  typedef std::unique_ptr<char[]> ImageBuffer;
+
   struct Data {
     std::string m_ascii;
-    std:: string m_image;
+    ImageBuffer m_image; /* buffer of bytes */
+    std::size_t m_image_size;
   };
 
   struct Request {

@@ -31,9 +31,9 @@ void DataManager::port(networking::Request &t_req,
 void DataManager::type(networking::Request &t_req,
                        networking::Connection &t_conn) {
 
-  networking::conn_type type = select_type(t_req.m_argument);
+  networking::Connection::conn_type type = select_type(t_req.m_argument);
 
-  if (type == networking::none) {
+  if (type == networking::Connection::none) {
     t_req.m_reply = networking::reply::r_501;
     return;
   }
@@ -42,21 +42,27 @@ void DataManager::type(networking::Request &t_req,
   t_req.m_reply = networking::reply::r_200;
 }
 
-void DataManager::retrieve(networking::Request &t_req,
-                           networking::Connection &t_conn) {
+void DataManager::retrieve(networking::Request &t_req, networking::Connection &t_conn) {
 
-  LOG_DEBUG("Retrieve was called!");
+
+  if (!t_req.m_argument.empty() && t_conn.get_type() == networking::Connection::image)
+    valid_to_retrieve(t_req);
+
+  else
+    invalid_to_retrieve(t_req, t_conn);
 }
 
 void DataManager::list(networking::Request &t_req,
                        networking::Connection &t_conn) {
 
-  if (t_conn.get_type() == networking::acii)
+  if (t_conn.get_type() == networking::Connection::ascii)
     valid_to_list(t_req);
 
   else
     invalid_to_list(t_req, t_conn);
 }
+
+/**** PRIVATE *****/
 
 void DataManager::data_connect(utils::StringVector &t_port_argument,
                                networking::Connection &t_conn) {
@@ -69,7 +75,10 @@ void DataManager::data_connect(utils::StringVector &t_port_argument,
   t_conn.connect_socket();
 }
 
+/**** LIST ****/
+
 void DataManager::valid_to_list(networking::Request &t_req) {
+
 
   t_req.m_reply = networking::reply::r_150;
   t_req.m_isdata = true;
@@ -79,7 +88,7 @@ void DataManager::valid_to_list(networking::Request &t_req) {
       t_req.m_data.m_ascii = utils::FileHelpers::list_dir_filenames(
           t_req, utils::FileHelpers::list_stat);
     else
-       list_with_argument(t_req);
+      list_with_argument(t_req);
 
   } catch (std::string &msg) { /* could not list */
     LOG_ERROR(msg.c_str());
@@ -103,11 +112,54 @@ void DataManager::list_with_argument(networking::Request &t_req) {
 
 void DataManager::invalid_to_list(networking::Request &t_req,
                                   networking::Connection &t_conn) {
-  t_conn = networking::Connection(t_conn.get_port(),
-                                  networking::active); /* kill connection */
+  t_conn.reconnect();
   t_req.m_reply = networking::reply::r_426;
-  t_req.m_reply_msg = " 'TYPE' must be set to ASCII.";
+  t_req.m_reply_msg = " 'TYPE' must be ASCII.";
 }
+
+/**** RETRIEVE ****/
+
+void DataManager::invalid_to_retrieve(networking::Request &t_req, networking::Connection &t_conn) {
+
+  if(t_req.m_argument.empty()){
+  LOG_ERROR("retrieve was called without any arguments.");
+  t_req.m_reply = networking::reply::r_501;
+
+  } else if(!(t_conn.get_type() == networking::Connection::image)) {
+     LOG_ERROR("TYPE must be binary/image.");
+     t_req.m_reply = networking::reply::r_426;
+     t_req.m_reply_msg = " 'TYPE' must be Image/Binary.";
+  }
+  else
+     t_req.m_reply = networking::reply::r_501;
+
+   t_req.m_valid = false;
+ 
+  t_conn.reconnect();
+}
+
+void DataManager::valid_to_retrieve(networking::Request &t_req) {
+
+
+  try {
+
+    utils::FileHelpers::AllocTuple alloced = utils::FileHelpers::read_bytes(t_req);
+
+    t_req.m_data.m_image = std::move(std::get<0>(alloced));
+    t_req.m_data.m_image_size = std::get<1>(alloced);
+
+    t_req.m_reply = networking::reply::r_150;
+    t_req.m_isdata = true;
+
+  } catch (std::string &err) {
+
+    LOG_ERROR(err.c_str());
+    t_req.m_reply = networking::reply::r_501;
+  }
+}
+
+
+/**** HELPERS ****/
 
 std::string DataManager::extract_ip(utils::StringVector &t_port_arg) {
 
@@ -145,13 +197,13 @@ int DataManager::hex_to_decimal(const std::string t_hex) {
   return decimal;
 }
 
-networking::conn_type DataManager::select_type(std::string &t_type) {
+networking::Connection::conn_type DataManager::select_type(std::string &t_type) {
   if (t_type == "A")
-    return networking::acii;
+    return networking::Connection::ascii;
   else if (t_type == "I")
-    return networking::image;
+    return networking::Connection::image;
   else
-    return networking::none;
+    return networking::Connection::none;
 }
 
 std::string DataManager::port_length_err(int t_arg_len) {
@@ -164,4 +216,3 @@ std::string DataManager::port_length_err(int t_arg_len) {
 
   return err_msg;
 }
-
