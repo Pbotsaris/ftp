@@ -44,12 +44,14 @@ void DataManager::type(networking::Request &t_req,
 
 void DataManager::retrieve(networking::Request &t_req, networking::Connection &t_conn) {
 
+  if (t_req.m_argument.empty())
+      invalid_to_retrieve(t_req, t_conn);
 
-  if (!t_req.m_argument.empty() && t_conn.get_type() == networking::Connection::image)
-    valid_to_retrieve(t_req);
+  else if (t_conn.get_type() == networking::Connection::image)
+      valid_to_retrieve(t_req);
 
   else
-    invalid_to_retrieve(t_req, t_conn);
+      invalid_to_retrieve(t_req, t_conn);
 }
 
 void DataManager::list(networking::Request &t_req,
@@ -74,6 +76,8 @@ void DataManager::data_connect(utils::StringVector &t_port_argument,
   t_conn.config_addr(ip);
   t_conn.connect_socket();
 }
+
+/**** NOTE: TAKE A GOOD LOOK AT THESE IN THE MORING */
 
 /**** LIST ****/
 
@@ -119,30 +123,9 @@ void DataManager::invalid_to_list(networking::Request &t_req,
 
 /**** RETRIEVE ****/
 
-void DataManager::invalid_to_retrieve(networking::Request &t_req, networking::Connection &t_conn) {
-
-  if(t_req.m_argument.empty()){
-  LOG_ERROR("retrieve was called without any arguments.");
-  t_req.m_reply = networking::reply::r_501;
-
-  } else if(!(t_conn.get_type() == networking::Connection::image)) {
-     LOG_ERROR("TYPE must be binary/image.");
-     t_req.m_reply = networking::reply::r_426;
-     t_req.m_reply_msg = " 'TYPE' must be Image/Binary.";
-  }
-  else
-     t_req.m_reply = networking::reply::r_501;
-
-   t_req.m_valid = false;
- 
-  t_conn.reconnect();
-}
-
 void DataManager::valid_to_retrieve(networking::Request &t_req) {
 
-
   try {
-
     utils::FileHelpers::AllocTuple alloced = utils::FileHelpers::read_bytes(t_req);
 
     t_req.m_data.m_image = std::move(std::get<0>(alloced));
@@ -154,8 +137,27 @@ void DataManager::valid_to_retrieve(networking::Request &t_req) {
   } catch (std::string &err) {
 
     LOG_ERROR(err.c_str());
-    t_req.m_reply = networking::reply::r_501;
+    t_req.m_reply = networking::reply::r_426;
+    t_req.m_reply_msg = err;
   }
+}
+
+
+void DataManager::invalid_to_retrieve(networking::Request &t_req, networking::Connection &t_conn) {
+
+  if(t_req.m_argument.empty()){
+  LOG_ERROR("retrieve was called without any arguments.");
+  t_req.m_reply = networking::reply::r_501;
+
+  } else {
+     LOG_ERROR("TYPE must be binary/image.");
+     t_req.m_reply = networking::reply::r_426;
+     t_req.m_reply_msg = " 'TYPE' must be Image/Binary.";
+  }
+
+   t_req.m_valid = false;
+ 
+  t_conn.reconnect();
 }
 
 

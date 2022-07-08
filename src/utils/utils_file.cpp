@@ -134,7 +134,7 @@ void FileHelpers::validate_path(const networking::Request &t_req,
     std::string user_path =
         PathHelpers::join_to_user_path(t_req, t_req.m_argument);
 
-    throw "Failed to stat; The path " + user_path + "  does not exist.";
+    throw " The path " + user_path + "  does not exist.";
   }
 }
 

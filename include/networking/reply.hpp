@@ -106,8 +106,7 @@ static std::map<code, std::string> messages{
     {r_257, "257 "}, /* append PATHNAME */
 
     /***** 300 series  ****/
-    {r_300, "300 The command has been accepted, but the requested action is on "
-            "hold, pending receipt of further information.\n"},
+    {r_300, "300 The command has been accepted, but the requested action is on " "hold, pending receipt of further information.\n"},
     {r_331, "331 User name okay, need password.\n"},
     {r_332, "332 Need account for login.\n"},
     {r_350, "350 Requested file action pending further information.\n"},
