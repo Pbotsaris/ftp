@@ -2,6 +2,10 @@
 #include "logger.hpp"
 #include "utils_path.hpp"
 
+#include <fcntl.h>
+#include <streambuf>
+#include <unistd.h>
+
 /* file Streams */
 #include <fstream>
 #include <ios>
@@ -33,15 +37,15 @@ std::string FileHelpers::list_dir_filenames(const networking::Request &t_req,
   std::string filenames;
 
   if (!utils::PathHelpers::path_exists(path_to_list))
-    throw  list_dir_err_msg(t_req);
-        
+    throw list_dir_err_msg(t_req);
 
   for (const auto &entry : fs::directory_iterator(path_to_list)) {
     if (t_option == list_name) {
-      filenames.append(utils::PathHelpers::extract_last_path(entry.path()) + " ");
+      filenames.append(utils::PathHelpers::extract_last_path(entry.path()) +
+                       " ");
 
     } else {
-      filenames.append(stat_file(entry.path()));
+      filenames.append(stat_file(t_req, entry.path()));
       filenames.append("\r\n");
     }
   }
@@ -55,24 +59,22 @@ std::string FileHelpers::stat_file(const networking::Request &t_req) {
       PathHelpers::join_to_system_path(t_req, t_req.m_argument);
 
   fs::file_status status = file_status_validate(t_req, path_to_stat);
-  std::string result = file_permissions(status.permissions()) + " ";
 
-  result.append(file_group_user(path_to_stat) + " ");
-  result.append(updated_at(path_to_stat) + " ");
-  result.append(utils::PathHelpers::extract_last_path(t_req.m_argument) + " (");
-  result.append(file_type(status) + ")");
+  std::string filename = utils::PathHelpers::extract_last_path(t_req.m_argument);
 
-  return result;
+  return append_stat_result(path_to_stat, filename, status);
 }
 
-FileHelpers::AllocTuple FileHelpers::read_bytes(const networking::Request &t_req) {
+FileHelpers::AllocTuple
+FileHelpers::read_bytes(const networking::Request &t_req) {
 
-  std::string path_to_read = PathHelpers::join_to_system_path(t_req, t_req.m_argument);
+  std::string path_to_read =
+      PathHelpers::join_to_system_path(t_req, t_req.m_argument);
 
   validate_path(t_req, path_to_read);
 
-  std::ifstream file(path_to_read, std::ios::in | std::ios::binary | std::ios::ate);
-
+  std::ifstream file(path_to_read,
+                     std::ios::in | std::ios::binary | std::ios::ate);
   if (!file.is_open())
     throw "Could not open file for transfer";
 
@@ -81,35 +83,57 @@ FileHelpers::AllocTuple FileHelpers::read_bytes(const networking::Request &t_req
   file.read(buffer.get(), file_size);
   file.close();
 
-  FileHelpers::AllocTuple alloced (std::move(buffer), file_size);
-  
+  FileHelpers::AllocTuple alloced(std::move(buffer), file_size);
+
   return alloced;
+}
+
+void FileHelpers::create_file(const networking::Request &t_req) {
+
+  fs::path path{t_req.m_disk.m_system_path + "/" + t_req.m_argument};
+  fs::create_directories(path.parent_path());
+
+  /*only creates the file */
+  std::ofstream file(path);
+  file.close();
+}
+
+void FileHelpers::write_to_disk(const networking::Request &t_req, char c) {
+
+  fs::path path{t_req.m_disk.m_system_path + "/" + t_req.m_argument};
+
+  std::ofstream file(path.c_str(), std::ios::out | std::ios::binary);
+  file.write(&c, 1);
+  file.close();
 }
 
 /* PRIVATE */
 
-std::string FileHelpers::stat_file(const std::string &t_path) {
+std::string FileHelpers::stat_file(const networking::Request &t_req, const std::string &t_path) {
 
-  std::error_code err;
-  err.clear();
+  fs::file_status status = file_status_validate(t_req, t_path);
 
-  fs::file_status status = fs::status(t_path, err);
+  std::string filename = utils::PathHelpers::extract_last_path(t_path);
 
-  if (err.value())
-    throw "Could not stat ";
+  return append_stat_result(t_path, filename, status);
+}
 
-  std::string result = file_permissions(status.permissions()) + " ";
+std::string FileHelpers::append_stat_result(const std::string t_path, const std::string t_filename,
+                                            fs::file_status t_status) {
 
+  std::string result = file_type(t_status);
+
+  result.append(file_permissions(t_status.permissions()) + " ");
+  result.append(std::to_string(fs::hard_link_count(t_path)) + " ");
   result.append(file_group_user(t_path) + " ");
   result.append(updated_at(t_path) + " ");
-  result.append(utils::PathHelpers::extract_last_path(t_path) + " (");
-  result.append(file_type(status) + ")");
+  result.append(t_filename);
 
   return result;
 }
 
-fs::file_status
-FileHelpers::file_status_validate(const networking::Request &t_req, const std::string &t_path_to_stat) {
+fs::file_status FileHelpers::file_status_validate(const networking::Request &t_req,
+                                  const std::string &t_path_to_stat) {
 
   validate_path(t_req, t_path_to_stat);
 
@@ -140,19 +164,19 @@ void FileHelpers::validate_path(const networking::Request &t_req,
 
 std::string FileHelpers::file_type(const fs::file_status t_status) {
   if (fs::is_regular_file(t_status))
-    return "Regular file";
+    return "-";
   if (fs::is_directory(t_status))
-    return "Directory";
+    return "d";
   if (fs::is_block_file(t_status))
-    return "Block";
+    return "b";
   if (fs::is_character_file(t_status))
-    return "Char";
+    return "c";
   if (fs::is_fifo(t_status))
-    return "FIFO";
+    return "p";
   if (fs::is_socket(t_status))
-    return "Cocket";
+    return "s";
   if (fs::is_symlink(t_status))
-    return "Symlink";
+    return "l";
   else
     return "Unkown";
 }
@@ -201,14 +225,12 @@ std::string FileHelpers::file_group_user(const std::string &t_path) {
   return std::string(pw->pw_name) + " " + std::string(gr->gr_name);
 }
 
-
 std::string FileHelpers::list_dir_err_msg(const networking::Request &t_req) {
 
   return "Failed listing directory; The path '" +
          utils::PathHelpers::join_to_user_path(t_req, t_req.m_argument) +
          "' does not exist.";
 }
-
 
 template <typename TP> std::time_t FileHelpers::to_time_t(TP tp) {
   using namespace std::chrono;
@@ -243,6 +265,29 @@ TEST_CASE("File Helpers") { // create file to test
     auto req = networking::Request(disk);
 
     req.m_argument = "image.png";
-
   }
+}
+
+TEST_CASE("File Manager") {
+
+  //  auto disk = disk::Disk();
+  //  controllers::DiskManager::init(disk);
+  //  auto req = networking::Request(disk);
+  //  req.m_argument = "pedro/paulo/bosts.png";
+  //
+  //  FileHelpers::create_file(req);
+  //
+  //  char c;
+  //
+  //    std::cout << "opening..." << std::endl;
+  //  int fd = open("image.png", S_IRUSR);
+
+  // while ((read(fd, &c, 1)) > 0) {
+
+  // FileHelpers::write_to_disk(req, c);
+  //};
+
+  // MemoryStream mem_stream(c, 1);
+
+  //  close(fd);
 }

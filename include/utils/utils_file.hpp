@@ -13,11 +13,10 @@ namespace fs = std::__fs::filesystem;
 
 namespace utils {
 
+
 /* NOTE: FileHelpers functions are pure; will never modifies arguments.*/
 
 struct FileHelpers {
-
-
   
  enum listdir_option{list_name, list_stat};
 
@@ -25,11 +24,13 @@ struct FileHelpers {
 
   static std::string             list_dir_filenames(const networking::Request &t_req, listdir_option t_option);
   static std::string             stat_file(const networking::Request &t_req);
-  /* we need to add the allocation size to the the t_req struct therefore cannot be const */
   static AllocTuple              read_bytes(const networking::Request &t_req);
+  static void                    create_file(const networking::Request &t_req);
+  static void                    write_to_disk(const networking::Request &t_req, char c);
 
   private:
-  static std::string             stat_file(const std::string &t_path);
+  static std::string             stat_file(const networking::Request &t_req, const std::string &t_path);
+  static std::string             append_stat_result(const std::string t_path, const std::string t_filename, fs::file_status t_status);
 
   /* stat helpers */
   static fs::file_status         file_status_validate(const networking::Request &t_req, const std::string &t_path_to_stat);
