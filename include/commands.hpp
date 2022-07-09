@@ -6,9 +6,9 @@
 namespace commands {
   
   enum name {
+     QUIT = 1,     // disconnect (in ftp)
     /* No arguments */
      CDUP = 0,     // cd ..
-     QUIT = 1,     // disconnect (in ftp)
      PASV = 2,     // passive mode
 //   ABOR = 3,     no support
      PWD  = 4,
@@ -27,7 +27,7 @@ namespace commands {
 //   STRU = 18,    no support, only single structure.
 //   MODE = 19,    no support, stream only.
      RETR = 20,    // get
-//   STOR = 21,    no support. Only unique files are created.
+     STOR = 21,   // no support. Only unique files are created.
 //   APPE = 23,    handled by client.
      REST = 24,    // restart
      STOU = 22,    // send
@@ -42,6 +42,7 @@ namespace commands {
 //   ALLO = 33,  no support
      HELP = 34,  // rhelp (in ftp)
      STAT = 35,  // rstatus (in ftp)
+     FEAT = 36,  // Features
   };
 
   enum type {
@@ -74,7 +75,7 @@ namespace commands {
 //  { "MODE", MODE },  no support
     { "RETR", RETR }, 
     { "STOU", STOU },
-//  { "STOR", STOR },  no support
+    { "STOR", STOR },  
 //  { "APPE", APPE },  no support
     { "REST", REST },
     { "RNFR", RNFR },  // done
@@ -88,6 +89,7 @@ namespace commands {
 //  { "ALLO", ALLO },  no support
     { "STAT", STAT }, 
     { "HELP", HELP },  // done
+    { "FEAT", FEAT },  // done
   };
 
   static std::map<std::string, std::string > help {
@@ -114,6 +116,7 @@ namespace commands {
     {  "NLST", "Returns a list of filenames in a specified directory."},
     {  "STAT", "Returns the server status, including the status of the current connection."}, 
     {  "HELP", "Display help of an specific command."}, 
+    {  "FEAT", "Responds with server features."}, 
   };
 
   struct Utils {

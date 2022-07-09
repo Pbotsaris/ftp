@@ -1,4 +1,12 @@
+
 #include "service.hpp"
+#include "logger.hpp"
+#include "parser.hpp"
+#include "request.hpp"
+#include "disk_manager.hpp"
+#include "router.hpp"
+
+#include <map>
 
 using namespace networking;
 
@@ -100,15 +108,21 @@ void Service::control_setup() {
 void Service::control_handshake() {
 
   m_ctrlconn.accept_connection();
-  m_req.m_reply = reply::r_120;
+  m_req.m_reply = reply::r_220;
   m_ctrlconn.respond(m_req);
 
   LOG_DEBUG("responded with 120....");
+
+ // m_req.m_reply = reply::r_120;
+ // m_ctrlconn.respond(m_req);
+
+
 }
 
 void Service::control_loop() {
   while (!m_quit) {
 
+    /* msg from client */
     m_ctrlconn.receive(m_req);
 
     /* Parses raw client command */
@@ -121,13 +135,15 @@ void Service::control_loop() {
     Private::set_user(*this);
     Private::login(*this);
 
-    /* updates when changes occur */
+    /* when changes occur */
     Private::update_disk_state(*this);
 
-    Private::will_quit(*this); // ?
+    Private::will_quit(*this); 
+
+    /* to client */
     m_ctrlconn.respond(m_req);
 
-    /* transfer data if any */
+    /* transfer data if any. This may trigger another response via control */
     data_transfer();
 
     Private::reset_request(*this);
@@ -143,21 +159,25 @@ void Service::control_disconnect() {
 }
 
 void Service::data_transfer() {
-  if(m_req.m_isdata){
-     m_dataconn.transfer(m_req);
+  if(m_req.m_transfer == Request::send){
+     m_dataconn.transfer_send(m_req);
 
-    if(m_req.m_valid){
-      auto req = Request(m_logged_in);
-      req.m_reply = reply::r_226;
-      m_ctrlconn.respond(req);
-    }
-
- //   m_dataconn = Connection(m_dataconn.get_port(), active);
+    /*  responds to client upon valid data transfer */
+   auto req = Request(m_logged_in);
+   data_transfer_respond(req);
   }
-     
 }
 
+void Service::data_transfer_respond(Request &t_req){
 
-/* PRIVATE */
+  if(m_req.m_valid){
+      t_req.m_reply = reply::r_226;
+      m_ctrlconn.respond(t_req);
+    }
+  else {
+      t_req.m_reply = reply::r_451;
+       m_ctrlconn.respond(t_req);
+    }
 
+}
 

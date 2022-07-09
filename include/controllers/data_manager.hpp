@@ -17,6 +17,8 @@ struct DataManager {
   static void                   retrieve(networking::Request &t_req, networking::Connection &t_conn);
   static void                   list(networking::Request &t_req, networking::Connection &t_conn);
   static void                   type(networking::Request &t_req, networking::Connection &t_conn);
+  static void                   store(networking::Request &t_req, networking::Connection &t_conn);
+  static void                   passive(networking::Request &t_req, networking::Connection &t_conn);
 
   private:
   static void                   data_connect(utils::StringVector &t_port_argument, networking::Connection &t_conn);
@@ -26,10 +28,13 @@ struct DataManager {
   static void                   invalid_to_list(networking::Request &t_req, networking::Connection &t_conn);
   static void                   list_with_argument(networking::Request &t_req);
 
-
   /* retreive helpers */
   static void                  valid_to_retrieve(networking::Request &t_req);
   static void                  invalid_to_retrieve(networking::Request &t_req, networking::Connection &t_conn);
+
+  /* Store helpers */
+  static void                  valid_to_store(networking::Request &t_req);
+  static void                  invalid_to_store(networking::Request &t_req, networking::Connection &t_conn);
 
   /* port helpers */
   static std::string           extract_ip(utils::StringVector &t_port_arg);

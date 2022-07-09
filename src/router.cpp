@@ -36,6 +36,7 @@ std::map<commands::name, DataController> Router::m_datarouter{
     {commands::name::LIST, controllers::DataManager::list},
     {commands::name::RETR, controllers::DataManager::retrieve},
     {commands::name::STOR, controllers::DataManager::store},
+    {commands::name::PASV, controllers::DataManager::store},
 };
 
 void Router::route(const commands::name t_command, networking::Request &t_req,

@@ -4,7 +4,6 @@
 #include "reply.hpp"
 #include "logger.hpp"
 
-
 using namespace controllers;
 
 std::string Accounts::ANONYMOUS_USER = "anonynous";

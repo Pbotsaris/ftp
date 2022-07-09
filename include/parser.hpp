@@ -13,10 +13,8 @@ struct Parser {
   static void parse(networking::Request &t_req);
 
 private:
-  static void parse_command(networking::Request &t_req,
-                            utils::StringVector t_commands);
-  static void parse_argument(networking::Request &t_req,
-                             utils::StringVector t_commands);
+  static void parse_command(networking::Request &t_req, utils::StringVector t_commands);
+  static void parse_argument(networking::Request &t_req, utils::StringVector t_commands);
 };
 
 } // namespace parsing

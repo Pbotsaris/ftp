@@ -85,12 +85,12 @@ static std::map<code, std::string> messages{
     /***** 200 series  ****/
     {r_200, "200 Ok\n"},
     {r_202, "202 Command not implemented, superfluous at this site.\n"},
-    {r_211, "211 System status, or system help reply.\n"},
+    {r_211, "211"}, // append system features 
     {r_212, "212 Directory status: "},
     {r_213, "213 File status.\n"},
     {r_214, "214 "}, /* Append help message */
-    {r_215, "215 System type: "},     /* Append a system name*/
-    {r_220, "220 Service ready for new user.\n"},
+    {r_215, "215 "},     /* Append a system name*/
+    {r_220, "220 My FTP Server. Ready for new user.\n"},
     {r_221, "221 Service closing control connection.\n"},
     {r_225, "225 Data connection open; no transfer in progress.\n"},
     {r_226, "226 Closing data connection. Requested file action successful.\n"},

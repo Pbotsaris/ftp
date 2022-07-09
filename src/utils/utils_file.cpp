@@ -65,6 +65,19 @@ std::string FileHelpers::stat_file(const networking::Request &t_req) {
   return append_stat_result(path_to_stat, filename, status);
 }
 
+
+std::string FileHelpers::stat_file(const networking::Request &t_req, const std::string &t_path) {
+
+  fs::file_status status = file_status_validate(t_req, t_path);
+
+  std::string filename = utils::PathHelpers::extract_last_path(t_path);
+
+  return append_stat_result(t_path, filename, status);
+}
+
+
+// drwxr-xr-x   8 pedro    users        4096 Apr 29 13:00 delete_me
+
 FileHelpers::AllocTuple
 FileHelpers::read_bytes(const networking::Request &t_req) {
 
@@ -107,16 +120,8 @@ void FileHelpers::write_to_disk(const networking::Request &t_req, char c) {
   file.close();
 }
 
+
 /* PRIVATE */
-
-std::string FileHelpers::stat_file(const networking::Request &t_req, const std::string &t_path) {
-
-  fs::file_status status = file_status_validate(t_req, t_path);
-
-  std::string filename = utils::PathHelpers::extract_last_path(t_path);
-
-  return append_stat_result(t_path, filename, status);
-}
 
 std::string FileHelpers::append_stat_result(const std::string t_path, const std::string t_filename,
                                             fs::file_status t_status) {
@@ -126,7 +131,8 @@ std::string FileHelpers::append_stat_result(const std::string t_path, const std:
   result.append(file_permissions(t_status.permissions()) + " ");
   result.append(std::to_string(fs::hard_link_count(t_path)) + " ");
   result.append(file_group_user(t_path) + " ");
-  result.append(updated_at(t_path) + " ");
+  result.append(file_size(t_status, t_path) + " ");
+  result.append(updated_at(t_path) + " \t");
   result.append(t_filename);
 
   return result;
@@ -180,6 +186,15 @@ std::string FileHelpers::file_type(const fs::file_status t_status) {
   else
     return "Unkown";
 }
+
+std::string FileHelpers::file_size(const fs::file_status t_status, const std::string &t_path){
+
+   if (fs::is_directory(t_status))
+       return "4096"; // dir always 4 bytes
+   else
+       return std::to_string(fs::file_size(t_path));
+}
+
 std::string FileHelpers::file_permissions(const fs::perms t_perms) {
   std::stringstream permissions;
   permissions
@@ -205,9 +220,12 @@ std::string FileHelpers::updated_at(const std::string &t_path) {
   time << std::asctime(std::localtime(&cftime));
 
   std::string time_str = time.str();
-  time_str.erase(time_str.end() - 1); // remove the '\n'
-
+  time_str = time_str.substr(0, time_str.find_last_of("\\:")); // rm Week day, seconds and year
+  time_str = time_str.substr(4, time_str.size()); // rm Week day, seconds and year
+  LOG_DEBUG(time_str.c_str());
+                                                             
   return time_str;
+
 }
 std::string FileHelpers::file_group_user(const std::string &t_path) {
 

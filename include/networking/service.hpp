@@ -1,13 +1,8 @@
 #ifndef SERVICE_H
 #define SERVICE_H
-#include <map>
 #include "connection.hpp"
-#include "parser.hpp"
-#include "request.hpp"
-#include "router.hpp"
-#include "logger.hpp"
 #include "disk.hpp"
-#include "disk_manager.hpp"
+#include "request.hpp"
 
 /*
  *   A Service corresponds single user interaction with the server and consists of two connections: 
@@ -43,6 +38,7 @@ namespace networking {
 
   private:
     void data_transfer();
+    void data_transfer_respond(Request &t_req);
 
   };
 }

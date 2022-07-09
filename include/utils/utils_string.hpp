@@ -9,9 +9,13 @@ typedef std::vector<std::string> StringVector;
 
 struct StringHelpers {
   static StringVector split_string(const std::string &s, const std::string delim = " ");
+  static std::string join_string_vector(const StringVector &t_str_vec, const std::string &t_delim = "");
+
+  /* manipulates the string in place */
   static void trim_string(std::string &s);
   static void to_upper(std::string &s);
-  static std::string join_string_vector(const StringVector &t_str_vec, const std::string &t_delim = "");
+
+
 
 private:
   static void trim_left(std::string &s);

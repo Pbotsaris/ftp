@@ -18,9 +18,11 @@ namespace networking {
   };
 
   struct Request {
+    enum data_transfer {none, send, receive };
+
     std::string               m_raw;                   /* raw message from client */
     bool                      m_valid;                 /* parsing was valid ? */
-    bool                      m_isdata;                /* weather service should transfer the data,. */
+    data_transfer             m_transfer;              /* weather service should send or receive */
     reply::code               m_reply;                 /* reply code  */
     std::string               m_reply_msg;             /* reply message if any  */
     commands::name            m_command;               /* command name. See commands.hpp */

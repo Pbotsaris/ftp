@@ -30,7 +30,7 @@ namespace networking {
     enum conn_type {none, image, ascii};
 
     Connection();
-    Connection(int t_port, conn_mode t_mode = passive, conn_type t_type = none);
+    Connection(int t_port, conn_mode t_mode = passive, conn_type t_type = ascii);
     ~Connection();
   
     void        config_addr();
@@ -42,7 +42,8 @@ namespace networking {
     void        socket_listen();
     void        receive(Request &t_req);
     void        respond(Request &t_req);
-    void        transfer(Request &t_req);
+    void        transfer_send(Request &t_req);
+    void        transfer_receive(Request &t_req);
     int         get_port();
     void        set_port(int t_port);
     void        set_mode(conn_mode t_mode);

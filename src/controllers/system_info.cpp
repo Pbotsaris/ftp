@@ -36,34 +36,40 @@ void SystemInfo::status(networking::Request &t_req) {
     // TODO: Check if during file transfer.
     // return information about the transfer.
     // returns an error if a file is not transfering
-     
 
     return;
     // return information about a path
   }
+
+  try {
+
   std::string path = utils::PathHelpers::join_to_system_path(t_req, t_req.m_argument);
 
-  if (utils::PathHelpers::is_path_directory(path))
-    list_directory_items(t_req);
-  else
-    get_file_stat(t_req);
-}
 
+    if (utils::PathHelpers::is_path_directory(path))
+      list_directory_items(t_req);
+    else
+      get_file_stat(t_req);
+  } catch (std::string &err) {
+
+    LOG_ERROR(err.c_str());
+
+    t_req.m_reply = networking::reply::r_550;
+  }
+}
 
 void SystemInfo::feature(networking::Request &t_req) {
 
-
   std::string features;
-  for(std::map<std::string,std::string>::iterator iter = commands::help.begin();
-                                        iter != commands::help.end(); ++iter) {
+  for (std::map<std::string, std::string>::iterator iter =
+           commands::help.begin();
+       iter != commands::help.end(); ++iter) {
 
     features = features + iter->first + " ";
-
   }
 
   t_req.m_reply = networking::reply::r_211;
   t_req.m_reply_msg = features + "\n";
-
 }
 
 /* PRIVATE */
@@ -99,7 +105,8 @@ void SystemInfo::list_help(networking::Request &t_req) {
 void SystemInfo::list_directory_items(networking::Request &t_req) {
 
   try {
-    t_req.m_reply_msg = utils::FileHelpers::list_dir_filenames(t_req, utils::FileHelpers::list_name);
+    t_req.m_reply_msg = utils::FileHelpers::list_dir_filenames(
+        t_req, utils::FileHelpers::list_name);
     t_req.m_reply = networking::reply::r_212;
 
   } catch (std::string &err) {
@@ -124,24 +131,23 @@ void SystemInfo::get_file_stat(networking::Request &t_req) {
 
 std::string SystemInfo::get_os_name() {
 #ifdef _WIN32
-  return " Windows 32-bit";
+  return "Windows 32-bit";
 #elif _WIN64
-  return " Windows 64-bit";
+  return "Windows 64-bit";
 #elif __APPLE__ || __MACH__
-  return " Mac OSX";
+  return "OSX";
 #elif __linux__
-  return " Linux";
+  return "LINUX Type:L: 8";
 #elif __FreeBSD__
-  return " FreeBSD";
+  return "FreeBSD";
 #elif __unix || __unix__
-  return " Unix";
+  return "UNIX Type: L8";
 #else
-  return " Other";
+  return "Other";
 #endif
 }
 
 TEST_CASE("System Info") {
-
 
   fs::create_directories(utils::PathHelpers::M_ROOT + "/test");
   fs::create_directories(utils::PathHelpers::M_ROOT + "/test/first_dir");

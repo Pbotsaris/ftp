@@ -119,7 +119,6 @@ void Connection::receive(Request &t_req) {
 
    int read_size = recv(m_connected_socket, &read_buffer[read_count], 1, 0);
 
-
    if(read_count >= MAX_READ_SIZE) {
       t_req.m_raw.append(read_buffer);
       memset(read_buffer, 0, BUFFER_SIZE);
@@ -156,7 +155,7 @@ void Connection::respond(Request &t_req) {
 
 }
 
-void Connection::transfer(Request &t_req) {
+void Connection::transfer_send(Request &t_req) {
 
   if(m_type == Connection::ascii)
     transfer_ascii(t_req);
@@ -167,6 +166,17 @@ void Connection::transfer(Request &t_req) {
   LOG_INFO("Closing data connection.");
    
   reconnect();
+}
+
+void Connection::transfer_receive(Request &t_req) {
+
+ // char c;
+
+//  while(m_local_socket){
+//  int read_size = recv(m_connected_socket, &c, 1, 0);
+//
+//  }
+
 }
 
 void Connection::reconnect(){

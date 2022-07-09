@@ -28,8 +28,7 @@ void DataManager::port(networking::Request &t_req,
   }
 }
 
-void DataManager::type(networking::Request &t_req,
-                       networking::Connection &t_conn) {
+void DataManager::type(networking::Request &t_req, networking::Connection &t_conn) {
 
   networking::Connection::conn_type type = select_type(t_req.m_argument);
 
@@ -54,14 +53,42 @@ void DataManager::retrieve(networking::Request &t_req, networking::Connection &t
       invalid_to_retrieve(t_req, t_conn);
 }
 
-void DataManager::list(networking::Request &t_req,
-                       networking::Connection &t_conn) {
+void DataManager::list(networking::Request &t_req, networking::Connection &t_conn) {
 
-  if (t_conn.get_type() == networking::Connection::ascii)
+ // if (t_conn.get_type() == networking::Connection::ascii)
+    try {
+    t_conn.set_type(networking::Connection::ascii);
     valid_to_list(t_req);
+    } catch(std::string &err){
+
+      LOG_ERROR(err.c_str());
+
+    }
+
+ // else
+   // invalid_to_list(t_req, t_conn);
+}
+
+void DataManager::store(networking::Request &t_req, networking::Connection &t_conn){
+
+  if(t_req.m_argument.empty())
+      invalid_to_store(t_req, t_conn);
+
+  else if(t_conn.get_type() == networking::Connection::image)
+      valid_to_store(t_req);
 
   else
-    invalid_to_list(t_req, t_conn);
+      invalid_to_store(t_req, t_conn);
+
+  t_req.m_reply = networking::reply::r_200;
+}
+
+
+void DataManager::passive(networking::Request &t_req, networking::Connection &t_conn){
+
+  /* TODO: IMPLEMENT PASSIVE MODE */
+    t_req.m_reply = networking::reply::r_228;
+
 }
 
 /**** PRIVATE *****/
@@ -77,15 +104,13 @@ void DataManager::data_connect(utils::StringVector &t_port_argument,
   t_conn.connect_socket();
 }
 
-/**** NOTE: TAKE A GOOD LOOK AT THESE IN THE MORING */
-
 /**** LIST ****/
 
 void DataManager::valid_to_list(networking::Request &t_req) {
 
 
   t_req.m_reply = networking::reply::r_150;
-  t_req.m_isdata = true;
+  t_req.m_transfer = networking::Request::send;
 
   try {
     if (t_req.m_argument.empty())
@@ -96,7 +121,7 @@ void DataManager::valid_to_list(networking::Request &t_req) {
 
   } catch (std::string &msg) { /* could not list */
     LOG_ERROR(msg.c_str());
-    t_req.m_isdata = false;
+    t_req.m_transfer = networking::Request::send;
     t_req.m_reply = networking::reply::r_550;
   }
 }
@@ -132,7 +157,7 @@ void DataManager::valid_to_retrieve(networking::Request &t_req) {
     t_req.m_data.m_image_size = std::get<1>(alloced);
 
     t_req.m_reply = networking::reply::r_150;
-    t_req.m_isdata = true;
+    t_req.m_transfer = networking::Request::send;
 
   } catch (std::string &err) {
 
@@ -155,13 +180,39 @@ void DataManager::invalid_to_retrieve(networking::Request &t_req, networking::Co
      t_req.m_reply_msg = " 'TYPE' must be Image/Binary.";
   }
 
-   t_req.m_valid = false;
- 
+  t_req.m_valid = false;
+  t_conn.reconnect();
+}
+
+/**** STORE ****/
+
+void DataManager::valid_to_store(networking::Request &t_req) {
+
+
+  
+
+}
+
+
+void DataManager::invalid_to_store(networking::Request &t_req, networking::Connection &t_conn) {
+
+if(t_req.m_argument.empty()){
+  LOG_ERROR("retrieve was called without any arguments.");
+  t_req.m_reply = networking::reply::r_501;
+
+  } else {
+     LOG_ERROR("TYPE must be binary/image.");
+     t_req.m_reply = networking::reply::r_426;
+     t_req.m_reply_msg = " 'TYPE' must be Image/Binary.";
+  }
+
+  t_req.m_valid = false;
   t_conn.reconnect();
 }
 
 
 /**** HELPERS ****/
+
 
 std::string DataManager::extract_ip(utils::StringVector &t_port_arg) {
 
