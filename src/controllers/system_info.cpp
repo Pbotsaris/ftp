@@ -30,17 +30,6 @@ void SystemInfo::help(networking::Request &t_req) {
   }
 }
 
-void SystemInfo::get_help(networking::Request &t_req) {
-  try {
-    t_req.m_reply_msg = commands::help.at(t_req.m_argument);
-  } catch (std::exception &_err) {
-    t_req.m_reply = networking::reply::r_500;
-    return;
-  }
-
-  t_req.m_reply = networking::reply::r_214;
-}
-
 void SystemInfo::status(networking::Request &t_req) {
 
   if (t_req.m_argument.empty()) {
@@ -60,7 +49,35 @@ void SystemInfo::status(networking::Request &t_req) {
     get_file_stat(t_req);
 }
 
+
+void SystemInfo::feature(networking::Request &t_req) {
+
+
+  std::string features;
+  for(std::map<std::string,std::string>::iterator iter = commands::help.begin();
+                                        iter != commands::help.end(); ++iter) {
+
+    features = features + iter->first + " ";
+
+  }
+
+  t_req.m_reply = networking::reply::r_211;
+  t_req.m_reply_msg = features + "\n";
+
+}
+
 /* PRIVATE */
+
+void SystemInfo::get_help(networking::Request &t_req) {
+  try {
+    t_req.m_reply_msg = commands::help.at(t_req.m_argument);
+  } catch (std::exception &_err) {
+    t_req.m_reply = networking::reply::r_500;
+    return;
+  }
+
+  t_req.m_reply = networking::reply::r_214;
+}
 
 void SystemInfo::list_help(networking::Request &t_req) {
 
@@ -125,16 +142,18 @@ std::string SystemInfo::get_os_name() {
 
 TEST_CASE("System Info") {
 
-  fs::create_directories(utils::PathHelpers::M_ROOT + "/first_dir");
-  fs::create_directories(utils::PathHelpers::M_ROOT + "/second_dir");
-  fs::create_directories(utils::PathHelpers::M_ROOT + "/third_dir");
+
+  fs::create_directories(utils::PathHelpers::M_ROOT + "/test");
+  fs::create_directories(utils::PathHelpers::M_ROOT + "/test/first_dir");
+  fs::create_directories(utils::PathHelpers::M_ROOT + "/test/second_dir");
+  fs::create_directories(utils::PathHelpers::M_ROOT + "/test/third_dir");
 
   SUBCASE("List existing directory names") {
 
     disk::Disk disk;
     DiskManager::init(disk);
     auto req = networking::Request(disk);
-    req.m_argument = "/";
+    req.m_argument = "/test";
 
     SystemInfo::status(req);
 
@@ -154,7 +173,8 @@ TEST_CASE("System Info") {
     CHECK(req.m_reply == networking::reply::r_550);
   }
 
-  fs::remove_all(utils::PathHelpers::M_ROOT + "/first_dir");
-  fs::remove_all(utils::PathHelpers::M_ROOT + "/second_dir");
-  fs::remove_all(utils::PathHelpers::M_ROOT + "/third_dir");
+  fs::remove_all(utils::PathHelpers::M_ROOT + "/test/first_dir");
+  fs::remove_all(utils::PathHelpers::M_ROOT + "/test/second_dir");
+  fs::remove_all(utils::PathHelpers::M_ROOT + "/test/third_dir");
+  fs::remove_all(utils::PathHelpers::M_ROOT + "/test");
 }

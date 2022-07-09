@@ -14,6 +14,7 @@ namespace controllers {
     static void        system_os(networking::Request &t_req);
     static void        help(networking::Request &t_req);
     static void        status(networking::Request &t_req);
+    static void        feature(networking::Request &t_req);
 
     private:
     static void        get_help(networking::Request &t_req);

@@ -21,6 +21,7 @@ std::map<commands::name, ControlController> Router::m_ctrlrouter{
     {commands::name::SYST, controllers::SystemInfo::system_os},
     {commands::name::HELP, controllers::SystemInfo::help},
     {commands::name::STAT, controllers::SystemInfo::status},
+    {commands::name::FEAT, controllers::SystemInfo::feature},
 
     /* Other */
     {commands::name::NOOP, [](networking::Request &t_req) { t_req.m_reply = networking::reply::r_200; }},
@@ -32,8 +33,9 @@ std::map<commands::name, DataController> Router::m_datarouter{
 
     {commands::name::TYPE, controllers::DataManager::type},
     {commands::name::PORT, controllers::DataManager::port},
-    {commands::name::RETR, controllers::DataManager::retrieve},
     {commands::name::LIST, controllers::DataManager::list},
+    {commands::name::RETR, controllers::DataManager::retrieve},
+    {commands::name::STOR, controllers::DataManager::store},
 };
 
 void Router::route(const commands::name t_command, networking::Request &t_req,
