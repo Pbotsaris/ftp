@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <vector>
 #include <memory>
+#include <tuple>
+
 #include "reply.hpp"
 #include "disk.hpp"
 #include"commands.hpp"

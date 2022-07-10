@@ -43,44 +43,47 @@ void DataManager::type(networking::Request &t_req, networking::Connection &t_con
 
 void DataManager::retrieve(networking::Request &t_req, networking::Connection &t_conn) {
 
+  t_conn.set_type(networking::Connection::image);
+  LOG_INFO("Setting Transfer Type to Binary/Image.");
+
   if (t_req.m_argument.empty())
       invalid_to_retrieve(t_req, t_conn);
 
-  else if (t_conn.get_type() == networking::Connection::image)
-      valid_to_retrieve(t_req);
-
   else
-      invalid_to_retrieve(t_req, t_conn);
+      valid_to_retrieve(t_req);
 }
 
 void DataManager::list(networking::Request &t_req, networking::Connection &t_conn) {
 
  // if (t_conn.get_type() == networking::Connection::ascii)
-    try {
+ //
     t_conn.set_type(networking::Connection::ascii);
+    LOG_INFO("Setting Transfer Type to ASCII.");
+
+    try {
     valid_to_list(t_req);
+
     } catch(std::string &err){
 
       LOG_ERROR(err.c_str());
-
+      invalid_to_list(t_req, t_conn);
     }
 
  // else
-   // invalid_to_list(t_req, t_conn);
+   // 
 }
 
 void DataManager::store(networking::Request &t_req, networking::Connection &t_conn){
 
+  t_conn.set_type(networking::Connection::image);
+  LOG_INFO("Setting Transfer Type to Binary/Image.");
+        
   if(t_req.m_argument.empty())
       invalid_to_store(t_req, t_conn);
 
-  else if(t_conn.get_type() == networking::Connection::image)
+  else 
       valid_to_store(t_req);
 
-  else
-      invalid_to_store(t_req, t_conn);
-
-  t_req.m_reply = networking::reply::r_200;
 }
 
 
@@ -151,7 +154,7 @@ void DataManager::invalid_to_list(networking::Request &t_req,
 void DataManager::valid_to_retrieve(networking::Request &t_req) {
 
   try {
-    utils::FileHelpers::AllocTuple alloced = utils::FileHelpers::read_bytes(t_req);
+    utils::FileHelpers::DataFromDiskTuple alloced = utils::FileHelpers::read_bytes(t_req);
 
     t_req.m_data.m_image = std::move(std::get<0>(alloced));
     t_req.m_data.m_image_size = std::get<1>(alloced);
@@ -188,9 +191,8 @@ void DataManager::invalid_to_retrieve(networking::Request &t_req, networking::Co
 
 void DataManager::valid_to_store(networking::Request &t_req) {
 
-
-  
-
+    t_req.m_reply = networking::reply::r_125;
+    t_req.m_transfer = networking::Request::receive;
 }
 
 

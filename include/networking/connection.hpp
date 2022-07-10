@@ -1,21 +1,22 @@
 #ifndef CONNECTION_H
 #define CONNECTION_H
-#include <exception>
-#include <iostream>
-#include <string>
-
-/* C headers */
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
-
 #include "request.hpp"
-#include "logger.hpp"
+#include <netinet/in.h> /* sockeaddr_in */
+#include <memory> /* unique_ptr */
+#include <queue>
+#include <tuple>
 
 namespace networking {
-  enum conn_mode { active, passive };
+
+
+ enum conn_mode { active, passive };
+
+  typedef  std::tuple<networking::ImageBuffer, std::uintmax_t>  DatafromClientTuple;
+
+    struct TransferData{
+    char *m_buffer;
+    std::size_t m_length;
+  };
   
   class Connection {
 
@@ -33,6 +34,11 @@ namespace networking {
     Connection(int t_port, conn_mode t_mode = passive, conn_type t_type = ascii);
     ~Connection();
   
+  private:
+    conn_type   m_type; /* conn_type must be declared first */
+
+  public:
+    /* conn config and state */
     void        config_addr();
     void        config_addr(const std::string &t_ip);
     void        set_socket_options();
@@ -40,23 +46,31 @@ namespace networking {
     void        connect_socket();
     void        accept_connection();
     void        socket_listen();
-    void        receive(Request &t_req);
-    void        respond(Request &t_req);
-    void        transfer_send(Request &t_req);
-    void        transfer_receive(Request &t_req);
+    void        reconnect();
+
+    /* getters and setters */
     int         get_port();
     void        set_port(int t_port);
     void        set_mode(conn_mode t_mode);
     conn_type   get_type();
     void        set_type(conn_type t_type);
-    void        reconnect();
+
+    /* used by control connections */
+    void        receive(Request &t_req);
+    void        respond(Request &t_req);
+
+    /* used by data connections */
+    void        transfer_send(Request &t_req);
+    DatafromClientTuple  transfer_receive(Request &t_req);
 
   private:
     void        create_socket();
     void        transfer_ascii(Request &t_req);
     void        transfer_image(Request &t_req);
 
-    conn_type   m_type;
+    /* this helper will consolidate memory chunks from queue into a consolidated  into a unique pointer */
+    ImageBuffer consolidate_data(std::queue<TransferData> t_data, std::uintmax_t t_total_length);
+
   };
 }
 

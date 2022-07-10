@@ -1,11 +1,14 @@
 
 #include "service.hpp"
+#include "connection.hpp"
+#include "disk_manager.hpp"
 #include "logger.hpp"
 #include "parser.hpp"
 #include "request.hpp"
-#include "disk_manager.hpp"
 #include "router.hpp"
+#include "utils_file.hpp"
 
+#include <exception>
 #include <map>
 
 using namespace networking;
@@ -55,7 +58,8 @@ struct Service::Private {
   }
 
   static void reset_request(Service &t_self) {
-    t_self.m_req = Request(t_self.m_disk, t_self.m_logged_in); // resets with current disk state
+    t_self.m_req = Request(
+        t_self.m_disk, t_self.m_logged_in); // resets with current disk state
 
     if (!t_self.m_user.empty())
       t_self.m_req.m_current_user = t_self.m_user;
@@ -84,14 +88,13 @@ struct Service::Private {
 /* Constructor */
 
 Service::Service(int t_port)
-    : m_ctrlconn(t_port), m_dataconn(t_port++, active), m_logged_in(false), 
+    : m_ctrlconn(t_port), m_dataconn(t_port++, active), m_logged_in(false),
       m_disk() {
 
   controllers::DiskManager::init(m_disk);
   m_req = Request(m_disk, m_logged_in);
   m_ctrlconn.set_socket_options();
   m_ctrlconn.config_addr();
-
 
   /* data options */
   m_dataconn.set_socket_options();
@@ -104,19 +107,16 @@ void Service::control_setup() {
   m_ctrlconn.socket_listen();
 }
 
-
 void Service::control_handshake() {
 
   m_ctrlconn.accept_connection();
   m_req.m_reply = reply::r_220;
   m_ctrlconn.respond(m_req);
 
-  LOG_DEBUG("responded with 120....");
+  LOG_DEBUG("Handshake complete. respond with 220.");
 
- // m_req.m_reply = reply::r_120;
- // m_ctrlconn.respond(m_req);
-
-
+  // m_req.m_reply = reply::r_120;
+  // m_ctrlconn.respond(m_req);
 }
 
 void Service::control_loop() {
@@ -138,7 +138,7 @@ void Service::control_loop() {
     /* when changes occur */
     Private::update_disk_state(*this);
 
-    Private::will_quit(*this); 
+    Private::will_quit(*this);
 
     /* to client */
     m_ctrlconn.respond(m_req);
@@ -159,25 +159,36 @@ void Service::control_disconnect() {
 }
 
 void Service::data_transfer() {
-  if(m_req.m_transfer == Request::send){
-     m_dataconn.transfer_send(m_req);
+  if (m_req.m_transfer == Request::send) {
+    m_dataconn.transfer_send(m_req);
 
     /*  responds to client upon valid data transfer */
-   auto req = Request(m_logged_in);
-   data_transfer_respond(req);
+    auto req = Request(m_logged_in);
+    data_transfer_respond(req);
+  }
+
+  if (m_req.m_transfer == Request::receive) {
+
+    networking::DatafromClientTuple data = m_dataconn.transfer_receive(m_req);
+
+    try {
+      utils::FileHelpers::write_to_disk(m_req, data);
+    } catch (std::exception &err) {
+      LOG_ERROR(err.what());
+      m_req.m_valid = false;
+    }
+
+    data_transfer_respond(m_req);
   }
 }
 
-void Service::data_transfer_respond(Request &t_req){
+void Service::data_transfer_respond(Request &t_req) {
 
-  if(m_req.m_valid){
-      t_req.m_reply = reply::r_226;
-      m_ctrlconn.respond(t_req);
-    }
-  else {
-      t_req.m_reply = reply::r_451;
-       m_ctrlconn.respond(t_req);
-    }
-
+  if (m_req.m_valid) {
+    t_req.m_reply = reply::r_226;
+    m_ctrlconn.respond(t_req);
+  } else {
+    t_req.m_reply = reply::r_451;
+    m_ctrlconn.respond(t_req);
+  }
 }
-

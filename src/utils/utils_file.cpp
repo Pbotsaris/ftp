@@ -2,6 +2,7 @@
 #include "logger.hpp"
 #include "utils_path.hpp"
 
+#include <exception>
 #include <fcntl.h>
 #include <streambuf>
 #include <unistd.h>
@@ -17,10 +18,10 @@
 #include <iomanip>
 
 /* user & group */
-#include <grp.h>
 #include <pwd.h>
 #include <sys/stat.h>
 
+#include <grp.h>
 /* TEST HEADERS */
 #include "disk.hpp"
 #include "disk_manager.hpp"
@@ -78,7 +79,7 @@ std::string FileHelpers::stat_file(const networking::Request &t_req, const std::
 
 // drwxr-xr-x   8 pedro    users        4096 Apr 29 13:00 delete_me
 
-FileHelpers::AllocTuple
+FileHelpers::DataFromDiskTuple
 FileHelpers::read_bytes(const networking::Request &t_req) {
 
   std::string path_to_read =
@@ -96,7 +97,7 @@ FileHelpers::read_bytes(const networking::Request &t_req) {
   file.read(buffer.get(), file_size);
   file.close();
 
-  FileHelpers::AllocTuple alloced(std::move(buffer), file_size);
+  FileHelpers::DataFromDiskTuple alloced(std::move(buffer), file_size);
 
   return alloced;
 }
@@ -111,13 +112,14 @@ void FileHelpers::create_file(const networking::Request &t_req) {
   file.close();
 }
 
-void FileHelpers::write_to_disk(const networking::Request &t_req, char c) {
+void FileHelpers::write_to_disk(const networking::Request &t_req, const networking::DatafromClientTuple &t_data) {
 
   fs::path path{t_req.m_disk.m_system_path + "/" + t_req.m_argument};
 
   std::ofstream file(path.c_str(), std::ios::out | std::ios::binary);
-  file.write(&c, 1);
+  file.write(std::get<0>(t_data).get(), std::get<1>(t_data));
   file.close();
+
 }
 
 
@@ -222,7 +224,6 @@ std::string FileHelpers::updated_at(const std::string &t_path) {
   std::string time_str = time.str();
   time_str = time_str.substr(0, time_str.find_last_of("\\:")); // rm Week day, seconds and year
   time_str = time_str.substr(4, time_str.size()); // rm Week day, seconds and year
-  LOG_DEBUG(time_str.c_str());
                                                              
   return time_str;
 
