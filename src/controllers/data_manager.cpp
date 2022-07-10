@@ -8,9 +8,12 @@
 #include <string>
 
 using namespace controllers;
-
+ 
+/* constants to split IP addres */
 const int DataManager::M_PORT_SPLIT_POS = 4;
 const int DataManager::M_PORT_ARG_LEN = 6;
+
+/***** Callbacks ********/
 
 void DataManager::port(networking::Request &t_req,
                        networking::Connection &t_conn) {
@@ -28,6 +31,8 @@ void DataManager::port(networking::Request &t_req,
   }
 }
 
+/** **/
+
 void DataManager::type(networking::Request &t_req, networking::Connection &t_conn) {
 
   networking::Connection::conn_type type = select_type(t_req.m_argument);
@@ -41,57 +46,56 @@ void DataManager::type(networking::Request &t_req, networking::Connection &t_con
   t_req.m_reply = networking::reply::r_200;
 }
 
+/** **/
+
 void DataManager::retrieve(networking::Request &t_req, networking::Connection &t_conn) {
 
   t_conn.set_type(networking::Connection::image);
   LOG_INFO("Setting Transfer Type to Binary/Image.");
 
   if (t_req.m_argument.empty())
-      invalid_to_retrieve(t_req, t_conn);
+    invalid_to_retrieve(t_req, t_conn);
 
   else
-      valid_to_retrieve(t_req);
+    valid_to_retrieve(t_req);
 }
+
+/** **/
 
 void DataManager::list(networking::Request &t_req, networking::Connection &t_conn) {
 
- // if (t_conn.get_type() == networking::Connection::ascii)
- //
-    t_conn.set_type(networking::Connection::ascii);
-    LOG_INFO("Setting Transfer Type to ASCII.");
+  t_conn.set_type(networking::Connection::ascii);
+  LOG_INFO("Setting Transfer Type to ASCII.");
 
-    try {
+  try {
     valid_to_list(t_req);
 
-    } catch(std::string &err){
+  } catch (std::string &err) {
 
-      LOG_ERROR(err.c_str());
-      invalid_to_list(t_req, t_conn);
-    }
-
- // else
-   // 
+    LOG_ERROR(err.c_str());
+    invalid_to_list(t_req, t_conn);
+  }
 }
 
-void DataManager::store(networking::Request &t_req, networking::Connection &t_conn){
+/** **/
+
+void DataManager::store(networking::Request &t_req,
+                        networking::Connection &t_conn) {
 
   t_conn.set_type(networking::Connection::image);
   LOG_INFO("Setting Transfer Type to Binary/Image.");
-        
-  if(t_req.m_argument.empty())
-      invalid_to_store(t_req, t_conn);
 
-  else 
-      valid_to_store(t_req);
+  if (t_req.m_argument.empty())
+    invalid_to_store(t_req, t_conn);
 
+  else
+    valid_to_store(t_req);
 }
 
-
-void DataManager::passive(networking::Request &t_req, networking::Connection &t_conn){
+void DataManager::passive(networking::Request &t_req, networking::Connection &t_conn) {
 
   /* TODO: IMPLEMENT PASSIVE MODE */
-    t_req.m_reply = networking::reply::r_228;
-
+  t_req.m_reply = networking::reply::r_228;
 }
 
 /**** PRIVATE *****/
@@ -111,42 +115,34 @@ void DataManager::data_connect(utils::StringVector &t_port_argument,
 
 void DataManager::valid_to_list(networking::Request &t_req) {
 
-
   t_req.m_reply = networking::reply::r_150;
   t_req.m_transfer = networking::Request::send;
 
-  try {
-    if (t_req.m_argument.empty())
-      t_req.m_data.m_ascii = utils::FileHelpers::list_dir_filenames(
-          t_req, utils::FileHelpers::list_stat);
-    else
-      list_with_argument(t_req);
+  if (t_req.m_argument.empty())
+    t_req.m_data.m_ascii = utils::FileHelpers::list_dir_filenames( t_req, utils::FileHelpers::list_stat);
 
-  } catch (std::string &msg) { /* could not list */
-    LOG_ERROR(msg.c_str());
-    t_req.m_transfer = networking::Request::send;
-    t_req.m_reply = networking::reply::r_550;
-  }
+  else
+    list_with_argument(t_req);
+}
+
+/** **/
+
+void DataManager::invalid_to_list(networking::Request &t_req, networking::Connection &t_conn) {
+
+  t_conn.reconnect();
+  t_req.m_valid = false;
+  t_req.m_reply = networking::reply::r_550;
 }
 
 void DataManager::list_with_argument(networking::Request &t_req) {
 
-  std::string path =
-      utils::PathHelpers::join_to_system_path(t_req, t_req.m_argument);
+  std::string path = utils::PathHelpers::join_to_system_path(t_req, t_req.m_argument);
 
   if (utils::PathHelpers::is_path_directory(path))
-    t_req.m_data.m_ascii = utils::FileHelpers::list_dir_filenames(
-        t_req, utils::FileHelpers::list_stat);
+    t_req.m_data.m_ascii = utils::FileHelpers::list_dir_filenames( t_req, utils::FileHelpers::list_stat);
 
   else
     t_req.m_data.m_ascii = utils::FileHelpers::stat_file(t_req);
-}
-
-void DataManager::invalid_to_list(networking::Request &t_req,
-                                  networking::Connection &t_conn) {
-  t_conn.reconnect();
-  t_req.m_reply = networking::reply::r_426;
-  t_req.m_reply_msg = " 'TYPE' must be ASCII.";
 }
 
 /**** RETRIEVE ****/
@@ -154,7 +150,8 @@ void DataManager::invalid_to_list(networking::Request &t_req,
 void DataManager::valid_to_retrieve(networking::Request &t_req) {
 
   try {
-    utils::FileHelpers::DataFromDiskTuple alloced = utils::FileHelpers::read_bytes(t_req);
+    utils::FileHelpers::DataFromDiskTuple alloced =
+        utils::FileHelpers::read_bytes(t_req);
 
     t_req.m_data.m_image = std::move(std::get<0>(alloced));
     t_req.m_data.m_image_size = std::get<1>(alloced);
@@ -171,18 +168,12 @@ void DataManager::valid_to_retrieve(networking::Request &t_req) {
 }
 
 
+/** **/
+
 void DataManager::invalid_to_retrieve(networking::Request &t_req, networking::Connection &t_conn) {
 
-  if(t_req.m_argument.empty()){
   LOG_ERROR("retrieve was called without any arguments.");
   t_req.m_reply = networking::reply::r_501;
-
-  } else {
-     LOG_ERROR("TYPE must be binary/image.");
-     t_req.m_reply = networking::reply::r_426;
-     t_req.m_reply_msg = " 'TYPE' must be Image/Binary.";
-  }
-
   t_req.m_valid = false;
   t_conn.reconnect();
 }
@@ -191,30 +182,19 @@ void DataManager::invalid_to_retrieve(networking::Request &t_req, networking::Co
 
 void DataManager::valid_to_store(networking::Request &t_req) {
 
-    t_req.m_reply = networking::reply::r_125;
-    t_req.m_transfer = networking::Request::receive;
+  t_req.m_reply = networking::reply::r_125;
+  t_req.m_transfer = networking::Request::receive;
 }
-
 
 void DataManager::invalid_to_store(networking::Request &t_req, networking::Connection &t_conn) {
 
-if(t_req.m_argument.empty()){
   LOG_ERROR("retrieve was called without any arguments.");
   t_req.m_reply = networking::reply::r_501;
-
-  } else {
-     LOG_ERROR("TYPE must be binary/image.");
-     t_req.m_reply = networking::reply::r_426;
-     t_req.m_reply_msg = " 'TYPE' must be Image/Binary.";
-  }
-
   t_req.m_valid = false;
   t_conn.reconnect();
 }
 
-
 /**** HELPERS ****/
-
 
 std::string DataManager::extract_ip(utils::StringVector &t_port_arg) {
 
@@ -223,6 +203,8 @@ std::string DataManager::extract_ip(utils::StringVector &t_port_arg) {
 
   return utils::StringHelpers::join_string_vector(ip, ".");
 }
+
+/** **/
 
 int DataManager::extract_port(utils::StringVector &t_port_arg) {
 
@@ -233,6 +215,8 @@ int DataManager::extract_port(utils::StringVector &t_port_arg) {
   return hex_to_decimal(hex_port);
 }
 
+/** **/
+
 std::string DataManager::decimal_to_hex(const std::string t_decimal) {
 
   std::stringstream hex;
@@ -240,6 +224,9 @@ std::string DataManager::decimal_to_hex(const std::string t_decimal) {
 
   return hex.str();
 }
+
+
+/** **/
 
 int DataManager::hex_to_decimal(const std::string t_hex) {
 
@@ -252,7 +239,11 @@ int DataManager::hex_to_decimal(const std::string t_hex) {
   return decimal;
 }
 
-networking::Connection::conn_type DataManager::select_type(std::string &t_type) {
+
+/** **/
+
+networking::Connection::conn_type
+DataManager::select_type(std::string &t_type) {
   if (t_type == "A")
     return networking::Connection::ascii;
   else if (t_type == "I")

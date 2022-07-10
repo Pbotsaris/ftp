@@ -29,6 +29,8 @@
 
 using namespace utils;
 
+/***** Public ******/
+
 std::string FileHelpers::list_dir_filenames(const networking::Request &t_req,
                                             listdir_option t_option) {
 
@@ -54,41 +56,38 @@ std::string FileHelpers::list_dir_filenames(const networking::Request &t_req,
   return filenames;
 }
 
+/** **/
+
 std::string FileHelpers::stat_file(const networking::Request &t_req) {
 
-  std::string path_to_stat =
-      PathHelpers::join_to_system_path(t_req, t_req.m_argument);
-
-  fs::file_status status = file_status_validate(t_req, path_to_stat);
-
-  std::string filename = utils::PathHelpers::extract_last_path(t_req.m_argument);
+  std::string path_to_stat = PathHelpers::join_to_system_path(t_req, t_req.m_argument);
+  fs::file_status status   = file_status_validate(t_req, path_to_stat);
+  std::string filename     = utils::PathHelpers::extract_last_path(t_req.m_argument);
 
   return append_stat_result(path_to_stat, filename, status);
 }
 
 
+/** **/
+
 std::string FileHelpers::stat_file(const networking::Request &t_req, const std::string &t_path) {
 
   fs::file_status status = file_status_validate(t_req, t_path);
-
-  std::string filename = utils::PathHelpers::extract_last_path(t_path);
+  std::string filename   = utils::PathHelpers::extract_last_path(t_path);
 
   return append_stat_result(t_path, filename, status);
 }
 
+/** **/
 
-// drwxr-xr-x   8 pedro    users        4096 Apr 29 13:00 delete_me
+FileHelpers::DataFromDiskTuple FileHelpers::read_bytes(const networking::Request &t_req) {
 
-FileHelpers::DataFromDiskTuple
-FileHelpers::read_bytes(const networking::Request &t_req) {
-
-  std::string path_to_read =
-      PathHelpers::join_to_system_path(t_req, t_req.m_argument);
+  std::string path_to_read = PathHelpers::join_to_system_path(t_req, t_req.m_argument);
 
   validate_path(t_req, path_to_read);
 
-  std::ifstream file(path_to_read,
-                     std::ios::in | std::ios::binary | std::ios::ate);
+  std::ifstream file(path_to_read, std::ios::in | std::ios::binary | std::ios::ate);
+
   if (!file.is_open())
     throw "Could not open file for transfer";
 
@@ -102,28 +101,24 @@ FileHelpers::read_bytes(const networking::Request &t_req) {
   return alloced;
 }
 
-void FileHelpers::create_file(const networking::Request &t_req) {
-
-  fs::path path{t_req.m_disk.m_system_path + "/" + t_req.m_argument};
-  fs::create_directories(path.parent_path());
-
-  /*only creates the file */
-  std::ofstream file(path);
-  file.close();
-}
+/** **/
 
 void FileHelpers::write_to_disk(const networking::Request &t_req, const networking::DatafromClientTuple &t_data) {
 
   fs::path path{t_req.m_disk.m_system_path + "/" + t_req.m_argument};
 
+   /* overwrites existing files */
+  if(PathHelpers::path_exists(path)){
+    fs::remove(path);
+  }
+
   std::ofstream file(path.c_str(), std::ios::out | std::ios::binary);
   file.write(std::get<0>(t_data).get(), std::get<1>(t_data));
   file.close();
-
 }
 
 
-/* PRIVATE */
+/***** Private ******/
 
 std::string FileHelpers::append_stat_result(const std::string t_path, const std::string t_filename,
                                             fs::file_status t_status) {

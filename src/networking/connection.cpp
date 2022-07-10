@@ -1,21 +1,12 @@
 #include "connection.hpp"
-#include "logger.hpp"
 #include "connection_poll.hpp"
+#include "logger.hpp"
 
 /* C headers */
-#include <algorithm>
 #include <arpa/inet.h>
-#include <poll.h>
 #include <sys/socket.h>
-#include <sys/types.h>
 #include <unistd.h>
 
-/* C++ */
-#include <cstdint>
-#include <cstring>
-#include <exception>
-#include <iostream>
-#include <string>
 
 using namespace networking;
 
@@ -26,7 +17,6 @@ static const int MAX_READ_SIZE = BUFFER_SIZE - 2;
 static const int TRANSFER_READ_LENGTH = 1048; // 1MB
 /* max request queuing in sockets */
 static const int QUEUE_SIZE = 5;
-
 
 /********* Constructor **********/
 
@@ -47,7 +37,6 @@ Connection::~Connection() {
   if (m_mode == passive) // shuts down listening connection
     shutdown(m_local_socket, SHUT_RDWR);
 }
-
 
 /********* Conn config & state **********/
 
@@ -89,7 +78,6 @@ void Connection::bind_socket() {
   if (res < 0)
     throw "Error Binding Socket.\n";
 }
-
 
 void Connection::connect_socket() {
 
@@ -149,7 +137,6 @@ void Connection::set_mode(conn_mode t_mode) { m_mode = t_mode; }
 void Connection::set_type(conn_type t_type) { m_type = t_type; }
 
 Connection::conn_type Connection::get_type() { return m_type; }
-
 
 /********* CONTROL **********/
 
@@ -216,19 +203,20 @@ DatafromClientTuple Connection::transfer_receive(Request &t_req) {
 
   std::uintmax_t total_length = 0;
   std::queue<TransferData> queue;
-  ConnectionPoll conn_poll(m_local_socket); 
+  ConnectionPoll conn_poll(m_local_socket);
 
   while (1) {
 
-     if(conn_poll.has_timeout()){ /* data connection should never block */
+    if (conn_poll.has_timeout()) { /* data connection should never block */
       t_req.m_valid = false;
       break;
-     }
+    }
 
     TransferData data;
 
     data.m_buffer = new char[TRANSFER_READ_LENGTH]();
-    int read_length = recv(m_local_socket, data.m_buffer, TRANSFER_READ_LENGTH, 0);
+    int read_length =
+        recv(m_local_socket, data.m_buffer, TRANSFER_READ_LENGTH, 0);
 
     if (read_length == -1) {
       LOG_ERROR("There was a problem reading from client.");
@@ -252,6 +240,8 @@ DatafromClientTuple Connection::transfer_receive(Request &t_req) {
   LOG_DEBUG("Read %lu bytes from %s.", total_length, t_req.m_argument.c_str());
 
   ImageBuffer data = consolidate_data(queue, total_length);
+
+  create_socket();
 
   return DatafromClientTuple(std::move(data), total_length);
 }
@@ -279,7 +269,8 @@ void Connection::transfer_ascii(Request &t_req) {
 
 void Connection::transfer_image(Request &t_req) {
 
-  int res = send(m_local_socket, t_req.m_data.m_image.get(), t_req.m_data.m_image_size, 0);
+  int res = send(m_local_socket, t_req.m_data.m_image.get(),
+                 t_req.m_data.m_image_size, 0);
 
   if (res < 0) {
     LOG_ERROR("Could not transfer Image/Binary data to client.");
@@ -288,7 +279,7 @@ void Connection::transfer_image(Request &t_req) {
 }
 
 ImageBuffer Connection::consolidate_data(std::queue<TransferData> t_data,
-                             std::uintmax_t t_total_length) {
+                                         std::uintmax_t t_total_length) {
 
   ImageBuffer consolidated_data(new char[t_total_length]);
   std::size_t cursor = 0;
@@ -304,3 +295,4 @@ ImageBuffer Connection::consolidate_data(std::queue<TransferData> t_data,
 
   return consolidated_data;
 }
+

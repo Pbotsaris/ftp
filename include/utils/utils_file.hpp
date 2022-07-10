@@ -15,7 +15,7 @@ namespace fs = std::__fs::filesystem;
 namespace utils {
 
 
-/* NOTE: FileHelpers is only concerned with Disk IO. Methods does not modify any of its arguments.*/
+/* NOTE: FileHelpers is only concerned with Disk IO. Methods does not modify arguments.*/
 
 struct FileHelpers {
   
@@ -27,7 +27,8 @@ struct FileHelpers {
   static std::string             stat_file(const networking::Request &t_req);
   static std::string             stat_file(const networking::Request &t_req, const std::string &t_path);
   static DataFromDiskTuple       read_bytes(const networking::Request &t_req);
-  static void                    create_file(const networking::Request &t_req);
+
+  /* write to disk will overwrite file if exists */
   static void                    write_to_disk(const networking::Request &t_req, const networking::DatafromClientTuple &t_data);
 
   private:

@@ -2,12 +2,10 @@
 #define CONNECTION_H
 #include "request.hpp"
 #include <netinet/in.h> /* sockeaddr_in */
-#include <memory> /* unique_ptr */
 #include <queue>
 #include <tuple>
 
 namespace networking {
-
 
  enum conn_mode { active, passive };
 
@@ -21,11 +19,11 @@ namespace networking {
   class Connection {
 
   private:
-    int         m_port;
-    conn_mode   m_mode;
-    int         m_local_socket;
-    int         m_connected_socket;
-    sockaddr_in m_address;
+    int                   m_port;
+    conn_mode             m_mode;
+    int                   m_local_socket;
+    int                   m_connected_socket;
+    sockaddr_in           m_address;
   
   public:
     enum conn_type {none, image, ascii};
@@ -35,41 +33,41 @@ namespace networking {
     ~Connection();
   
   private:
-    conn_type   m_type; /* conn_type must be declared first */
+    conn_type             m_type; /* conn_type must be declared first */
 
   public:
     /* conn config and state */
-    void        config_addr();
-    void        config_addr(const std::string &t_ip);
-    void        set_socket_options();
-    void        bind_socket();
-    void        connect_socket();
-    void        accept_connection();
-    void        socket_listen();
-    void        reconnect();
+    void                  config_addr();
+    void                  config_addr(const std::string &t_ip);
+    void                  set_socket_options();
+    void                  bind_socket();
+    void                  connect_socket();
+    void                  accept_connection();
+    void                  socket_listen();
+    void                  reconnect();
 
     /* getters and setters */
-    int         get_port();
-    void        set_port(int t_port);
-    void        set_mode(conn_mode t_mode);
-    conn_type   get_type();
-    void        set_type(conn_type t_type);
+    int                   get_port();
+    void                  set_port(int t_port);
+    void                  set_mode(conn_mode t_mode);
+    conn_type             get_type();
+    void                  set_type(conn_type t_type);
 
     /* used by control connections */
-    void        receive(Request &t_req);
-    void        respond(Request &t_req);
+    void                  receive(Request &t_req);
+    void                  respond(Request &t_req);
 
     /* used by data connections */
-    void        transfer_send(Request &t_req);
-    DatafromClientTuple  transfer_receive(Request &t_req);
+    void                  transfer_send(Request &t_req);
+    DatafromClientTuple   transfer_receive(Request &t_req);
 
   private:
-    void        create_socket();
-    void        transfer_ascii(Request &t_req);
-    void        transfer_image(Request &t_req);
+    void                  create_socket();
+    void                  transfer_ascii(Request &t_req);
+    void                  transfer_image(Request &t_req);
 
     /* this helper will consolidate memory chunks from queue into a consolidated  into a unique pointer */
-    ImageBuffer consolidate_data(std::queue<TransferData> t_data, std::uintmax_t t_total_length);
+    ImageBuffer           consolidate_data(std::queue<TransferData> t_data, std::uintmax_t t_total_length);
 
   };
 }
