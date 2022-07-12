@@ -79,8 +79,8 @@ static std::map<code, std::string> messages{
     {r_100, "100 The requested action being initiated.\n"},
     {r_110, "110 Restart marker replay.\n"},
     {r_120, "120 Service ready.\n"},
-    {r_125, "125 Data connection already open; transfer starting.\n"},
-    {r_150, "150 File status okay; about to open data connection.\n"},
+    {r_125, "125 Data connection already open; transfer starting. "}, /* append file */
+    {r_150, "150 File status okay; about to open data connection.\n"}, /* append file */
 
     /***** 200 series  ****/
     {r_200, "200 Ok\n"},

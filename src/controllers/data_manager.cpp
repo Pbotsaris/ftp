@@ -4,6 +4,7 @@
 #include "doctest.h"
 #include "logger.hpp"
 #include "utils_file.hpp"
+#include "utils_string.hpp"
 #include <sstream>
 #include <string>
 
@@ -12,6 +13,7 @@ using namespace controllers;
 /* constants to split IP addres */
 const int DataManager::M_PORT_SPLIT_POS = 4;
 const int DataManager::M_PORT_ARG_LEN = 6;
+const int DataManager::M_RANDOM_FILENAME_LENGTH = 10;
 
 /***** Callbacks ********/
 
@@ -79,8 +81,7 @@ void DataManager::list(networking::Request &t_req, networking::Connection &t_con
 
 /** **/
 
-void DataManager::store(networking::Request &t_req,
-                        networking::Connection &t_conn) {
+void DataManager::store(networking::Request &t_req, networking::Connection &t_conn) {
 
   t_conn.set_type(networking::Connection::image);
   LOG_INFO("Setting Transfer Type to Binary/Image.");
@@ -91,6 +92,17 @@ void DataManager::store(networking::Request &t_req,
   else
     valid_to_store(t_req);
 }
+
+/** **/
+
+void DataManager::store_unique(networking::Request &t_req, networking::Connection &t_conn) {
+
+  t_req.m_argument = utils::StringHelpers::random_string(M_RANDOM_FILENAME_LENGTH);
+  store(t_req, t_conn);
+}
+
+
+/** **/
 
 void DataManager::passive(networking::Request &t_req, networking::Connection &t_conn) {
 
@@ -183,6 +195,7 @@ void DataManager::invalid_to_retrieve(networking::Request &t_req, networking::Co
 void DataManager::valid_to_store(networking::Request &t_req) {
 
   t_req.m_reply = networking::reply::r_125;
+  t_req.m_reply_msg = "FILE: " + t_req.m_argument;
   t_req.m_transfer = networking::Request::receive;
 }
 

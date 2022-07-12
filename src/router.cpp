@@ -8,7 +8,7 @@ std::map<commands::name, ControlController> Router::m_ctrlrouter{
     {commands::name::USER, controllers::Accounts::verify_user},
     {commands::name::PASS, controllers::Accounts::verify_password},
 
-    /* Disk */
+    /* Disk Manager */
     {commands::name::CWD, controllers::DiskManager::change_directory},
     {commands::name::CDUP, controllers::DiskManager::change_up_directory},
     {commands::name::PWD, controllers::DiskManager::print_working_directory},
@@ -31,12 +31,14 @@ std::map<commands::name, ControlController> Router::m_ctrlrouter{
 
 std::map<commands::name, DataController> Router::m_datarouter{
 
+    /* Data Manager */
     {commands::name::TYPE, controllers::DataManager::type},
     {commands::name::PORT, controllers::DataManager::port},
     {commands::name::LIST, controllers::DataManager::list},
     {commands::name::RETR, controllers::DataManager::retrieve},
     {commands::name::STOR, controllers::DataManager::store},
-    {commands::name::PASV, controllers::DataManager::store},
+    {commands::name::STOU, controllers::DataManager::store_unique},
+    {commands::name::PASV, controllers::DataManager::passive},
 };
 
 void Router::route(const commands::name t_command, networking::Request &t_req,

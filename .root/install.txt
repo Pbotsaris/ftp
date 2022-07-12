@@ -1,2 +1,0 @@
-mix archive.install hex phx_new
-added new things here!

@@ -11,6 +11,7 @@ struct DataManager {
 
   static const int M_PORT_SPLIT_POS;
   static const int M_PORT_ARG_LEN;
+  static const int M_RANDOM_FILENAME_LENGTH;
 
   /* callbacks */
   static void                   port(networking::Request &t_req, networking::Connection &t_conn);
@@ -18,6 +19,7 @@ struct DataManager {
   static void                   list(networking::Request &t_req, networking::Connection &t_conn);
   static void                   type(networking::Request &t_req, networking::Connection &t_conn);
   static void                   store(networking::Request &t_req, networking::Connection &t_conn);
+  static void                   store_unique(networking::Request &t_req, networking::Connection &t_conn);
   static void                   passive(networking::Request &t_req, networking::Connection &t_conn);
 
   private:

@@ -1,9 +1,13 @@
 #include "utils_string.hpp"
 #include <algorithm>
+#include <cstdlib>
+#include<time.h>
+#include<string.h>
 
 using namespace utils;
 
-StringVector StringHelpers::split_string(const std::string &s, const std::string delim) {
+StringVector StringHelpers::split_string(const std::string &s,
+                                         const std::string delim) {
   int start = 0;
   int end = s.find(delim);
   StringVector result;
@@ -27,18 +31,28 @@ void StringHelpers::to_upper(std::string &t_str) {
   std::transform(t_str.begin(), t_str.end(), t_str.begin(), ::toupper);
 }
 
-std::string StringHelpers::join_string_vector(const StringVector &t_str_vec, const std::string &t_delim){
+std::string StringHelpers::join_string_vector(const StringVector &t_str_vec,
+                                              const std::string &t_delim) {
   std::string result;
 
-  for(auto &s : t_str_vec){
-     result.append(s + t_delim);
+  for (auto &s : t_str_vec) {
+    result.append(s + t_delim);
   }
 
-  if(!t_delim.empty()){
+  if (!t_delim.empty()) {
     result.pop_back();
   }
 
   return result;
+}
+
+std::string StringHelpers::random_string(const int length) {
+
+  srand(time(0));
+  std::string str(length, 0);
+  std::generate_n(str.begin(), length, random_char);
+
+  return str;
 }
 
 /* PRIVATE */
@@ -60,3 +74,9 @@ void StringHelpers::trim_right(std::string &s) {
           s.end());
 }
 
+char StringHelpers::random_char(){
+  const char charset[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+    const size_t max_index = strlen(charset) - 1;
+    return charset[rand() % max_index];
+}
