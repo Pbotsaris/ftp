@@ -6,90 +6,101 @@
 namespace commands {
   
   enum name {
-     QUIT = 1,     // disconnect (in ftp)
     /* No arguments */
-     CDUP = 0,     // cd ..
-     PASV = 2,     // passive mode
-//   ABOR = 3,     no support
-     PWD  = 4,
-     SYST = 5,     // returns OS
-     NOOP = 6,
+     QUIT = 0,     
+     CDUP = 1,  
+     PASV = 2,     
+     PWD  = 3,
+     SYST = 4,     
+     NOOP = 5,
 
     /* With argument */
-     USER = 9,
-     PASS = 10,
-//   ACCT = 12,    no support
-     CWD  = 13,    // cd
-//   REIN = 15,    no support
-//   SMNT = 14,    no support
-     PORT = 16,
-     TYPE = 17,
-//   STRU = 18,    no support, only single structure.
-//   MODE = 19,    no support, stream only.
-     RETR = 20,    // get
-     STOR = 21,   // no support. Only unique files are created.
-//   APPE = 23,    handled by client.
-     REST = 24,    // restart
-     STOU = 22,    // send
-     RNFR = 25,    // rename
-     RNTO = 26,    // rename
-     DELE = 27,
-     RMD  = 28,
-     MKD  = 29,
-     LIST = 30,
-     NLST = 31,
-//   SITE = 32,
-//   ALLO = 33,  no support
-     HELP = 34,  // rhelp (in ftp)
-     STAT = 35,  // rstatus (in ftp)
-     FEAT = 36,  // Features
+     USER = 6,
+     PASS = 7,
+     CWD  = 8,   
+     PORT = 9,
+     TYPE = 10,
+     RETR = 11,    
+     STOR = 12,    
+     REST = 13,   
+     STOU = 13,  
+     RNFR = 14,    
+     RNTO = 15,    
+     DELE = 16,
+     RMD  = 17,  
+     MKD  = 18,
+
+     /* zero or more arguments */
+     LIST = 19,
+     NLST = 21,
+     HELP = 22,  
+     STAT = 23,  
+     FEAT = 24,  
+                
+     /* No Support */
+     ABOR = 30,  
+     ACCT = 31,
+     REIN = 32,
+     APPE = 33, 
+     SMNT = 34, 
+     STRU = 35, 
+     MODE = 36, 
+     SITE = 37, 
+     ALLO = 38, 
+     LPRT = 39,
   };
 
   enum type {
     no_argument,
     with_argument,
     zero_or_more_arguments,
+    no_support,
   };
 
   static std::map<std::string, name > find {
 
     /* No arguments */
-    { "CDUP", CDUP },  // done
-    { "QUIT", QUIT },  // done
+    { "CDUP", CDUP },  
+    { "QUIT", QUIT },  
     { "PASV", PASV },
-//  { "ABOR", ABOR },  no support
-    { "PWD" , PWD  },  // done
-    { "SYST", SYST },  // done
+    { "PWD" , PWD  },  
+    { "SYST", SYST },  
     { "NOOP", NOOP },
                       
     /* With argument */
-    { "USER", USER },  // done
-    { "PASS", PASS },  // done
-//  { "ACCT", ACCT },  no support
-    { "CWD", CWD },    // done
-//  { "SMNT", SMNT },  no support
-//  { "REIN", REIN },  no support
-    { "PORT", PORT },
+    { "USER", USER },  
+    { "PASS", PASS },  
+    { "CWD", CWD },    
+    { "PORT", PORT },  
     { "TYPE", TYPE },
-//  { "STRU", STRU },  no support
-//  { "MODE", MODE },  no support
     { "RETR", RETR }, 
     { "STOU", STOU },
     { "STOR", STOR },  
-//  { "APPE", APPE },  no support
     { "REST", REST },
-    { "RNFR", RNFR },  // done
-    { "RNTO", RNTO },  // done
+    { "RNFR", RNFR },  
+    { "RNTO", RNTO },  
     { "DELE", DELE },
-    { "RMD" , RMD  },  // done
-    { "MKD" , MKD  },  // done
+    { "RMD" , RMD  },  
+    { "MKD" , MKD  },  
+
+    /* zero or more arguments */
     { "LIST", LIST },
     { "NLST", NLST },
- // { "SITE", SITE },  no support
-//  { "ALLO", ALLO },  no support
     { "STAT", STAT }, 
-    { "HELP", HELP },  // done
-    { "FEAT", FEAT },  // done
+    { "HELP", HELP },  
+    { "FEAT", FEAT },  
+                       
+    /* No Support */
+    { "ABOR", ABOR }, 
+    { "ACCT", ACCT }, 
+    { "SMNT", SMNT }, 
+    { "STRU", STRU }, 
+    { "MODE", MODE }, 
+    { "REIN", REIN }, 
+    { "APPE", APPE }, 
+    { "SITE", SITE }, 
+    { "ALLO", ALLO }, 
+    { "LPRT", LPRT }, 
   };
 
   static std::map<std::string, std::string > help {
@@ -117,18 +128,31 @@ namespace commands {
     {  "STAT", "Returns the server status, including the status of the current connection."}, 
     {  "HELP", "Display help of an specific command."}, 
     {  "FEAT", "Responds with server features."}, 
+
+    // NO SUPPORT 
+    { "ABOR", "No support." }, 
+    { "ACCT", "No support." }, 
+    { "SMNT", "No support." }, 
+    { "STRU", "No support." }, 
+    { "MODE", "No support." }, 
+    { "REIN", "No support." }, 
+    { "APPE", "No support." }, 
+    { "SITE", "No support." }, 
+    { "ALLO", "No support." }, 
+    { "LPRT", "No support." }, 
   };
 
   struct Utils {
-
-
     static type get_type(name t_command) {
 
       if(t_command >= USER && t_command < LIST)
         return with_argument;
 
-      else if(t_command >= LIST)
+      else if(t_command >= LIST && t_command < ABOR)
         return zero_or_more_arguments;
+
+      else if(t_command >= ABOR)
+        return no_support;
 
       else
         return no_argument;
@@ -136,6 +160,5 @@ namespace commands {
   };
 
 }
-
 
 #endif

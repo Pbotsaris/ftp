@@ -125,7 +125,7 @@ static std::map<code, std::string> messages{
     /***** 500 series  ****/
     {r_500, "500 Syntax error.\n"},
     {r_501, "501 Syntax error in parameters or arguments.\n"},
-    {r_502, "502 Command not implemented.\n"},
+    {r_502, "502 Command not implemented.\n"}, /* Append message */
     {r_503, "503 Bad sequence of commands.\n"},
     {r_504, "504 Command not implemented for that parameter.\n"},
     {r_530, "530 Not logged in.\n"},

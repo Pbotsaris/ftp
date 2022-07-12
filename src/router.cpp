@@ -45,9 +45,14 @@ void Router::route(const commands::name t_command, networking::Request &t_req,
                    networking::Connection &t_dataconn) {
 
   if(require_logged_user(t_command) && !t_req.m_logged_in){
-
     t_req.m_reply = networking::reply::r_530;
     LOG_ERROR("Not allowed - User not logged in.");
+    return;
+  }
+
+  if(is_unsuported_command(t_command)){
+    t_req.m_reply = networking::reply::r_502;
+    LOG_ERROR("Command not is not supported");
     return;
   }
 
@@ -73,4 +78,10 @@ bool Router::require_logged_user(const commands::name t_command){
   return t_command != commands::USER &&
          t_command != commands::PASS &&
          t_command != commands::HELP;
+}
+
+bool Router::is_unsuported_command(const commands::name t_command){
+
+  return commands::Utils::get_type(t_command) == commands::type::no_support;
+
 }

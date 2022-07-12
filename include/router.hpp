@@ -24,6 +24,7 @@ private:
 
   static bool is_control_router(const commands::name t_command);
   static bool require_logged_user(const commands::name t_command);
+  static bool is_unsuported_command(const commands::name t_command);
 };
 
 } // namespace routing
