@@ -36,6 +36,7 @@ std::map<commands::name, DataController> Router::m_datarouter{
     {commands::name::TYPE, controllers::DataManager::type},
     {commands::name::PORT, controllers::DataManager::port},
     {commands::name::LIST, controllers::DataManager::list},
+    {commands::name::NLST, controllers::DataManager::list},
     {commands::name::RETR, controllers::DataManager::retrieve},
     {commands::name::STOR, controllers::DataManager::store},
     {commands::name::STOU, controllers::DataManager::store_unique},

@@ -3,6 +3,7 @@
 
 #include "request.hpp"
 #include "connection.hpp"
+#include "utils_file.hpp"
 #include "utils_string.hpp"
 
 namespace controllers {
@@ -17,6 +18,7 @@ struct DataManager {
   static void                   port(networking::Request &t_req, networking::Connection &t_conn);
   static void                   retrieve(networking::Request &t_req, networking::Connection &t_conn);
   static void                   list(networking::Request &t_req, networking::Connection &t_conn);
+  static void                   list_names(networking::Request &t_req, networking::Connection &t_conn);
   static void                   type(networking::Request &t_req, networking::Connection &t_conn);
   static void                   store(networking::Request &t_req, networking::Connection &t_conn);
   static void                   store_unique(networking::Request &t_req, networking::Connection &t_conn);
@@ -28,7 +30,7 @@ struct DataManager {
   /* list helpers */
   static void                   valid_to_list(networking::Request &t_req);
   static void                   invalid_to_list(networking::Request &t_req, networking::Connection &t_conn);
-  static void                   list_with_argument(networking::Request &t_req);
+  static void                   list_with_argument(networking::Request &t_req, utils::FileHelpers::listdir_option t_lopt);
 
   /* retreive helpers */
   static void                  valid_to_retrieve(networking::Request &t_req);

@@ -1,4 +1,5 @@
 #include "data_manager.hpp"
+#include "commands.hpp"
 #include "connection.hpp"
 #include "disk_manager.hpp"
 #include "doctest.h"
@@ -71,6 +72,10 @@ void DataManager::list(networking::Request &t_req, networking::Connection &t_con
 
   try {
     valid_to_list(t_req);
+    
+    /* add line break name list */
+    if(t_req.m_command == commands::NLST)
+        t_req.m_reply_msg.append("\r");
 
   } catch (std::string &err) {
 
@@ -78,6 +83,7 @@ void DataManager::list(networking::Request &t_req, networking::Connection &t_con
     invalid_to_list(t_req, t_conn);
   }
 }
+
 
 /** **/
 
@@ -130,11 +136,15 @@ void DataManager::valid_to_list(networking::Request &t_req) {
   t_req.m_reply = networking::reply::r_150;
   t_req.m_transfer = networking::Request::send;
 
+  auto list_opt = t_req.m_command == commands::LIST
+                                     ? utils::FileHelpers::list_stat
+                                     : utils::FileHelpers::list_name;
+
   if (t_req.m_argument.empty())
-    t_req.m_data.m_ascii = utils::FileHelpers::list_dir_filenames( t_req, utils::FileHelpers::list_stat);
+    t_req.m_data.m_ascii = utils::FileHelpers::list_dir_filenames( t_req, list_opt);
 
   else
-    list_with_argument(t_req);
+    list_with_argument(t_req, list_opt);
 }
 
 /** **/
@@ -146,12 +156,12 @@ void DataManager::invalid_to_list(networking::Request &t_req, networking::Connec
   t_req.m_reply = networking::reply::r_550;
 }
 
-void DataManager::list_with_argument(networking::Request &t_req) {
+void DataManager::list_with_argument(networking::Request &t_req, utils::FileHelpers::listdir_option t_lopt) {
 
   std::string path = utils::PathHelpers::join_to_system_path(t_req, t_req.m_argument);
 
   if (utils::PathHelpers::is_path_directory(path))
-    t_req.m_data.m_ascii = utils::FileHelpers::list_dir_filenames( t_req, utils::FileHelpers::list_stat);
+    t_req.m_data.m_ascii = utils::FileHelpers::list_dir_filenames( t_req, t_lopt);
 
   else
     t_req.m_data.m_ascii = utils::FileHelpers::stat_file(t_req);
