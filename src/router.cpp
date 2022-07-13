@@ -16,6 +16,7 @@ std::map<commands::name, ControlController> Router::m_ctrlrouter{
     {commands::name::RMD, controllers::DiskManager::remove_directory},
     {commands::name::RNFR, controllers::DiskManager::rename_from},
     {commands::name::RNTO, controllers::DiskManager::rename_to},
+    {commands::name::DELE, controllers::DiskManager::delete_file},
 
     /* System Info */
     {commands::name::SYST, controllers::SystemInfo::system_os},

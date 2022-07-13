@@ -3,8 +3,10 @@
 
 /* Tests */
 #include "doctest.h"
+#include "utils_path.hpp"
 
-// stop unused variable warning when looping with `for(auto &some_var : some_enumerable)
+// stop unused variable warning when looping with `for(auto &some_var :
+// some_enumerable)
 #define MON_Internal_UnusedStringify(macro_arg_string_literal)                 \
 #macro_arg_string_literal
 #define MONUnusedParameter(macro_arg_parameter)                                \
@@ -21,6 +23,12 @@ namespace fs = std::__fs::filesystem;
 
 #endif
 
+/* rename requires to keep state accross request cycles
+ * the static variable assists with that
+ *  May want to expand into an array for multi user support.
+ *
+ * */
+
 std::string DiskManager::m_rename_from = "";
 
 void DiskManager::init(Disk &t_disk) {
@@ -30,6 +38,10 @@ void DiskManager::init(Disk &t_disk) {
 
   fs::create_directories(utils::PathHelpers::M_ROOT);
 };
+
+/****** File Operations ******/
+
+/** Rename from **/
 
 void DiskManager::rename_from(networking::Request &t_req) {
 
@@ -42,6 +54,8 @@ void DiskManager::rename_from(networking::Request &t_req) {
     t_req.m_reply = networking::reply::r_550;
   }
 };
+
+/** Rename To **/
 
 void DiskManager::rename_to(networking::Request &t_req) {
 
@@ -57,44 +71,22 @@ void DiskManager::rename_to(networking::Request &t_req) {
   t_req.m_reply = networking::reply::r_250;
 }
 
-void DiskManager::change_up_directory(networking::Request &t_req) {
-  t_req.m_argument = "..";
-  change_directory(t_req);
-}
+/** Delete File **/
 
-void DiskManager::print_working_directory(networking::Request &t_req) {
+void DiskManager::delete_file(networking::Request &t_req) {
 
-  t_req.m_reply = networking::reply::r_257;
-  t_req.m_reply_msg = t_req.m_disk.m_user_path;
-}
+  std::string path_to_del = utils::PathHelpers::add_to_path(
+      t_req.m_disk.m_system_path, t_req.m_argument);
 
-void DiskManager::make_directory(networking::Request &t_req) {
-
-  if (utils::PathHelpers::is_absolute_path(t_req.m_argument)) {
-    fs::create_directories(utils::PathHelpers::create_system_root_path() +
-                           t_req.m_argument);
-    t_req.m_reply_msg = t_req.m_argument + " created.";
-
-  } else {
-    fs::create_directories(
-        utils::PathHelpers::join_to_system_path(t_req, t_req.m_argument));
-    t_req.m_reply_msg =
-        utils::PathHelpers::join_to_user_path(t_req, t_req.m_argument) +
-        " created.";
-  }
-  t_req.m_reply = networking::reply::r_257;
-}
-
-void DiskManager::remove_directory(networking::Request &t_req) {
-
-  auto to_delete = utils::PathHelpers::build_system_path(t_req);
-
-  if (utils::PathHelpers::path_exists(to_delete)) {
-    remove_directory_when_valid(t_req, to_delete);
-  } else {
+  if (fs::remove(path_to_del))
+    t_req.m_reply = networking::reply::r_250;
+  else
     t_req.m_reply = networking::reply::r_550;
-  }
 }
+
+/****** Directory Operations ******/
+
+/** Change Directory **/
 
 void DiskManager::change_directory(networking::Request &t_req) {
 
@@ -119,7 +111,52 @@ void DiskManager::change_directory(networking::Request &t_req) {
   t_req.m_disk.m_dir_level = t_req.m_disk.m_dir_level + resulting_dir_level;
 }
 
-/* PRIVATE */
+/** Change Up Directory **/
+
+void DiskManager::change_up_directory(networking::Request &t_req) {
+  t_req.m_argument = "..";
+  change_directory(t_req);
+}
+
+/** Print Working Directory **/
+
+void DiskManager::print_working_directory(networking::Request &t_req) {
+
+  t_req.m_reply = networking::reply::r_257;
+  t_req.m_reply_msg = t_req.m_disk.m_user_path;
+}
+
+void DiskManager::make_directory(networking::Request &t_req) {
+
+  if (utils::PathHelpers::is_absolute_path(t_req.m_argument)) {
+    fs::create_directories(utils::PathHelpers::create_system_root_path() +
+                           t_req.m_argument);
+    t_req.m_reply_msg = t_req.m_argument + " created.";
+
+  } else {
+    fs::create_directories(
+        utils::PathHelpers::join_to_system_path(t_req, t_req.m_argument));
+    t_req.m_reply_msg =
+        utils::PathHelpers::join_to_user_path(t_req, t_req.m_argument) +
+        " created.";
+  }
+  t_req.m_reply = networking::reply::r_257;
+}
+
+/** Remove Directory **/
+
+void DiskManager::remove_directory(networking::Request &t_req) {
+
+  auto to_delete = utils::PathHelpers::build_system_path(t_req);
+
+  if (utils::PathHelpers::path_exists(to_delete)) {
+    remove_directory_when_valid(t_req, to_delete);
+  } else {
+    t_req.m_reply = networking::reply::r_550;
+  }
+}
+
+/*** PRIVATE ***/
 
 void DiskManager::update_paths(networking::Request &t_req,
                                const utils::StringVector &t_paths) {
@@ -137,8 +174,8 @@ void DiskManager::update_paths(networking::Request &t_req,
     }
 
     else {
-     user_path = utils::PathHelpers::add_to_path(user_path, path);
-     system_path = utils::PathHelpers::add_to_path(system_path, path);
+      user_path = utils::PathHelpers::add_to_path(user_path, path);
+      system_path = utils::PathHelpers::add_to_path(system_path, path);
     }
   }
 
@@ -151,6 +188,8 @@ void DiskManager::update_paths(networking::Request &t_req,
     change_bad_path(t_req);
   }
 }
+
+/** **/
 
 void DiskManager::remove_directory_when_valid(networking::Request &t_req,
                                               std::string &t_to_delete) {
@@ -173,14 +212,20 @@ void DiskManager::remove_directory_when_valid(networking::Request &t_req,
   }
 }
 
+/** **/
+
 void DiskManager::change_bad_path(networking::Request &t_req) {
   LOG_ERROR("CWD to unexisting directory");
   t_req.m_reply = networking::reply::r_550; /* file unavailable */
 }
 
+/** **/
+
 void DiskManager::change_valid_path(networking::Request &t_req) {
   t_req.m_reply = networking::reply::r_250;
 }
+
+/** **/
 
 void DiskManager::change_absolute_path(networking::Request &t_req) {
   t_req.m_disk.m_user_path = t_req.m_argument;
@@ -188,6 +233,8 @@ void DiskManager::change_absolute_path(networking::Request &t_req) {
                                utils::PathHelpers::M_ROOT + t_req.m_argument;
   t_req.m_reply = networking::reply::r_250;
 }
+
+/** **/
 
 void DiskManager::remove_trailing_slash(networking::Request &t_req) {
   if (t_req.m_disk.m_system_path.back() == '/')
@@ -200,6 +247,8 @@ void DiskManager::remove_trailing_slash(networking::Request &t_req) {
     t_req.m_disk.m_user_path.erase(t_req.m_disk.m_user_path.end() - 1,
                                    t_req.m_disk.m_user_path.end());
 }
+
+/** **/
 
 int DiskManager::count_resuling_dir_level(utils::StringVector &t_paths) {
   int count = 0;
@@ -218,6 +267,8 @@ int DiskManager::count_resuling_dir_level(utils::StringVector &t_paths) {
   return count;
 }
 
+/** **/
+
 int DiskManager::count_directory_items(std::string &t_path) {
   int count = 0;
   for (auto &_file : fs::directory_iterator(t_path)) {
@@ -227,6 +278,8 @@ int DiskManager::count_directory_items(std::string &t_path) {
   }
   return count;
 }
+
+/** TESTS **/
 
 TEST_CASE("Disk Manager") {
 
@@ -344,7 +397,7 @@ TEST_CASE("Disk Manager") {
     DiskManager::change_directory(req);
 
     CHECK(req.m_reply == networking::reply::r_550);
-}
+  }
 
   /* remove after tests */
   fs::remove_all(utils::PathHelpers::M_ROOT + "./test/inside");

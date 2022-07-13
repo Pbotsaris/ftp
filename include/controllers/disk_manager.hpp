@@ -10,14 +10,17 @@ struct DiskManager {
   /* Disk initializer */
   static void        init(disk::Disk &t_disk);
 
-  /* Callbacks */
+  /* File Operations */
   static void        rename_from(networking::Request &t_req);
   static void        rename_to(networking::Request &t_req);
+  static void        delete_file(networking::Request &t_req);
+
+  /* Directory Operations */
+  static void        change_directory(networking::Request &t_req);
   static void        change_up_directory(networking::Request &t_req);
   static void        print_working_directory(networking::Request &t_req);
   static void        make_directory(networking::Request &t_req);
   static void        remove_directory(networking::Request &t_req);
-  static void        change_directory(networking::Request &t_req);
 
   private:
   /* CWD Helpers */
@@ -37,7 +40,7 @@ struct DiskManager {
 
 };
 
-} // namespace disk
+} // namespace controllers
 
 
 #endif // !DISK_MANAGER_H
