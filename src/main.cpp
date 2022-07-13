@@ -28,7 +28,7 @@ int main(void) {
          return res;
 
  try {
-   auto service = networking::Service(4000);
+   auto service = networking::Service(2000);
    service.control_setup();
    service.control_handshake();
    service.control_loop();

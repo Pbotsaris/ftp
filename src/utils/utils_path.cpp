@@ -1,4 +1,5 @@
 #include "utils_path.hpp"
+#include "logger.hpp"
 
 #include <algorithm>
 #include <filesystem>
@@ -58,6 +59,7 @@ std::string PathHelpers::join_to_user_path(const networking::Request &t_req,
 
 std::string PathHelpers::join_to_system_path(const networking::Request &t_req,
                                              const std::string path_to_join) {
+
   return t_req.m_argument == "/"
              ? t_req.m_disk.m_system_path
              : t_req.m_disk.m_system_path + "/" + path_to_join;

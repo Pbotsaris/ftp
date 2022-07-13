@@ -15,21 +15,23 @@ namespace networking {
     struct          Private;
     bool            m_quit;
 
+    /* Disk Manager */
+    disk::Disk      m_disk;  /* server disk paths */
+
     /* Connections */
     Connection      m_ctrlconn;
     Connection      m_dataconn;
     Request         m_req;
 
+
     /* User */
     bool            m_logged_in;
     std::string     m_user;
 
-    /* Disk Manager */
-    disk::Disk      m_disk;  /* server disk paths */
 
   
   public:
-    Service(int t_port);
+    Service(int t_control_port);
   
     void control_setup();
     void control_handshake();
@@ -38,6 +40,8 @@ namespace networking {
 
   private:
     void data_transfer();
+    void data_connect();
+
     void data_transfer_respond(Request &t_req);
 
   };

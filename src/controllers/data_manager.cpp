@@ -16,6 +16,13 @@ const int DataManager::M_PORT_SPLIT_POS = 4;
 const int DataManager::M_PORT_ARG_LEN = 6;
 const int DataManager::M_RANDOM_FILENAME_LENGTH = 10;
 
+/* Port generation range 1024 <-> 13800 */
+const int DataManager::M_MIN_P1 = 4; // min of 4 to skip priviledged ports(0-1023)
+const int DataManager::M_MAX_P1 = 20;
+
+const int DataManager::M_MIN_P2 = 1; 
+const int DataManager::M_MAX_P2 = 100;
+
 /***** Callbacks ********/
 
 void DataManager::port(networking::Request &t_req,
@@ -74,8 +81,9 @@ void DataManager::list(networking::Request &t_req, networking::Connection &t_con
     valid_to_list(t_req);
     
     /* add line break name list */
-    if(t_req.m_command == commands::NLST)
+    if(t_req.m_command == commands::NLST){
         t_req.m_reply_msg.append("\r");
+    }
 
   } catch (std::string &err) {
 
@@ -107,13 +115,19 @@ void DataManager::store_unique(networking::Request &t_req, networking::Connectio
   store(t_req, t_conn);
 }
 
-
 /** **/
 
 void DataManager::passive(networking::Request &t_req, networking::Connection &t_conn) {
 
-  /* TODO: IMPLEMENT PASSIVE MODE */
-  t_req.m_reply = networking::reply::r_228;
+    PortTuple port    = generate_port();
+    t_req.m_dataport  = std::get<0>(port);
+    t_req.m_reply     = networking::reply::r_227;
+    t_req.m_reply_msg = "(127,0,0,1," + std::get<1>(port);
+    t_req.m_transfer  = networking::Request::connect;
+
+    t_req.m_reply_msg.append(")");
+    t_conn.make_passive_and_listen(t_req.m_dataport);
+
 }
 
 /**** PRIVATE *****/
@@ -233,47 +247,39 @@ int DataManager::extract_port(utils::StringVector &t_port_arg) {
 
   utils::StringVector port(t_port_arg.begin() + M_PORT_SPLIT_POS,
                            t_port_arg.end());
-  std::string hex_port = decimal_to_hex(port[0]) + decimal_to_hex(port[1]);
 
-  return hex_to_decimal(hex_port);
+  return std::stoi(port[0]) * 256 + std::stoi(port[1]);
+
+}
+
+
+DataManager::PortTuple DataManager::generate_port(){
+
+  srand(time(0));
+
+  int p1                = (rand() % M_MAX_P1) + M_MIN_P1;
+  int p2                = (rand() % M_MAX_P2) + M_MIN_P2;
+  std::string port_pair = std::to_string(p1) + "," + std::to_string(p2);
+  int port              = (p1 * 256) + p2;
+
+  return std::tuple<int, std::string>(port, port_pair);
 }
 
 /** **/
 
-std::string DataManager::decimal_to_hex(const std::string t_decimal) {
-
-  std::stringstream hex;
-  hex << std::hex << std::stoi(t_decimal);
-
-  return hex.str();
-}
-
-
-/** **/
-
-int DataManager::hex_to_decimal(const std::string t_hex) {
-
-  std::stringstream hex;
-  int decimal;
-
-  hex << t_hex;
-  hex >> std::hex >> decimal;
-
-  return decimal;
-}
-
-
-/** **/
-
-networking::Connection::conn_type
-DataManager::select_type(std::string &t_type) {
-  if (t_type == "A")
+DataManager::ConnectionType DataManager::select_type(std::string &t_type) {
+  if (t_type == "A"){
     return networking::Connection::ascii;
-  else if (t_type == "I")
+
+  }else if (t_type == "I") {
     return networking::Connection::image;
-  else
+
+  } else {
     return networking::Connection::none;
+  }
 }
+
+/** **/
 
 std::string DataManager::port_length_err(int t_arg_len) {
 

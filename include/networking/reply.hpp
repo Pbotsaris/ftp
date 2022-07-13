@@ -94,7 +94,7 @@ static std::map<code, std::string> messages{
     {r_221, "221 Service closing control connection.\n"},
     {r_225, "225 Data connection open; no transfer in progress.\n"},
     {r_226, "226 Closing data connection. Requested file action successful.\n"},
-    {r_227, "227 Entering Passive Mode.\n"},
+    {r_227, "227 Entering Passive Mode "}, // append address
     {r_228, "228 Entering Long Passive Mode.\n"},
     {r_229, "229 Entering Extended Passive Mode.\n"},
     {r_230, "230 User logged in, proceed.\n"},

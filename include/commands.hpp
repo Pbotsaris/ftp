@@ -22,7 +22,6 @@ namespace commands {
      TYPE = 10,
      RETR = 11,    
      STOR = 12,    
-     REST = 13,   
      STOU = 13,  
      RNFR = 14,    
      RNTO = 15,    
@@ -48,6 +47,7 @@ namespace commands {
      SITE = 37, 
      ALLO = 38, 
      LPRT = 39,
+     REST = 40,   
   };
 
   enum type {
@@ -76,7 +76,6 @@ namespace commands {
     { "RETR", RETR }, 
     { "STOU", STOU },
     { "STOR", STOR },  
-    { "REST", REST },
     { "RNFR", RNFR },  
     { "RNTO", RNTO },  
     { "DELE", DELE },
@@ -85,7 +84,7 @@ namespace commands {
 
     /* zero or more arguments */
     { "LIST", LIST },
-    { "NLST", NLST },
+    { "NLST", NLST }, 
     { "STAT", STAT }, 
     { "HELP", HELP },  
     { "FEAT", FEAT },  
@@ -101,6 +100,7 @@ namespace commands {
     { "SITE", SITE }, 
     { "ALLO", ALLO }, 
     { "LPRT", LPRT }, 
+    { "REST", REST }, 
   };
 
   static std::map<std::string, std::string > help {
@@ -117,7 +117,6 @@ namespace commands {
     {  "TYPE", "Sets the transfer mode to ASCII or Binary(Image)"},
     {  "RETR", "Retrives a copy of a file."},
     {  "STOU", "Stores a file uniquely."},
-    {  "REST", "Restart the transfer for a specific point(marker)."},
     {  "RNFR", "Select the file to rename."},
     {  "RNTO", "Sets the new filename to rename to."},
     {  "DELE", "Deletes a file."},
@@ -140,6 +139,7 @@ namespace commands {
     { "SITE", "No support." }, 
     { "ALLO", "No support." }, 
     { "LPRT", "No support." }, 
+    { "REST", "No support."},
   };
 
   struct Utils {

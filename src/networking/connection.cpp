@@ -7,7 +7,6 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-
 using namespace networking;
 
 /* Max read length in control */
@@ -21,14 +20,9 @@ static const int QUEUE_SIZE = 5;
 /********* Constructor **********/
 
 Connection::Connection(int t_port, conn_mode t_mode, conn_type t_type)
-
     : m_port(t_port), m_mode(t_mode), m_connected_socket(0), m_type(t_type) {
-  /* init to 0 */
 
   create_socket();
-
-  if (m_local_socket < 0)
-    throw "invalid socket";
 };
 
 Connection::~Connection() {
@@ -74,6 +68,8 @@ void Connection::bind_socket() {
   int res =
       bind(m_local_socket, reinterpret_cast<struct sockaddr *>(&m_address),
            sizeof(m_address));
+
+  // perror("here is the error: ");
 
   if (res < 0)
     throw "Error Binding Socket.\n";
@@ -121,16 +117,31 @@ void Connection::socket_listen() {
 }
 
 void Connection::reconnect() {
-  shutdown(m_local_socket, SHUT_RDWR);
+  if (m_mode == active) {
+    shutdown(m_local_socket, SHUT_RDWR);
+  } else {
+    close(m_connected_socket);
+  }
   /* creates a new socket after shutdown and clear IP address */
   create_socket();
 }
 
-/********* getters and setters **********/
+void Connection::make_passive_and_listen(int port) {
+  m_port = port;
+  reconnect();
+  m_mode = passive;
+  m_connected_socket = 0;
+  config_addr();
+  bind_socket();
+  socket_listen();
+}
 
+/********* getters and setters **********/
 int Connection::get_port() { return m_port; }
 
 void Connection::set_port(int t_port) { m_port = t_port; }
+
+conn_mode Connection::get_mode() { return m_mode; }
 
 void Connection::set_mode(conn_mode t_mode) { m_mode = t_mode; }
 
@@ -188,14 +199,13 @@ void Connection::respond(Request &t_req) {
 
 void Connection::transfer_send(Request &t_req) {
 
-  if (m_type == Connection::ascii)
+  if (m_type == Connection::ascii) {
     transfer_ascii(t_req);
-
-  else
+  } else {
     transfer_image(t_req);
+  }
 
   LOG_INFO("Closing data connection.");
-
   reconnect();
 }
 
@@ -246,7 +256,6 @@ DatafromClientTuple Connection::transfer_receive(Request &t_req) {
   return DatafromClientTuple(std::move(data), total_length);
 }
 
-
 void Connection::create_socket() {
 
   bzero(&m_address, sizeof(m_address));
@@ -258,8 +267,15 @@ void Connection::create_socket() {
 
 void Connection::transfer_ascii(Request &t_req) {
 
-  int res = send(m_local_socket, t_req.m_data.m_ascii.c_str(),
-                 t_req.m_data.m_ascii.size(), 0);
+  int res;
+
+  if (m_mode == active) {
+    res = send(m_local_socket, t_req.m_data.m_ascii.c_str(),
+               t_req.m_data.m_ascii.size(), 0);
+  } else {
+    res = send(m_connected_socket, t_req.m_data.m_ascii.c_str(),
+               t_req.m_data.m_ascii.size(), 0);
+  }
 
   if (res < 0) {
     LOG_ERROR("Could not transfer ASCII data to client.");
@@ -295,4 +311,3 @@ ImageBuffer Connection::consolidate_data(std::queue<TransferData> t_data,
 
   return consolidated_data;
 }
-

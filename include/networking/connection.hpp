@@ -45,10 +45,12 @@ namespace networking {
     void                  accept_connection();
     void                  socket_listen();
     void                  reconnect();
+    void                  make_passive_and_listen(int port);
 
     /* getters and setters */
     int                   get_port();
     void                  set_port(int t_port);
+    conn_mode             get_mode();
     void                  set_mode(conn_mode t_mode);
     conn_type             get_type();
     void                  set_type(conn_type t_type);
@@ -58,6 +60,7 @@ namespace networking {
     void                  respond(Request &t_req);
 
     /* used by data connections */
+
     void                  transfer_send(Request &t_req);
     DatafromClientTuple   transfer_receive(Request &t_req);
 

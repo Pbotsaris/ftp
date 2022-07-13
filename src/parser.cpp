@@ -51,13 +51,14 @@ void Parser::parse_argument(networking::Request &t_req,
     t_req.m_argument = t_commands.at(ARGUMENT);
     utils::StringHelpers::trim_string(t_req.m_argument);
 
+    t_req.m_reply = networking::reply::r_501;
   } catch (std::exception &err) {
 
-    t_req.m_reply = networking::reply::r_501;
     t_req.m_valid = false;
     LOG_ERROR("Could not parse argument.");
   }
 }
+
 
 TEST_CASE("Parser raw command") {
 

@@ -33,12 +33,8 @@ void SystemInfo::help(networking::Request &t_req) {
 void SystemInfo::status(networking::Request &t_req) {
 
   if (t_req.m_argument.empty()) {
-    // TODO: Check if during file transfer.
-    // return information about the transfer.
-    // returns an error if a file is not transfering
-
+    t_req.m_reply = networking::reply::r_502; // info on the transfer not implemented by this server.
     return;
-    // return information about a path
   }
 
   try {

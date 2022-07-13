@@ -31,16 +31,15 @@ using namespace utils;
 
 /***** Public ******/
 
-std::string FileHelpers::list_dir_filenames(const networking::Request &t_req,
-                                            listdir_option t_option) {
+std::string FileHelpers::list_dir_filenames(const networking::Request &t_req, listdir_option t_option) {
 
-  const std::string path_to_list =
-      utils::PathHelpers::join_to_system_path(t_req, t_req.m_argument);
+  const std::string path_to_list = utils::PathHelpers::join_to_system_path(t_req, t_req.m_argument);
 
   std::string filenames;
 
-  if (!utils::PathHelpers::path_exists(path_to_list))
+  if (!utils::PathHelpers::path_exists(path_to_list)){
     throw list_dir_err_msg(t_req);
+  }
 
   for (const auto &entry : fs::directory_iterator(path_to_list)) {
     if (t_option == list_name) {
