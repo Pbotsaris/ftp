@@ -115,7 +115,7 @@ void Service::control_setup() {
 
 void Service::control_handshake() {
 
-  m_ctrlconn.accept_connection();
+  m_ctrlconn.accept_connection(Connection::is_blocking::True);
   m_req.m_reply = reply::r_220;
   m_ctrlconn.respond(m_req);
 
@@ -127,7 +127,7 @@ void Service::control_loop() {
   while (!m_quit) {
 
     /* msg from client */
-    m_ctrlconn.receive(m_req);
+    m_ctrlconn.receive(m_req, Connection::is_blocking::False);
 
     /* Parses raw client command */
     parsing::Parser::parse(m_req);
@@ -167,7 +167,7 @@ void Service::control_disconnect() {
 void Service::data_connect() {
 
   if(m_req.m_transfer == Request::connect){
-     m_dataconn.accept_connection();
+     m_dataconn.accept_connection(Connection::is_blocking::True);
   };
 
 }

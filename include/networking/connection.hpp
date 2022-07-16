@@ -11,6 +11,8 @@ namespace networking {
 
   typedef  std::tuple<networking::ImageBuffer, std::uintmax_t>  DatafromClientTuple;
 
+    
+
     struct TransferData{
     char *m_buffer;
     std::size_t m_length;
@@ -27,6 +29,7 @@ namespace networking {
   
   public:
     enum conn_type {none, image, ascii};
+    enum is_blocking {True = false, False = true};
 
     Connection();
     Connection(int t_port, conn_mode t_mode = passive, conn_type t_type = ascii);
@@ -42,12 +45,14 @@ namespace networking {
     void                  set_socket_options();
     void                  bind_socket();
     void                  connect_socket();
-    void                  accept_connection();
+    bool                  accept_connection(is_blocking await);
     void                  socket_listen();
     void                  reconnect();
     void                  make_passive_and_listen(int port);
 
     /* getters and setters */
+
+    int                   get_socket_fd();
     int                   get_port();
     void                  set_port(int t_port);
     conn_mode             get_mode();
@@ -56,7 +61,7 @@ namespace networking {
     void                  set_type(conn_type t_type);
 
     /* used by control connections */
-    void                  receive(Request &t_req);
+    bool                  receive(Request &t_req, is_blocking await);
     void                  respond(Request &t_req);
 
     /* used by data connections */

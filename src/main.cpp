@@ -4,6 +4,7 @@
 #include "service.hpp"
 #include "accounts.hpp"
 #include "logger.hpp"
+#include "server.hpp"
 #define DOCTEST_CONFIG_IMPLEMENT
 #include "../include/doctest.h"
 
@@ -23,15 +24,22 @@ int test()
 
 int main(void) {
 
-      int res = test();
-      if(res > 0)
-         return res;
-
+//      int res = test();
+//      if(res > 0)
+//         return res;
+//
+//
  try {
-   auto service = networking::Service(2000);
-   service.control_setup();
-   service.control_handshake();
-   service.control_loop();
+
+
+     auto server = Server(2000);
+
+     server.accept_connection();
+     server.main_loop();
+ //  auto service = networking::Service(2000);
+ //  service.control_setup();
+ //  service.control_handshake();
+ //  service.control_loop();
 
  } catch (const char *msg) {
    LOG_ERROR(msg);

@@ -90,21 +90,31 @@ void Connection::connect_socket() {
   LOG_INFO("Connected to client socket successfully.");
 }
 
-void Connection::accept_connection() {
+bool Connection::accept_connection(is_blocking await) {
 
-  if (m_mode == active)
-    throw "Cannot \'accept\' in an active connection\n";
+  if (m_mode == active) {
+    LOG_ERROR("Cannot \'accept\' in an active connection");
+    return false;
+  }
+
+  auto conn_poll = ConnectionPoll(m_local_socket, 100); /* wait only for 100 milliseconds */
 
   socklen_t client_addr_len = sizeof(m_address);
 
-  m_connected_socket =
-      accept(m_local_socket, reinterpret_cast<struct sockaddr *>(&m_address),
-             &client_addr_len);
+  if (!await && conn_poll.has_timeout( "accept")) {  /* if don't await then check connection poll */
+    return false;
+   }
 
-  if (m_connected_socket < 0)
-    throw "error accepting a connection\n";
+  m_connected_socket = accept(m_local_socket, reinterpret_cast<struct sockaddr *>(&m_address), &client_addr_len);
+ 
+  if (m_connected_socket < 0) {
+    LOG_ERROR("error accepting a connection");
+    perror("");
+    return false;
+  }
 
   LOG_INFO("Accepted connection to socket.");
+  return true;
 }
 
 void Connection::socket_listen() {
@@ -137,6 +147,9 @@ void Connection::make_passive_and_listen(int port) {
 }
 
 /********* getters and setters **********/
+
+int Connection::get_socket_fd() { return m_local_socket; }
+
 int Connection::get_port() { return m_port; }
 
 void Connection::set_port(int t_port) { m_port = t_port; }
@@ -151,14 +164,27 @@ Connection::conn_type Connection::get_type() { return m_type; }
 
 /********* CONTROL **********/
 
-void Connection::receive(Request &t_req) {
+bool Connection::receive(Request &t_req, is_blocking await) {
 
   char read_buffer[BUFFER_SIZE] = {0};
   int read_count = 0;
 
+  auto conn_poll = ConnectionPoll(m_connected_socket, 100); /* await only for 100 milliseconds */
+
   while (1) {
 
     int read_size = recv(m_connected_socket, &read_buffer[read_count], 1, 0);
+
+    if (!await && conn_poll.has_timeout("receive")) { /* await if requested by caller */
+      LOG_INFO("receive timeout.");
+      return false;
+    }
+
+    if (read_size == 0) {
+      LOG_INFO("Nothing to receive from socket %d", m_connected_socket);
+      t_req.m_raw = "";
+      return false;
+    }
 
     if (read_count >= MAX_READ_SIZE) {
       t_req.m_raw.append(read_buffer);
@@ -166,8 +192,12 @@ void Connection::receive(Request &t_req) {
       read_count = 0;
     }
 
-    if (read_size < 0)
-      throw "error receiving data\n";
+    if (read_size < 0) {
+      LOG_INFO("There was an error receiving from %d", m_connected_socket);
+      perror("");
+      t_req.m_raw = "";
+      return false;
+    }
 
     if (read_buffer[read_count] == '\n')
       break;
@@ -178,6 +208,8 @@ void Connection::receive(Request &t_req) {
   t_req.m_raw.append(read_buffer);
 
   LOG_DEBUG("Message Received: %s", t_req.m_raw.c_str());
+
+  return true;
 }
 
 void Connection::respond(Request &t_req) {
@@ -217,7 +249,8 @@ DatafromClientTuple Connection::transfer_receive(Request &t_req) {
 
   while (1) {
 
-    if (conn_poll.has_timeout()) { /* data connection should never block */
+    if (conn_poll.has_timeout(
+            "connection")) { /* data connection should never block */
       t_req.m_valid = false;
       break;
     }

@@ -10,10 +10,10 @@ ConnectionPoll::ConnectionPoll(int socketfd, int t_timeout): m_timeout(t_timeout
 
 }
 
-bool ConnectionPoll::has_timeout(){
+bool ConnectionPoll::has_timeout(const char t_type[]){
 
   if(poll(m_poll, 1, m_timeout) == 0){
-    LOG_INFO("Connection timeout.");
+    LOG_INFO("%s timeout.", t_type);
     return true;
   }
 
