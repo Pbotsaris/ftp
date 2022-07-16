@@ -17,7 +17,7 @@ class Server {
   public:
      Server(int t_port);
      
-     void accept_connection();
+     void new_connection();
      void main_loop();
  // int m_controlport;
  // networking::Service m_service;
@@ -25,6 +25,7 @@ class Server {
 
   private:
      Request receive(Request &t_req);
+     void    respond(Request &t_req);
 
 };
 

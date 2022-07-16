@@ -1,4 +1,6 @@
 #include "server.hpp"
+#include "reply.hpp"
+#include "logger.hpp"
 
 
 /* TODO: 
@@ -23,23 +25,29 @@ Server::Server(int t_port) : m_port(t_port), m_awaiting(t_port) {
   m_awaiting.setup_and_listen();
 };
 
-void Server::accept_connection() {
+void Server::new_connection() {
 
-  /* if an accept is successfull setup another connection to await */
+  /* if an accept is successful setup another connection to await */
   if (m_awaiting.accept_connection(Connection::is_blocking::False)) {
+
+    /* move connected connection to the m_connections vector */
+    m_awaiting.handshake();
     m_connections.push_back(std::move(m_awaiting));
+
+    /* create new connection and listen */
     m_awaiting = ClientConn(m_port);
     m_awaiting.setup_and_listen();
-    m_awaiting.handshake();
   }
 }
 
 void Server::main_loop() {
 
   while (true) {
-
     Request req;
     receive(req);
+    req.m_reply = reply::r_200;
+
+    respond(req);
   }
 }
 
@@ -47,7 +55,8 @@ Request Server::receive(Request &t_req) {
 
   /* single connection will block */
   if (m_connections.size() == SINGLE_CONNECTION) {
-    return m_connections.at(SINGLE_CONNECTION).receive(t_req, Connection::is_blocking::True);
+    t_req.m_conn_index = 0;
+    return m_connections.at(0).receive(t_req, Connection::is_blocking::True);
   };
 
   int index = 0;
@@ -59,7 +68,15 @@ Request Server::receive(Request &t_req) {
     }
     index++;
   }
-
   return false;
+}
+
+void Server::respond(Request &t_req) {
+
+  if(t_req.m_conn_index < m_connections.size()){
+       m_connections.at(t_req.m_conn_index).respond(t_req);
+  } else {
+       LOG_ERROR("Could not respond. Requested connection is out of bounds.");
+  }
 }
 

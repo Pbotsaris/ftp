@@ -97,16 +97,19 @@ bool Connection::accept_connection(is_blocking await) {
     return false;
   }
 
-  auto conn_poll = ConnectionPoll(m_local_socket, 100); /* wait only for 100 milliseconds */
+  auto conn_poll =
+      ConnectionPoll(m_local_socket, 100); /* wait only for 100 milliseconds */
 
   socklen_t client_addr_len = sizeof(m_address);
 
-  if (!await && conn_poll.has_timeout( "accept")) {  /* if don't await then check connection poll */
+  if (!await && conn_poll.has_timeout( "accept")) { /* if don't await then check connection poll */
     return false;
-   }
+  }
 
-  m_connected_socket = accept(m_local_socket, reinterpret_cast<struct sockaddr *>(&m_address), &client_addr_len);
- 
+  m_connected_socket =
+      accept(m_local_socket, reinterpret_cast<struct sockaddr *>(&m_address),
+             &client_addr_len);
+
   if (m_connected_socket < 0) {
     LOG_ERROR("error accepting a connection");
     perror("");
@@ -169,13 +172,15 @@ bool Connection::receive(Request &t_req, is_blocking await) {
   char read_buffer[BUFFER_SIZE] = {0};
   int read_count = 0;
 
-  auto conn_poll = ConnectionPoll(m_connected_socket, 100); /* await only for 100 milliseconds */
+  auto conn_poll = ConnectionPoll(m_connected_socket,
+                                  100); /* await only for 100 milliseconds */
 
   while (1) {
 
     int read_size = recv(m_connected_socket, &read_buffer[read_count], 1, 0);
 
-    if (!await && conn_poll.has_timeout("receive")) { /* await if requested by caller */
+    if (!await &&
+        conn_poll.has_timeout("receive")) { /* await if requested by caller */
       LOG_INFO("receive timeout.");
       return false;
     }
@@ -216,15 +221,18 @@ void Connection::respond(Request &t_req) {
 
   std::string msg;
 
-  if (t_req.m_reply_msg.empty())
+  if (t_req.m_reply_msg.empty()) {
     msg = reply::messages[t_req.m_reply];
-  else
+  } else {
     msg = reply::Utils::append_message(t_req.m_reply, t_req.m_reply_msg);
+  }
 
   int res = send(m_connected_socket, msg.c_str(), msg.size(), 0);
 
-  if (res < 0)
-    throw "Could not respond to client\n";
+  if (res < 0) {
+    LOG_ERROR("Could not respond to client\n");
+    perror("");
+  }
 }
 
 /********* DATA **********/
