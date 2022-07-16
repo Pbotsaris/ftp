@@ -45,8 +45,9 @@ void Server::main_loop() {
   while (true) {
     Request req;
     receive(req);
-    req.m_reply = reply::r_200;
+    load_req_with_conn_info(req);
 
+    req.m_reply = reply::r_200;
     respond(req);
   }
 }
@@ -80,3 +81,13 @@ void Server::respond(Request &t_req) {
   }
 }
 
+void Server::load_req_with_conn_info(Request &t_req){
+  if(t_req.m_conn_index < m_connections.size()){
+      t_req.m_disk =  m_connections.at(t_req.m_conn_index).get_disk();
+      t_req.m_logged_in = m_connections.at(t_req.m_conn_index).is_logged_in();
+  } else {
+       LOG_ERROR("Could not load request info. Requested connection is out of bounds.");
+  }
+
+
+}

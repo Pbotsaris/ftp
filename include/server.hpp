@@ -19,13 +19,12 @@ class Server {
      
      void new_connection();
      void main_loop();
- // int m_controlport;
- // networking::Service m_service;
  
 
   private:
      Request receive(Request &t_req);
      void    respond(Request &t_req);
+     void    load_req_with_conn_info(Request &t_req);
 
 };
 
