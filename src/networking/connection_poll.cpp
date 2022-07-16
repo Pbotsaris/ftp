@@ -1,6 +1,7 @@
 #include "connection_poll.hpp"
 #include "logger.hpp"
 
+ConnectionPoll::ConnectionPoll(){}
 
 ConnectionPoll::ConnectionPoll(int socketfd, int t_timeout): m_timeout(t_timeout){
 

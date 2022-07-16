@@ -80,9 +80,9 @@ void Connection::connect_socket() {
   if (m_mode == passive)
     throw "Cannot call \'connect\' with passive connection\n";
 
-  m_connected_socket =
-      connect(m_local_socket, reinterpret_cast<struct sockaddr *>(&m_address),
-              sizeof(m_address));
+  m_connected_socket = connect(m_local_socket, reinterpret_cast<struct sockaddr *>(&m_address), sizeof(m_address));
+
+  perror("error here ->");
 
   if (m_connected_socket < 0)
     throw "error could not connect to socket\n";
@@ -90,7 +90,7 @@ void Connection::connect_socket() {
   LOG_INFO("Connected to client socket successfully.");
 }
 
-bool Connection::accept_connection(is_blocking await) {
+bool Connection::accept_connection(await await) {
 
   if (m_mode == active) {
     LOG_ERROR("Cannot \'accept\' in an active connection");
@@ -167,22 +167,23 @@ Connection::conn_type Connection::get_type() { return m_type; }
 
 /********* CONTROL **********/
 
-bool Connection::receive(Request &t_req, is_blocking await) {
+bool Connection::receive(Request &t_req, await t_await) {
 
   char read_buffer[BUFFER_SIZE] = {0};
   int read_count = 0;
+  ConnectionPoll conn_poll;
 
-  auto conn_poll = ConnectionPoll(m_connected_socket,
-                                  100); /* await only for 100 milliseconds */
-
+  if(!t_await){
+      conn_poll = ConnectionPoll(m_connected_socket, 100); /* await only for 100 milliseconds */
+      LOG_DEBUG("will not await.");
+  }
+     
   while (1) {
 
     int read_size = recv(m_connected_socket, &read_buffer[read_count], 1, 0);
 
-    if (!await &&
-        conn_poll.has_timeout("receive")) { /* await if requested by caller */
-      LOG_INFO("receive timeout.");
-      return false;
+    if (!t_await && conn_poll.has_timeout("receive")) { /* await if requested by caller */
+        return false;
     }
 
     if (read_size == 0) {
@@ -257,8 +258,7 @@ DatafromClientTuple Connection::transfer_receive(Request &t_req) {
 
   while (1) {
 
-    if (conn_poll.has_timeout(
-            "connection")) { /* data connection should never block */
+    if (conn_poll.has_timeout( "connection")) { /* data connection should never block */
       t_req.m_valid = false;
       break;
     }
@@ -311,17 +311,20 @@ void Connection::transfer_ascii(Request &t_req) {
   int res;
 
   if (m_mode == active) {
-    res = send(m_local_socket, t_req.m_data.m_ascii.c_str(),
-               t_req.m_data.m_ascii.size(), 0);
+     res = send(m_local_socket, t_req.m_data.m_ascii.c_str(), t_req.m_data.m_ascii.size(), 0);
   } else {
-    res = send(m_connected_socket, t_req.m_data.m_ascii.c_str(),
-               t_req.m_data.m_ascii.size(), 0);
+
+    res = send(m_connected_socket, t_req.m_data.m_ascii.c_str(), t_req.m_data.m_ascii.size(), 0);
   }
+
 
   if (res < 0) {
     LOG_ERROR("Could not transfer ASCII data to client.");
     t_req.m_valid = false;
   }
+
+
+
 }
 
 void Connection::transfer_image(Request &t_req) {

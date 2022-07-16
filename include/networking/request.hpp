@@ -34,7 +34,7 @@ namespace networking {
     disk::Disk                m_disk;                  /* Current path/disk state */
     Data                      m_data;                  /* Data to be transfered via data connection if any */
     int                       m_dataport;              /* The port for passive data connections */
-    int                       m_conn_index;            /* the connection to respond to */
+    std::size_t               m_conn_index;            /* the connection to respond to */
 
    Request(bool t_logged_in = false);
    Request(disk::Disk &t_disk,  bool t_logged_in = false);

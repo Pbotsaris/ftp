@@ -1,8 +1,8 @@
 #include "accounts.hpp"
 #include "doctest.h"
-#include "utils.hpp"
-#include "reply.hpp"
 #include "logger.hpp"
+#include "reply.hpp"
+#include "utils.hpp"
 
 using namespace controllers;
 
@@ -21,10 +21,12 @@ void Accounts::verify_user(networking::Request &t_req) {
     return;
   }
 
-  if (verify(t_req.m_argument, pw))
+  if (verify(t_req.m_argument, pw)) {
     t_req.m_reply = networking::reply::r_331;
-  else
+
+  } else {
     t_req.m_reply = networking::reply::r_430; // invalid
+  }
 }
 
 void Accounts::verify_password(networking::Request &t_req) {
@@ -34,10 +36,12 @@ void Accounts::verify_password(networking::Request &t_req) {
     return;
   }
 
-  if (verify(t_req.m_current_user, t_req.m_argument))
+  if (verify(t_req.m_current_user, t_req.m_argument)) {
     t_req.m_reply = networking::reply::r_230;
-  else
+
+  } else {
     t_req.m_reply = networking::reply::r_430;
+  }
 }
 
 bool Accounts::verify(std::string &t_user, std::string &t_password) {
@@ -108,7 +112,7 @@ TEST_CASE("User Controller") {
     CHECK(req.m_reply == networking::reply::r_230);
   }
 
- SUBCASE("verify bad password") {
+  SUBCASE("verify bad password") {
 
     auto req = networking::Request();
     req.m_current_user = "pedro";
@@ -119,7 +123,6 @@ TEST_CASE("User Controller") {
 
     CHECK(req.m_reply == networking::reply::r_430);
   }
-
 
   SUBCASE("verify non-exiting user") {
 
@@ -142,5 +145,4 @@ TEST_CASE("User Controller") {
 
     CHECK(req.m_reply == networking::reply::r_501);
   }
-
 }

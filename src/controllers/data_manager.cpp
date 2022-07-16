@@ -138,6 +138,7 @@ void DataManager::data_connect(utils::StringVector &t_port_argument,
   std::string ip = extract_ip(t_port_argument);
   int port = extract_port(t_port_argument);
 
+  std::cout << "check ths port here ->  " << port << std::endl;
   t_conn.set_port(port);
   t_conn.config_addr(ip);
   t_conn.connect_socket();

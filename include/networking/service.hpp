@@ -3,6 +3,7 @@
 #include "connection.hpp"
 #include "disk.hpp"
 #include "request.hpp"
+#include "client_conn.hpp"
 
 /*
  *   A Service corresponds single user interaction with the server and consists of two connections: 
@@ -13,34 +14,18 @@
 namespace networking {
   class Service {
     struct          Private;
-    bool            m_quit;
 
-    /* Disk Manager */
-    disk::Disk      m_disk;  /* server disk paths */
-
-    /* Connections */
-    Connection      m_ctrlconn;
+    ClientConn      &m_ctrlconn;
     Connection      m_dataconn;
-    Request         m_req;
-
-
-    /* User */
-    bool            m_logged_in;
-    std::string     m_user;
-
-
   
   public:
-    Service(int t_control_port);
+    Service(ClientConn &control_connection);
   
-    void control_setup();
-    void control_handshake();
-    void control_loop();
-    void control_disconnect();
+    void work(Request &t_req);
 
   private:
-    void data_transfer();
-    void data_connect();
+    void data_transfer(Request &t_req);
+    void data_connect(Request &t_req);
 
     void data_transfer_respond(Request &t_req);
 

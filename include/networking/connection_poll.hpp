@@ -2,7 +2,6 @@
 #define CONNECTION_POLL_H
 
 #include <poll.h>
-#include <string>
 
 
 class ConnectionPoll {
@@ -11,6 +10,7 @@ class ConnectionPoll {
   int m_timeout;
 
   public:
+  ConnectionPoll();
   ConnectionPoll(int socketfd, int t_timeout = 500);
 
   bool has_timeout(const char t_buffer[]);
