@@ -30,10 +30,7 @@ int main(void) {
 //
 //
  try {
-
-
      auto server = Server(2000);
-
      server.new_connection();
      server.main_loop();
  //  auto service = networking::Service(2000);
@@ -41,8 +38,9 @@ int main(void) {
  //  service.control_handshake();
  //  service.control_loop();
 
+
  } catch (const char *msg) {
-   LOG_ERROR(msg);
+     LOG_ERROR(msg);
  }
 
   return 0;

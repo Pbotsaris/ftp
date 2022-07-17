@@ -23,8 +23,8 @@ std::map<commands::name, ControlController> Router::m_ctrlrouter{
     {commands::name::HELP, controllers::SystemInfo::help},
     {commands::name::STAT, controllers::SystemInfo::status},
     {commands::name::FEAT, controllers::SystemInfo::feature},
-
     /* Other */
+
     {commands::name::NOOP, [](networking::Request &t_req) { t_req.m_reply = networking::reply::r_200; }},
     {commands::name::QUIT, [](networking::Request &t_req) { t_req.m_reply = networking::reply::r_221; }}
 
@@ -44,7 +44,7 @@ std::map<commands::name, DataController> Router::m_datarouter{
 };
 
 void Router::route(const commands::name t_command, networking::Request &t_req,
-                   networking::Connection &t_dataconn) {
+                   networking::DataConnection &t_dataconn) {
 
   if(require_logged_user(t_command) && !t_req.m_logged_in){
     t_req.m_reply = networking::reply::r_530;

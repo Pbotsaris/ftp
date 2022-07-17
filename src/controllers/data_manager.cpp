@@ -1,6 +1,6 @@
 #include "data_manager.hpp"
 #include "commands.hpp"
-#include "connection.hpp"
+#include "data_connection.hpp"
 #include "disk_manager.hpp"
 #include "doctest.h"
 #include "logger.hpp"
@@ -26,7 +26,7 @@ const int DataManager::M_MAX_P2 = 100;
 /***** Callbacks ********/
 
 void DataManager::port(networking::Request &t_req,
-                       networking::Connection &t_conn) {
+                       networking::DataConnection &t_conn) {
 
   utils::StringVector port_argument =
       utils::StringHelpers::split_string(t_req.m_argument, ",");
@@ -43,11 +43,11 @@ void DataManager::port(networking::Request &t_req,
 
 /** **/
 
-void DataManager::type(networking::Request &t_req, networking::Connection &t_conn) {
+void DataManager::type(networking::Request &t_req, networking::DataConnection &t_conn) {
 
-  networking::Connection::conn_type type = select_type(t_req.m_argument);
+  networking::DataConnection::conn_type type = select_type(t_req.m_argument);
 
-  if (type == networking::Connection::none) {
+  if (type == networking::DataConnection::none) {
     t_req.m_reply = networking::reply::r_501;
     return;
   }
@@ -58,9 +58,9 @@ void DataManager::type(networking::Request &t_req, networking::Connection &t_con
 
 /** **/
 
-void DataManager::retrieve(networking::Request &t_req, networking::Connection &t_conn) {
+void DataManager::retrieve(networking::Request &t_req, networking::DataConnection &t_conn) {
 
-  t_conn.set_type(networking::Connection::image);
+  t_conn.set_type(networking::DataConnection::image);
   LOG_INFO("Setting Transfer Type to Binary/Image.");
 
   if (t_req.m_argument.empty())
@@ -72,9 +72,9 @@ void DataManager::retrieve(networking::Request &t_req, networking::Connection &t
 
 /** **/
 
-void DataManager::list(networking::Request &t_req, networking::Connection &t_conn) {
+void DataManager::list(networking::Request &t_req, networking::DataConnection &t_conn) {
 
-  t_conn.set_type(networking::Connection::ascii);
+  t_conn.set_type(networking::DataConnection::ascii);
   LOG_INFO("Setting Transfer Type to ASCII.");
 
   try {
@@ -95,9 +95,9 @@ void DataManager::list(networking::Request &t_req, networking::Connection &t_con
 
 /** **/
 
-void DataManager::store(networking::Request &t_req, networking::Connection &t_conn) {
+void DataManager::store(networking::Request &t_req, networking::DataConnection &t_conn) {
 
-  t_conn.set_type(networking::Connection::image);
+  t_conn.set_type(networking::DataConnection::image);
   LOG_INFO("Setting Transfer Type to Binary/Image.");
 
   if (t_req.m_argument.empty())
@@ -109,7 +109,7 @@ void DataManager::store(networking::Request &t_req, networking::Connection &t_co
 
 /** **/
 
-void DataManager::store_unique(networking::Request &t_req, networking::Connection &t_conn) {
+void DataManager::store_unique(networking::Request &t_req, networking::DataConnection &t_conn) {
 
   t_req.m_argument = utils::StringHelpers::random_string(M_RANDOM_FILENAME_LENGTH);
   store(t_req, t_conn);
@@ -117,7 +117,7 @@ void DataManager::store_unique(networking::Request &t_req, networking::Connectio
 
 /** **/
 
-void DataManager::passive(networking::Request &t_req, networking::Connection &t_conn) {
+void DataManager::passive(networking::Request &t_req, networking::DataConnection &t_conn) {
 
     PortTuple port    = generate_port();
     t_req.m_dataport  = std::get<0>(port);
@@ -133,7 +133,7 @@ void DataManager::passive(networking::Request &t_req, networking::Connection &t_
 /**** PRIVATE *****/
 
 void DataManager::data_connect(utils::StringVector &t_port_argument,
-                               networking::Connection &t_conn) {
+                               networking::DataConnection &t_conn) {
 
   std::string ip = extract_ip(t_port_argument);
   int port = extract_port(t_port_argument);
@@ -164,7 +164,7 @@ void DataManager::valid_to_list(networking::Request &t_req) {
 
 /** **/
 
-void DataManager::invalid_to_list(networking::Request &t_req, networking::Connection &t_conn) {
+void DataManager::invalid_to_list(networking::Request &t_req, networking::DataConnection &t_conn) {
 
   t_conn.reconnect();
   t_req.m_valid = false;
@@ -207,7 +207,7 @@ void DataManager::valid_to_retrieve(networking::Request &t_req) {
 
 /** **/
 
-void DataManager::invalid_to_retrieve(networking::Request &t_req, networking::Connection &t_conn) {
+void DataManager::invalid_to_retrieve(networking::Request &t_req, networking::DataConnection &t_conn) {
 
   LOG_ERROR("retrieve was called without any arguments.");
   t_req.m_reply = networking::reply::r_501;
@@ -224,7 +224,7 @@ void DataManager::valid_to_store(networking::Request &t_req) {
   t_req.m_transfer = networking::Request::receive;
 }
 
-void DataManager::invalid_to_store(networking::Request &t_req, networking::Connection &t_conn) {
+void DataManager::invalid_to_store(networking::Request &t_req, networking::DataConnection &t_conn) {
 
   LOG_ERROR("retrieve was called without any arguments.");
   t_req.m_reply = networking::reply::r_501;
@@ -270,13 +270,13 @@ DataManager::PortTuple DataManager::generate_port(){
 
 DataManager::ConnectionType DataManager::select_type(std::string &t_type) {
   if (t_type == "A"){
-    return networking::Connection::ascii;
+    return networking::DataConnection::ascii;
 
   }else if (t_type == "I") {
-    return networking::Connection::image;
+    return networking::DataConnection::image;
 
   } else {
-    return networking::Connection::none;
+    return networking::DataConnection::none;
   }
 }
 

@@ -12,11 +12,11 @@
 namespace routing {
 
 typedef void (*ControlController)(networking::Request &);
-typedef void (*DataController)(networking::Request &, networking::Connection &);
+typedef void (*DataController)(networking::Request &, networking::DataConnection &);
 
 struct Router {
   static void route(const commands::name t_command, networking::Request &t_req,
-                    networking::Connection &t_dataconn);
+                    networking::DataConnection &t_dataconn);
 
 private:
   static std::map<commands::name, ControlController> m_ctrlrouter;

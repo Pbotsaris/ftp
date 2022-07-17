@@ -1,7 +1,7 @@
 #ifndef UTILS_FILE_H
 #define UTILS_FILE_H
 #include "request.hpp"
-#include "connection.hpp"
+#include "data_connection.hpp"
 #include <filesystem>
 #include <memory>
 #include <tuple>
