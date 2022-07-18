@@ -1,6 +1,7 @@
 #include "server.hpp"
 #include "logger.hpp"
 #include "reply.hpp"
+#include <unistd.h>
 
 /* TODO:
  *
@@ -16,10 +17,8 @@
  *   -  Rename is a problem to be solved still.
  */
 
-const std::size_t Server::SINGLE_CONNECTION = 1;
-
 Server::Server(int t_port)
-    : m_port(t_port), m_conn(t_port), m_poll(m_conn.get_local_socket()) {
+    : m_conn(t_port), m_poll(m_conn.get_local_socket()){
 
   if (!m_conn.setup_and_listen()) {
     throw "Could not start server. Existing ...\n";
@@ -28,9 +27,12 @@ Server::Server(int t_port)
 
 bool Server::connect() {
   int connected_socket = m_conn.accept_connection();
-
   if (connected_socket > 0 && m_conn.handshake()) {
-    m_services.push_back(Service(connected_socket));
+
+    /* creates a new service */
+    m_services.insert(std::make_pair(connected_socket, Service(connected_socket)));
+
+    /* adds socket descriptor to the poll system */
     m_poll.add_socket(connected_socket);
     return true;
   }
@@ -40,6 +42,37 @@ bool Server::connect() {
 void Server::main_loop() {
 
   while (true) {
-    m_services.at(0).work();
+
+    if(m_poll.accept_awaits()){
+        LOG_DEBUG("called create service");
+        create_service();
+    }
+
+    int pending_socket = scan_sockets_for_requests();
+
+    if(pending_socket > 0){
+      bool quit = m_services.at(pending_socket).work();
+
+      if(quit){
+        quit_service(pending_socket);
+      }
+    } 
+      LOG_DEBUG("tick.");
   }
+
 }
+
+void Server::create_service(){
+   if(!connect())
+      LOG_ERROR("failed to create service.");
+}
+
+int Server::scan_sockets_for_requests(){
+    return m_poll.select_socket_with_events();
+}
+
+void Server::quit_service(int t_socket){
+    m_poll.remove_socket(t_socket);
+    m_services.erase(t_socket);
+}
+

@@ -44,7 +44,7 @@ struct FileHelpers {
   static std::string             list_dir_err_msg(const networking::Request &t_req);
 
 
-  static void                    validate_path(const networking::Request &t_req, const std::string &t_path);
+  static void                    validate_path(const networking::Request &t_req, const std::string &t_path, const bool t_allow_dir= true);
 
   template <typename TP>
   static std::time_t to_time_t(TP tp);

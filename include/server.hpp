@@ -10,12 +10,8 @@ using namespace networking;
 
 class Server {
 
-  typedef std::vector<ServerConn> ConnectedClients;
-  typedef std::vector<Service> Services;
+  typedef std::map<int, Service> Services;
 
-  static const std::size_t SINGLE_CONNECTION;
-
-  int                      m_port;
   ServerConn               m_conn;
   Services                 m_services;
   ConnectionPoll           m_poll;
@@ -27,7 +23,10 @@ class Server {
      void main_loop();
  
   private:
-     Service     create_service(Request &t_req);
+     void        create_service();
+     int         scan_sockets_for_requests();
+     void        quit_service(int t_socket);
+     
   };
 
 #endif

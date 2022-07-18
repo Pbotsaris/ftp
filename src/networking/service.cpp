@@ -1,5 +1,5 @@
-
 #include "service.hpp"
+#include "commands.hpp"
 #include "connection.hpp"
 #include "disk_manager.hpp"
 #include "logger.hpp"
@@ -28,13 +28,13 @@ Service::Service(int t_connected_socket)
 
 /** Public **/
 
-void Service::work() {
+bool Service::work() {
 
   /* create request with with this service current state (such as disk, user etc) */
   Request req = create_request();
 
   /* receive from socket */
-  if(!m_io.receive(req)) return;
+  if(!m_io.receive(req)) return false;
 
   parsing::Parser::parse(req);
 
@@ -42,14 +42,18 @@ void Service::work() {
   routing::Router::route(req.m_command, req, m_dataconn);
 
   /* check if user is logged in and update (if applicable) */
-  login(req);
   /* update service state has changed */
+  login(req);
   update_disk_state(req);
 
-  if(!m_io.respond(req)) return;
+  if(!m_io.respond(req)) return false;
   
+  if(was_quit(req)) return true;
+
   data_connect(req);
   data_transfer(req);
+
+  return false;
 }
 
 /** Private **/
@@ -172,4 +176,10 @@ bool Service::was_annonymous_user() const {
 bool Service::disk_state_has_updated(const Request &t_req) const {
   return m_disk.m_user_path != t_req.m_disk.m_user_path &&
          m_disk.m_system_path != t_req.m_disk.m_system_path;
+}
+
+/** **/
+
+bool Service::was_quit(const Request &t_req) const{
+  return t_req.m_command == commands::QUIT;
 }

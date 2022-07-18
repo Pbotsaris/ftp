@@ -83,7 +83,7 @@ FileHelpers::DataFromDiskTuple FileHelpers::read_bytes(const networking::Request
 
   std::string path_to_read = PathHelpers::join_to_system_path(t_req, t_req.m_argument);
 
-  validate_path(t_req, path_to_read);
+  validate_path(t_req, path_to_read, false);
 
   std::ifstream file(path_to_read, std::ios::in | std::ios::binary | std::ios::ate);
 
@@ -153,7 +153,7 @@ fs::file_status FileHelpers::file_status_validate(const networking::Request &t_r
   return status;
 }
 
-void FileHelpers::validate_path(const networking::Request &t_req, const std::string &t_path) {
+void FileHelpers::validate_path(const networking::Request &t_req, const std::string &t_path, const bool t_allow_dir) {
 
  std::string user_path = PathHelpers::join_to_user_path(t_req, t_req.m_argument);
 
@@ -161,7 +161,7 @@ void FileHelpers::validate_path(const networking::Request &t_req, const std::str
     throw " The path \'" + user_path + "\' does not exist.";
   }
 
-  if (PathHelpers::is_path_directory(t_path)) {
+  if (!t_allow_dir && PathHelpers::is_path_directory(t_path)) {
     throw " The path \'" + user_path + "\' is a directory.";
   }
 }

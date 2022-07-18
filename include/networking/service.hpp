@@ -13,6 +13,8 @@
  */
 
 namespace networking {
+
+
   class Service {
 
     ControlIO       m_io;
@@ -25,7 +27,7 @@ namespace networking {
     public:
     Service(int t_connected_socket);
   
-    void        work();
+    bool        work();
 
   private:
     Request     create_request();
@@ -44,7 +46,7 @@ namespace networking {
     bool        was_success_user_command(const Request &t_req) const;
     bool        was_annonymous_user() const;
     bool        disk_state_has_updated(const Request &t_req) const;
-
+    bool        was_quit(const Request &t_req) const;
   };
 }
 #endif
