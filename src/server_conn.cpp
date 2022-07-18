@@ -6,18 +6,17 @@
 
 using namespace networking;
 
-void ServerConn::setup_and_listen() {
-  set_socket_options();
+bool ServerConn::setup_and_listen() {
+  bool res = set_socket_options();
   config_addr();
-  bind_socket();
-  socket_listen();
+  return res && bind_socket() && socket_listen();
 }
 
-void ServerConn::handshake() {
+bool ServerConn::handshake() {
   Request req(false);
   req.m_reply = reply::r_220;
   ControlIO io(get_connected_socket());
-  io.respond(req);
+  return io.respond(req);
 }
 
 

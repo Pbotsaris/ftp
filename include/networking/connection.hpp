@@ -25,16 +25,18 @@ namespace networking {
     ~Connection();
 
     /* conn config and state */
+    bool                  set_socket_options();
     void                  config_addr();
     void                  config_addr(const std::string &t_ip);
-    void                  set_socket_options();
-    void                  bind_socket();
-    void                  connect_socket();
+    bool                  bind_socket();
+    bool                  socket_listen();
+
+    /* connnection */
+    bool                  connect_socket();
     int                   accept_connection();
-    void                  make_passive_and_listen(int port);
-    void                  socket_listen();
-    void                  reconnect();
-    void                  create_socket();
+    bool                  make_passive_and_listen(int port);
+    bool                  reconnect();
+    bool                  create_socket();
 
     /* getters and setters */
     int                   get_local_socket();

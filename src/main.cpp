@@ -24,19 +24,15 @@ int test()
 
 int main(void) {
 
-//      int res = test();
-//      if(res > 0)
-//         return res;
-//
-//
+      int res = test();
+      if(res > 0)
+         return res;
+
+
  try {
      auto server = Server(2000);
-     server.new_connection();
+     server.connect();
      server.main_loop();
- //  auto service = networking::Service(2000);
- //  service.control_setup();
- //  service.control_handshake();
- //  service.control_loop();
 
 
  } catch (const char *msg) {

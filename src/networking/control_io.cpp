@@ -21,10 +21,6 @@ bool ControlIO::receive(Request &t_req) {
 
     int read_size = recv(m_socket, &read_buffer[read_count], 1, 0);
 
-//    if (!t_await && conn_poll.has_timeout("receive")) { /* await if requested by caller */
-//        return false;
-//    }
-
     if (read_size == 0) {
       LOG_INFO("Nothing to receive from socket %d", m_socket);
       t_req.m_raw = "";
@@ -56,7 +52,7 @@ bool ControlIO::receive(Request &t_req) {
   return true;
 }
 
-void ControlIO::respond(Request &t_req) {
+bool ControlIO::respond(Request &t_req) {
 
   std::string msg;
 
@@ -69,7 +65,11 @@ void ControlIO::respond(Request &t_req) {
   int res = send(m_socket, msg.c_str(), msg.size(), 0);
 
   if (res < 0) {
+
     LOG_ERROR("Could not respond to client\n");
+    return false;
   }
+
+  return true;
 }
 

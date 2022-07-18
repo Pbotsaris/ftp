@@ -7,8 +7,8 @@ class ServerConn: public Connection {
   using Connection::Connection;
 
   public:
-    void        setup_and_listen();
-    void        handshake();
+    bool        setup_and_listen();
+    bool        handshake();
     };
 
 }

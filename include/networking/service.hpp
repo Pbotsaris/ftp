@@ -25,17 +25,21 @@ namespace networking {
     public:
     Service(int t_connected_socket);
   
-    void   work();
+    void        work();
 
   private:
     Request     create_request();
 
+    /* Data Connection */
     void        data_transfer(Request &t_req);
     void        data_connect(Request &t_req);
     void        data_transfer_respond(Request &t_req);
 
+    /* Updated service state */
     void        login(Request &t_req);
     void        update_disk_state(Request &t_req);
+
+    /* Conditionals */
     bool        was_success_pass_command(const Request &t_req) const;
     bool        was_success_user_command(const Request &t_req) const;
     bool        was_annonymous_user() const;

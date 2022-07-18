@@ -16,7 +16,8 @@ static const int QUEUE_SIZE = 5;
 Connection::Connection(int t_port, conn_mode t_mode)
     : m_port(t_port), m_mode(t_mode), m_connected_socket(-1){
 
-  create_socket();
+  if(!create_socket())
+      throw "Could not instanciate Connection.";
 
 };
 
@@ -31,14 +32,18 @@ Connection::~Connection() {
 
 /********* Conn config & state **********/
 
-void Connection::set_socket_options() {
+bool Connection::set_socket_options() {
   int opt = 1;
 
   int res_addr = setsockopt(m_local_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
   int res_port = setsockopt(m_local_socket, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt));
 
-  if (res_addr < 0 || res_port < 0)
-    throw "Invalid option\n";
+  if (res_addr < 0 || res_port < 0){
+    LOG_ERROR("Invalid option");
+    return false;
+  }
+
+  return true;
 }
 
 void Connection::config_addr() {
@@ -54,38 +59,61 @@ void Connection::config_addr(const std::string &t_ip) {
   m_address.sin_port = htons(m_port);
 }
 
-void Connection::bind_socket() {
+bool Connection::bind_socket() {
 
-  if (m_mode == active)
-    throw "Cannot bind an active connection\n";
+  if (m_mode == active){
+    LOG_ERROR("Cannot bind an active connection.");
+    return false;
+  }
 
   int res =
       bind(m_local_socket, reinterpret_cast<struct sockaddr *>(&m_address),
            sizeof(m_address));
 
+  if (res < 0) {
+    LOG_ERROR("Error Binding Socket.");
+    return false;
+  }
 
-  if (res < 0)
-    throw "Error Binding Socket.\n";
+  return true;
 }
 
-void Connection::connect_socket() {
+bool Connection::connect_socket() {
 
-  if (m_mode == passive)
-    throw "Cannot call \'connect\' with passive connection\n";
+  if (m_mode == passive){
+    LOG_ERROR("Cannot call \'connect\' with passive connection");
+    return false;
+  }
 
   m_connected_socket = connect(m_local_socket, reinterpret_cast<struct sockaddr *>(&m_address), sizeof(m_address));
 
-  if (m_connected_socket < 0)
-    throw "error could not connect to socket\n";
+  if (m_connected_socket < 0) {
+    LOG_ERROR("error could not connect to socket");
+    return false;
+  }
 
   LOG_INFO("Connected to client socket successfully.");
+  return true;
 }
+
+bool Connection::socket_listen() {
+  if (m_mode == active){
+    LOG_ERROR("Cannot listen on an active connection");
+    return false;
+  }
+
+  listen(m_local_socket, QUEUE_SIZE);
+
+  LOG_INFO("Listening on port %d.", m_port);
+  return true;
+}
+
 
 int Connection::accept_connection() {
 
   if (m_mode == active) {
     LOG_ERROR("Cannot \'accept\' in an active connection");
-    return false;
+    return -1;
   }
 
   socklen_t client_addr_len = sizeof(m_address);
@@ -93,42 +121,32 @@ int Connection::accept_connection() {
   m_connected_socket = accept(m_local_socket, reinterpret_cast<struct sockaddr *>(&m_address), &client_addr_len);
 
   if (m_connected_socket < 0) {
-    LOG_ERROR("error accepting a connection");
+    LOG_ERROR("Failed to accept socket connection.");
     return -1;
   }
 
-  LOG_INFO("Accepted connection from %d.", inet_ntoa(m_address.sin_addr));
-  LOG_DEBUG("connected socket is %d\n", m_connected_socket);
+  LOG_INFO("Accepted connection at socket %d.",  m_connected_socket);
   return m_connected_socket;
 }
 
-void Connection::socket_listen() {
-  if (m_mode == active)
-    throw "Cannot listen on an active connection\n";
-
-  listen(m_local_socket, QUEUE_SIZE);
-
-  LOG_INFO("Listening on port %d.", m_port);
-}
-
-void Connection::reconnect() {
+bool Connection::reconnect() {
   if (m_mode == active) {
     shutdown(m_local_socket, SHUT_RDWR);
   } else {
     close(m_connected_socket);
   }
   /* creates a new socket after shutdown and clear IP address */
-  create_socket();
+ return create_socket();
 }
 
-void Connection::make_passive_and_listen(int port) {
+bool Connection::make_passive_and_listen(int port) {
   m_port = port;
-  reconnect();
+  bool res = reconnect();
   m_mode = passive;
   m_connected_socket = 0;
   config_addr();
-  bind_socket();
-  socket_listen();
+
+  return res && bind_socket() && socket_listen();
 }
 
 /********* getters and setters **********/
@@ -145,12 +163,17 @@ conn_mode Connection::get_mode() { return m_mode; }
 
 void Connection::set_mode(conn_mode t_mode) { m_mode = t_mode; }
 
+/* Private */
 
-void Connection::create_socket() {
+bool Connection::create_socket() {
 
   bzero(&m_address, sizeof(m_address));
   m_local_socket = socket(AF_INET, SOCK_STREAM, 0);
 
-  if (m_local_socket < 0)
-    throw "invalid socket";
+  if (m_local_socket < 0) {
+    LOG_ERROR("Unable to create socket");
+    return false;
+  }
+
+  return true;
 }

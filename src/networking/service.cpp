@@ -18,12 +18,15 @@ using namespace networking;
 Service::Service(int t_connected_socket)
     : m_io(t_connected_socket),
       m_dataconn(0, active) {
-     // m_ctrlconn.setup_and_listen();    
-      m_dataconn.set_socket_options();
+
+      if(!m_dataconn.set_socket_options())
+         throw "Could not create a service.";
+
       m_dataconn.set_type(DataConnection::ascii);
       controllers::DiskManager::init(m_disk);
 }
 
+/** Public **/
 
 void Service::work() {
 
@@ -31,7 +34,7 @@ void Service::work() {
   Request req = create_request();
 
   /* receive from socket */
-  m_io.receive(req);
+  if(!m_io.receive(req)) return;
 
   parsing::Parser::parse(req);
 
@@ -43,12 +46,13 @@ void Service::work() {
   /* update service state has changed */
   update_disk_state(req);
 
-  m_io.respond(req);
-
+  if(!m_io.respond(req)) return;
+  
   data_connect(req);
   data_transfer(req);
 }
 
+/** Private **/
 
 Request Service::create_request(){
     Request req = Request();
@@ -59,6 +63,7 @@ Request Service::create_request(){
     return req;
 }
 
+/** Data Connection **/
 
 void Service::data_connect(Request &t_req) {
 
@@ -66,6 +71,8 @@ void Service::data_connect(Request &t_req) {
     m_dataconn.accept_connection();
   };
 }
+
+/** **/
 
 void Service::data_transfer(Request &t_req) {
 
@@ -93,6 +100,8 @@ void Service::data_transfer(Request &t_req) {
   }
 }
 
+/** **/
+
 void Service::data_transfer_respond(Request &t_req) {
 
   if (t_req.m_valid) {
@@ -104,6 +113,7 @@ void Service::data_transfer_respond(Request &t_req) {
   }
 }
 
+/** Update Service State **/
 
 void Service::login(Request &t_req) {
   /* set user */
@@ -126,6 +136,8 @@ void Service::login(Request &t_req) {
   }
 }
 
+/** **/
+
 void Service::update_disk_state(Request &t_req) {
 
   if (t_req.m_valid && disk_state_has_updated(t_req)) {
@@ -136,18 +148,26 @@ void Service::update_disk_state(Request &t_req) {
   }
 }
 
+/** Conditionals **/
+
 bool Service::was_success_pass_command(const Request &t_req) const {
   return t_req.m_command == commands::PASS && t_req.m_reply == reply::r_230;
 }
+
+/** **/
 
 bool Service::was_success_user_command(const Request &t_req) const {
   return t_req.m_command == commands::name::USER &&
          t_req.m_reply == reply::r_331;
 }
 
+/** **/
+
 bool Service::was_annonymous_user() const {
   return m_user == controllers::Accounts::ANONYMOUS_USER;
 }
+
+/** **/
 
 bool Service::disk_state_has_updated(const Request &t_req) const {
   return m_disk.m_user_path != t_req.m_disk.m_user_path &&
