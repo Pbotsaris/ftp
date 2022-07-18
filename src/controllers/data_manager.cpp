@@ -138,7 +138,6 @@ void DataManager::data_connect(utils::StringVector &t_port_argument,
   std::string ip = extract_ip(t_port_argument);
   int port = extract_port(t_port_argument);
 
-  std::cout << "check ths port here ->  " << port << std::endl;
   t_conn.set_port(port);
   t_conn.config_addr(ip);
   t_conn.connect_socket();
@@ -187,8 +186,7 @@ void DataManager::list_with_argument(networking::Request &t_req, utils::FileHelp
 void DataManager::valid_to_retrieve(networking::Request &t_req) {
 
   try {
-    utils::FileHelpers::DataFromDiskTuple alloced =
-        utils::FileHelpers::read_bytes(t_req);
+    utils::FileHelpers::DataFromDiskTuple alloced = utils::FileHelpers::read_bytes(t_req);
 
     t_req.m_data.m_image = std::move(std::get<0>(alloced));
     t_req.m_data.m_image_size = std::get<1>(alloced);

@@ -153,14 +153,16 @@ fs::file_status FileHelpers::file_status_validate(const networking::Request &t_r
   return status;
 }
 
-void FileHelpers::validate_path(const networking::Request &t_req,
-                                const std::string &t_path) {
+void FileHelpers::validate_path(const networking::Request &t_req, const std::string &t_path) {
+
+ std::string user_path = PathHelpers::join_to_user_path(t_req, t_req.m_argument);
 
   if (!PathHelpers::path_exists(t_path)) {
-    std::string user_path =
-        PathHelpers::join_to_user_path(t_req, t_req.m_argument);
+    throw " The path \'" + user_path + "\' does not exist.";
+  }
 
-    throw " The path " + user_path + "  does not exist.";
+  if (PathHelpers::is_path_directory(t_path)) {
+    throw " The path \'" + user_path + "\' is a directory.";
   }
 }
 
@@ -279,28 +281,4 @@ TEST_CASE("File Helpers") { // create file to test
 
     req.m_argument = "image.png";
   }
-}
-
-TEST_CASE("File Manager") {
-
-  //  auto disk = disk::Disk();
-  //  controllers::DiskManager::init(disk);
-  //  auto req = networking::Request(disk);
-  //  req.m_argument = "pedro/paulo/bosts.png";
-  //
-  //  FileHelpers::create_file(req);
-  //
-  //  char c;
-  //
-  //    std::cout << "opening..." << std::endl;
-  //  int fd = open("image.png", S_IRUSR);
-
-  // while ((read(fd, &c, 1)) > 0) {
-
-  // FileHelpers::write_to_disk(req, c);
-  //};
-
-  // MemoryStream mem_stream(c, 1);
-
-  //  close(fd);
 }
