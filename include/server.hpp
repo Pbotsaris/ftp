@@ -1,6 +1,6 @@
 #ifndef SERVER_H
 #define SERVER_H
-#include "server_conn.hpp"
+#include "server_connection.hpp"
 #include "control_io.hpp"
 #include "connection_poll.hpp"
 #include "disk_manager.hpp"

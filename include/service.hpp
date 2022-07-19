@@ -4,9 +4,9 @@
 #include "control_io.hpp"
 #include "disk.hpp"
 #include "request.hpp"
-#include "server_conn.hpp"
+#include "server_connection.hpp"
 
-namespace networking {
+using namespace networking;
 
   class Service {
 
@@ -41,6 +41,5 @@ namespace networking {
     bool        disk_state_has_updated(const Request &t_req) const;
     bool        was_quit(const Request &t_req) const;
   };
-}
 #endif
 

@@ -1,4 +1,4 @@
-#include "server_conn.hpp"
+#include "server_connection.hpp"
 #include "accounts.hpp"
 #include "logger.hpp"
 #include "request.hpp"
@@ -18,5 +18,3 @@ bool ServerConn::handshake() {
   ControlIO io(get_connected_socket());
   return io.respond(req);
 }
-
-
