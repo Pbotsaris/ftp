@@ -5,15 +5,8 @@
 
 /* TODO:
  *
- *  - test all commands for bugs
- *  - include connected socket to the polling system.
- *  - create logic to chose service to work depending on the connected socket.
- *  - maybe well be better off keeping the services in a map where the key is
- the connected socket descriptor.
- *  - need to create logic to close the connected socket when in the service
- destructor.
- *  - expand to multiple services
-
+ *   - check removing a service logic. hasn't been tested yet .
+ *   - work on threads.
  *   -  Rename is a problem to be solved still.
  */
 
@@ -44,7 +37,6 @@ void Server::main_loop() {
   while (true) {
 
     if(m_poll.accept_awaits()){
-        LOG_DEBUG("called create service");
         create_service();
     }
 
@@ -57,7 +49,6 @@ void Server::main_loop() {
         quit_service(pending_socket);
       }
     } 
-      LOG_DEBUG("tick.");
   }
 
 }

@@ -6,14 +6,7 @@
 #include "request.hpp"
 #include "server_conn.hpp"
 
-/*
- *   A Service corresponds single user interaction with the server and consists of two connections: 
- *     1. ctrconn to handle user issued commands.
- *     2. dataconn for data transfer.
- */
-
 namespace networking {
-
 
   class Service {
 

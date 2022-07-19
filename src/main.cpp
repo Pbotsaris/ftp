@@ -28,7 +28,6 @@ int main(void) {
       if(res > 0)
          return res;
 
-
  try {
      auto server = Server(2000);
      server.connect();

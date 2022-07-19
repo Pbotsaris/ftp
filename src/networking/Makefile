@@ -1,5 +1,5 @@
 # NETWORKING
-INCLUDE_FLAGS=-I../../include -I../../include/utils -I../../include/networking -I../../include/controllers
+INCLUDE_FLAGS=-I../../include -I../../include/utils -I../../include/networking -I../../include/threads -I../../include/controllers
 CFLAGS += -Wall -Wextra -g3 -fsanitize=address 
 CPP_FLAGS = -Wpedantic -std=c++17 -Wcast-qual -Wnon-virtual-dtor -Woverloaded-virtual -Wold-style-cast
 CC=clang++
