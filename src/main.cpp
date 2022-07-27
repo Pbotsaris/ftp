@@ -19,8 +19,9 @@ int test() {
 int main(void) {
 
   int res = test();
-  if (res > 0)
+  if (res > 0){
     return res;
+  }
 
   try {
       auto server = Server(2000);

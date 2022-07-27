@@ -23,18 +23,15 @@ class Server {
 
   public:
      Server(int t_port);
-     
      bool connect();
-
      void main_loop();
  
   private:
      void        create_service();
-     int         poll_futures();
-     int         scan_sockets_for_requests();
      void        quit_service(int t_socket);
 
-     bool is_future_ready(std::future<int> const& t_future);
+     int         poll_futures();
+     bool        is_future_ready(std::future<int> const& t_future);
 
 };
  
