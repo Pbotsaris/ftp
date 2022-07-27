@@ -4,6 +4,7 @@
 -Iinclude/utils
 -Iinclude/networking
 -Iinclude/controllers
+-Iinclude/threads
 -Wpedantic
 -std=c++17
 -Wcast-qual

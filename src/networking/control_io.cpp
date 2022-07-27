@@ -73,3 +73,4 @@ bool ControlIO::respond(Request &t_req) {
   return true;
 }
 
+int ControlIO::get_socket(){ return m_socket; }

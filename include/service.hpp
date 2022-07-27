@@ -16,11 +16,12 @@ using namespace networking;
     std::string     m_user;
     disk::Disk      m_disk;
 
+    static const int DO_NOT_QUIT = -1;
   
     public:
     Service(int t_connected_socket);
   
-    bool        work();
+    int        work();
 
   private:
     Request     create_request();

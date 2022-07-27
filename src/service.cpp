@@ -10,6 +10,7 @@
 
 #include <exception>
 #include <map>
+#include <thread>
 
 using namespace networking;
 
@@ -24,17 +25,18 @@ Service::Service(int t_connected_socket)
 
       m_dataconn.set_type(DataConnection::ascii);
       controllers::DiskManager::init(m_disk);
-}
 
+}
 /** Public **/
 
-bool Service::work() {
+int Service::work() {
+  LOG_DEBUG("Running service on thread %04x.", std::this_thread::get_id());
 
   /* create request with with this service current state (such as disk, user etc) */
   Request req = create_request();
 
   /* receive from socket */
-  if(!m_io.receive(req)) return false;
+  if(!m_io.receive(req)) return DO_NOT_QUIT;
 
   parsing::Parser::parse(req);
 
@@ -46,14 +48,14 @@ bool Service::work() {
   login(req);
   update_disk_state(req);
 
-  if(!m_io.respond(req)) return false;
+  if(!m_io.respond(req)) return DO_NOT_QUIT;
   
-  if(was_quit(req)) return true;
+  if(was_quit(req)) return m_io.get_socket(); // returns socket when quit is issued
 
   data_connect(req);
   data_transfer(req);
 
-  return false;
+  return DO_NOT_QUIT;
 }
 
 /** Private **/

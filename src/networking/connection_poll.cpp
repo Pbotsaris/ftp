@@ -119,3 +119,5 @@ bool ConnectionPoll::has_timeout(const char t_type[]) {
   else
     return false;
 }
+
+int ConnectionPoll::get_max_connections(){return m_max;}

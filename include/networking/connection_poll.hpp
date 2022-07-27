@@ -29,6 +29,8 @@ class ConnectionPoll {
   void  reposition_poll();
   void  count_poll_index();
 
+  int   get_max_connections();
+
   void  set_timeout(int t_timeout);
   bool  has_timeout(const char t_buffer[]);
 

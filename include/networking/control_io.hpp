@@ -13,6 +13,7 @@ class ControlIO{
 
     bool                  receive(Request &t_req);
     bool                  respond(Request &t_req);
+    int                   get_socket();
 };
 } // namespace networking
 

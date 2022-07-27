@@ -55,8 +55,8 @@ void Connection::config_addr() {
 void Connection::config_addr(const std::string &t_ip) {
   inet_pton(AF_INET, t_ip.c_str(), &m_address.sin_addr); /* converts IP string */
 
-  m_address.sin_family = AF_INET;
   m_address.sin_port = htons(m_port);
+  m_address.sin_family = AF_INET;
 }
 
 bool Connection::bind_socket() {
@@ -166,8 +166,8 @@ void Connection::set_mode(conn_mode t_mode) { m_mode = t_mode; }
 /* Private */
 
 bool Connection::create_socket() {
-
   bzero(&m_address, sizeof(m_address));
+
   m_local_socket = socket(AF_INET, SOCK_STREAM, 0);
 
   if (m_local_socket < 0) {

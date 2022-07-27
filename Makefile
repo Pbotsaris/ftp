@@ -1,5 +1,6 @@
 PROGRAM=ftp
-CFLAGS += -Wall -Wextra -g3 -Iinclude -fsanitize=address 
+INCLUDES=-Iinclude -Iinclude/utils -Iinclude/networking -Iinclude/threads -Iinclude/controllers
+CFLAGS += -Wall -Wextra -g3 -fsanitize=address 
 CPP_FLAGS = -Wpedantic -std=c++17 -Wcast-qual -Wnon-virtual-dtor -Woverloaded-virtual -Wold-style-cast
 CC=clang++
 RM=rm -rf
@@ -9,16 +10,16 @@ SRC_DIR=src
 
 TARGET=$(BIN_DIR)/$(PROGRAM)
 
-all: compile_root compile_networking compile_controllers compile_utils link
+all: compile_root compile_networking compile_controllers compile_utils compile_threads link
 
 link: 
-	$(CC) -o $(TARGET) $(wildcard $(OBJ_DIR)/*.o) $(CFLAGS) $(CPP_FLAGS)
+	$(CC) -o $(TARGET) $(wildcard $(OBJ_DIR)/*.o) $(CFLAGS) $(CPP_FLAGS) $(INCLUDES)
 
 compile_root:
 	 $(MAKE) -C $(SRC_DIR)
 
-compile_networking:
 	 $(MAKE) -C $(SRC_DIR)/networking
+compile_networking:
 
 compile_controllers:
 	 $(MAKE) -C $(SRC_DIR)/controllers
@@ -26,6 +27,8 @@ compile_controllers:
 compile_utils:
 	 $(MAKE) -C $(SRC_DIR)/utils
 
+compile_threads:
+	 $(MAKE) -C $(SRC_DIR)/threads
 
 run: ${TARGET}
 	./${TARGET}
