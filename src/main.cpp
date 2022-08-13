@@ -1,20 +1,8 @@
 #include "logger.hpp"
 #include "server.hpp"
 #define DOCTEST_CONFIG_IMPLEMENT
-#include "../include/doctest.h"
+#include "test.hpp"
 
-int test() {
-  doctest::Context ctx;
-  ctx.setOption("abort-after", 5);
-  ctx.setOption("no-breaks", true);
-
-  int res = ctx.run();
-
-  return res;
-
-  if (ctx.shouldExit())
-    return -1;
-}
 
 int main(void) {
 
