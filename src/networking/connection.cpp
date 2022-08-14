@@ -156,8 +156,8 @@ int Connection::get_local_socket() { return m_local_socket; }
 int Connection::get_connected_socket() { return m_connected_socket; }
 
 int Connection::get_port() { return m_port; }
-
 void Connection::set_port(int t_port) { m_port = t_port; }
+
 
 conn_mode Connection::get_mode() { return m_mode; }
 

@@ -1,6 +1,7 @@
 #include "service.hpp"
 #include "commands.hpp"
 #include "connection.hpp"
+#include "data_connection.hpp"
 #include "disk_manager.hpp"
 #include "logger.hpp"
 #include "parser.hpp"
@@ -30,8 +31,7 @@ Service::Service(int t_connected_socket)
 int Service::work() {
   LOG_DEBUG("Running service on thread %04x.", std::this_thread::get_id());
 
-  /* create request with with this service current state (such as disk, user
-   * etc) */
+  /* create request with with this service current state (such as disk, user etc) */
   Request req = create_request();
 
   /* receive from socket */
@@ -44,8 +44,9 @@ int Service::work() {
   routing::Router::route(req.m_command, req, m_dataconn);
 
   /* check if user is logged in and update (if applicable) */
-  /* update service state has changed */
   login(req);
+
+  /* update service state has changed */
   update_disk_state(req);
 
   if (!m_io.respond(req))

@@ -17,7 +17,7 @@ const int DataManager::M_PORT_ARG_LEN = 6;
 const int DataManager::M_RANDOM_FILENAME_LENGTH = 10;
 
 /* Port generation range 1024 <-> 13800 */
-const int DataManager::M_MIN_P1 = 4; // min of 4 to skip priviledged ports(0-1023)
+const int DataManager::M_MIN_P1 = 5; // min of 4 to skip priviledged ports(0-1023)
 const int DataManager::M_MAX_P1 = 20;
 
 const int DataManager::M_MIN_P2 = 1; 

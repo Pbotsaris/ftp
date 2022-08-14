@@ -18,6 +18,7 @@ void DataConnection::transfer_send(Request &t_req) {
 
   LOG_INFO("Closing data connection.");
   reconnect();
+  set_mode(active); // reset to active always
 }
 
 /** **/
@@ -42,7 +43,9 @@ DatafromClientTuple DataConnection::transfer_receive(Request &t_req) {
     TransferData data;
 
     data.m_buffer = new char[TRANSFER_READ_LENGTH]();
-    int read_length = recv(get_local_socket(), data.m_buffer, TRANSFER_READ_LENGTH, 0);
+
+    int socket      = get_mode() == networking::active ?  get_local_socket() : get_connected_socket();
+    int read_length = recv(socket, data.m_buffer, TRANSFER_READ_LENGTH, 0);
 
     if (read_length == -1) {
       t_req.m_valid = false;
@@ -55,9 +58,9 @@ DatafromClientTuple DataConnection::transfer_receive(Request &t_req) {
 
     /* recv returns 0 when client brakes connection */
     if (data.m_length == 0) {
-    }
       delete[] data.m_buffer;
       break;
+    }
 
     total_length += data.m_length;
     queue.push(std::move(data));
@@ -68,6 +71,7 @@ DatafromClientTuple DataConnection::transfer_receive(Request &t_req) {
   ImageBuffer data = consolidate_data(queue, total_length);
 
   create_socket();
+  set_mode(active); // reset to active always
 
   return DatafromClientTuple(std::move(data), total_length);
 }

@@ -16,10 +16,10 @@ using namespace networking;
     std::string     m_user;
     disk::Disk      m_disk;
 
+
     static const int DO_NOT_QUIT = -1;
-  
-    public:
     Service(int t_connected_socket);
+    public:
   
     int        work();
 
@@ -34,6 +34,7 @@ using namespace networking;
     /* Updated service state */
     void        login(Request &t_req);
     void        update_disk_state(Request &t_req);
+  
 
     /* Conditionals */
     bool        was_success_pass_command(const Request &t_req) const;

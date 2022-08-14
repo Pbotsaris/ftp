@@ -48,6 +48,7 @@ namespace commands {
      ALLO = 38, 
      LPRT = 39,
      REST = 40,   
+     LPSV = 41,
   };
 
   enum type {
@@ -101,6 +102,7 @@ namespace commands {
     { "ALLO", ALLO }, 
     { "LPRT", LPRT }, 
     { "REST", REST }, 
+    { "LPSV", LPSV }, 
   };
 
   static std::map<std::string, std::string > help {
@@ -139,7 +141,7 @@ namespace commands {
     { "SITE", "No support." }, 
     { "ALLO", "No support." }, 
     { "LPRT", "No support." }, 
-    { "LSPV", "No support." }, 
+    { "LPSV", "No support." }, 
     { "REST", "No support."},
   };
 
