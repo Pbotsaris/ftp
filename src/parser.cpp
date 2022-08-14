@@ -40,7 +40,7 @@ void Parser::parse_command(networking::Request &t_req,
 
   } catch (std::exception &err) {
     t_req.m_reply = networking::reply::r_502;
-    t_req.m_valid = false;
+    t_req.m_valid = true;
     LOG_ERROR("Could not parse command.");
   };
 }
