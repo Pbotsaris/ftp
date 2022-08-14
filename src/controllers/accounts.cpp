@@ -6,7 +6,7 @@
 
 using namespace controllers;
 
-std::string Accounts::ANONYMOUS_USER = "anonynous";
+std::string Accounts::ANONYMOUS_USER = "anonymous";
 std::string Accounts::ANONYMOUS_PASSWORD = "0";
 
 static const char PATH[] = ".users";

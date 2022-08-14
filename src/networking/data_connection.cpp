@@ -1,4 +1,5 @@
 #include"data_connection.hpp"
+#include "connection.hpp"
 #include "logger.hpp"
 #include "connection_poll.hpp"
 
@@ -25,7 +26,11 @@ DatafromClientTuple DataConnection::transfer_receive(Request &t_req) {
 
   std::uintmax_t total_length = 0;
   std::queue<TransferData> queue;
-  ConnectionPoll conn_poll(get_local_socket());
+
+  // passive mode will use the connected socket from accept
+  int socket = get_mode() == networking::active ?  get_local_socket() : get_connected_socket();
+
+  ConnectionPoll conn_poll(socket, 300); // wait 300 ms to receive
 
   while (1) {
 
@@ -37,12 +42,11 @@ DatafromClientTuple DataConnection::transfer_receive(Request &t_req) {
     TransferData data;
 
     data.m_buffer = new char[TRANSFER_READ_LENGTH]();
-    int read_length =
-        recv(get_local_socket(), data.m_buffer, TRANSFER_READ_LENGTH, 0);
+    int read_length = recv(get_local_socket(), data.m_buffer, TRANSFER_READ_LENGTH, 0);
 
     if (read_length == -1) {
-      LOG_ERROR("There was a problem reading from client.");
       t_req.m_valid = false;
+      LOG_ERROR("There was a problem reading from client.");
       delete[] data.m_buffer;
       break;
     }
@@ -77,15 +81,8 @@ DataConnection::conn_type DataConnection::get_type() { return m_type; }
 
 void DataConnection::transfer_ascii(Request &t_req) {
 
-  int res;
-
-  if (get_mode() == active) {
-     res = send(get_local_socket(), t_req.m_data.m_ascii.c_str(), t_req.m_data.m_ascii.size(), 0);
-  } else {
-
-    res = send(get_connected_socket(), t_req.m_data.m_ascii.c_str(), t_req.m_data.m_ascii.size(), 0);
-  }
-
+  int socket = get_mode() == networking::active ?  get_local_socket() : get_connected_socket();
+  int res    = send(socket, t_req.m_data.m_ascii.c_str(), t_req.m_data.m_ascii.size(), 0);
 
   if (res < 0) {
     LOG_ERROR("Could not transfer ASCII data to client.");
@@ -97,7 +94,9 @@ void DataConnection::transfer_ascii(Request &t_req) {
 
 void DataConnection::transfer_image(Request &t_req) {
 
-  int res = send(get_local_socket(), t_req.m_data.m_image.get(),
+  int socket = get_mode() == networking::active ?  get_local_socket() : get_connected_socket();
+
+  int res = send(socket, t_req.m_data.m_image.get(),
                  t_req.m_data.m_image_size, 0);
 
   if (res < 0) {

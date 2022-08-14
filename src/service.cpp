@@ -17,26 +17,26 @@ using namespace networking;
 /* Constructor */
 
 Service::Service(int t_connected_socket)
-    : m_io(t_connected_socket),
-      m_dataconn(0, active) {
+    : m_io(t_connected_socket), m_dataconn(0, active) {
 
-      if(!m_dataconn.set_socket_options())
-         throw "Could not create a service.";
+  if (!m_dataconn.set_socket_options())
+    throw "Could not create a service.";
 
-      m_dataconn.set_type(DataConnection::ascii);
-      controllers::DiskManager::init(m_disk);
-
+  m_dataconn.set_type(DataConnection::ascii);
+  controllers::DiskManager::init(m_disk);
 }
 /** Public **/
 
 int Service::work() {
   LOG_DEBUG("Running service on thread %04x.", std::this_thread::get_id());
 
-  /* create request with with this service current state (such as disk, user etc) */
+  /* create request with with this service current state (such as disk, user
+   * etc) */
   Request req = create_request();
 
   /* receive from socket */
-  if(!m_io.receive(req)) return DO_NOT_QUIT;
+  if (!m_io.receive(req))
+    return DO_NOT_QUIT;
 
   parsing::Parser::parse(req);
 
@@ -48,9 +48,11 @@ int Service::work() {
   login(req);
   update_disk_state(req);
 
-  if(!m_io.respond(req)) return DO_NOT_QUIT;
-  
-  if(was_quit(req)) return m_io.get_socket(); // returns socket when quit is issued
+  if (!m_io.respond(req))
+    return DO_NOT_QUIT;
+
+  if (was_quit(req))
+    return m_io.get_socket(); // returns socket when quit is issued
 
   data_connect(req);
   data_transfer(req);
@@ -60,13 +62,13 @@ int Service::work() {
 
 /** Private **/
 
-Request Service::create_request(){
-    Request req = Request();
-    req.m_disk = m_disk;
-    req.m_logged_in = m_logged_in;
-    req.m_current_user = m_user;
+Request Service::create_request() {
+  Request req = Request();
+  req.m_disk = m_disk;
+  req.m_logged_in = m_logged_in;
+  req.m_current_user = m_user;
 
-    return req;
+  return req;
 }
 
 /** Data Connection **/
@@ -74,8 +76,12 @@ Request Service::create_request(){
 void Service::data_connect(Request &t_req) {
 
   if (t_req.m_transfer == Request::connect) {
-    m_dataconn.accept_connection();
-  };
+    int res = -1;
+
+    while (res < 0) { // loops until connection is made
+      res = m_dataconn.accept_connection();
+    }
+  }
 }
 
 /** **/
@@ -83,7 +89,7 @@ void Service::data_connect(Request &t_req) {
 void Service::data_transfer(Request &t_req) {
 
   if (t_req.m_transfer == Request::send) {
-     m_dataconn.transfer_send(t_req); // TODO many need error handling?
+    m_dataconn.transfer_send(t_req); // TODO may need error handling?
 
     /*  responds to client upon valid data transfer */
     auto req = Request(m_logged_in);
@@ -124,10 +130,10 @@ void Service::data_transfer_respond(Request &t_req) {
 void Service::login(Request &t_req) {
   /* set user */
   if (!m_logged_in && was_success_user_command(t_req)) {
-     m_user = std::move(t_req.m_argument);
+    m_user = std::move(t_req.m_argument);
     if (was_annonymous_user()) {
       /* change response for ANONYMOUS_USER as pass is not required.  */
-      m_logged_in   = true;
+      m_logged_in = true;
       t_req.m_reply = reply::r_230;
       LOG_INFO("User %s is logged in.", m_user.c_str());
     }
@@ -182,6 +188,6 @@ bool Service::disk_state_has_updated(const Request &t_req) const {
 
 /** **/
 
-bool Service::was_quit(const Request &t_req) const{
+bool Service::was_quit(const Request &t_req) const {
   return t_req.m_command == commands::QUIT;
 }

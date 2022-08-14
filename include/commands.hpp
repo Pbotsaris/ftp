@@ -139,6 +139,7 @@ namespace commands {
     { "SITE", "No support." }, 
     { "ALLO", "No support." }, 
     { "LPRT", "No support." }, 
+    { "LSPV", "No support." }, 
     { "REST", "No support."},
   };
 
