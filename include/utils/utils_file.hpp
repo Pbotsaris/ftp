@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <memory>
 #include <tuple>
+#include <mutex>
 
 #if __linux__ 
 namespace fs = std::filesystem;
@@ -19,7 +20,7 @@ namespace utils {
 
 struct FileHelpers {
   
- enum listdir_option{list_name, list_stat};
+  enum listdir_option{list_name, list_stat};
 
   typedef  std::tuple<networking::ImageBuffer, std::uintmax_t>  DataFromDiskTuple;
 
@@ -27,6 +28,7 @@ struct FileHelpers {
   static std::string             stat_file(const networking::Request &t_req);
   static std::string             stat_file(const networking::Request &t_req, const std::string &t_path);
   static DataFromDiskTuple       read_bytes(const networking::Request &t_req);
+  static std::mutex              m_mutex;
 
   /* write to disk will overwrite file if exists */
   static void                    write_to_disk(const networking::Request &t_req, const networking::DatafromClientTuple &t_data);

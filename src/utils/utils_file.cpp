@@ -31,6 +31,8 @@ using namespace utils;
 
 /***** Public ******/
 
+std::mutex  FileHelpers::m_mutex;
+
 std::string FileHelpers::list_dir_filenames(const networking::Request &t_req, listdir_option t_option) {
 
   const std::string path_to_list = utils::PathHelpers::join_to_system_path(t_req, t_req.m_argument);
@@ -87,6 +89,7 @@ FileHelpers::DataFromDiskTuple FileHelpers::read_bytes(const networking::Request
 
   std::ifstream file(path_to_read, std::ios::in | std::ios::binary | std::ios::ate);
 
+  std::lock_guard<std::mutex>lock_guard (m_mutex);
   if (!file.is_open())
     throw "Could not open file for transfer";
 
@@ -104,6 +107,7 @@ FileHelpers::DataFromDiskTuple FileHelpers::read_bytes(const networking::Request
 
 void FileHelpers::write_to_disk(const networking::Request &t_req, const networking::DatafromClientTuple &t_data) {
 
+  std::lock_guard<std::mutex>lock_guard (m_mutex);
   fs::path path{t_req.m_disk.m_system_path + "/" + t_req.m_argument};
 
    /* overwrites existing files */
