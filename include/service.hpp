@@ -18,8 +18,9 @@ using namespace networking;
 
 
     static const int DO_NOT_QUIT = -1;
-    Service(int t_connected_socket);
+
     public:
+    Service(int t_connected_socket);
   
     int        work();
 

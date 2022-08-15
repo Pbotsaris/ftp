@@ -30,12 +30,15 @@ namespace fs = std::__fs::filesystem;
  * */
 
 std::string DiskManager::m_rename_from = "";
+std::mutex DiskManager::m_mutex;
 
 void DiskManager::init(Disk &t_disk) {
   t_disk.m_user_path = "/";
   t_disk.m_system_path = utils::PathHelpers::create_system_root_path();
   t_disk.m_dir_level = 0;
 
+
+  std::lock_guard<std::mutex>lock_guard (m_mutex);
   fs::create_directories(utils::PathHelpers::M_ROOT);
 };
 
@@ -47,6 +50,7 @@ void DiskManager::rename_from(networking::Request &t_req) {
 
   std::string rename_from = utils::PathHelpers::build_system_path(t_req);
 
+  std::lock_guard<std::mutex>lock_guard (m_mutex);
   if (utils::PathHelpers::path_exists(rename_from)) {
     m_rename_from = rename_from;
     t_req.m_reply = networking::reply::r_350;
@@ -59,6 +63,7 @@ void DiskManager::rename_from(networking::Request &t_req) {
 
 void DiskManager::rename_to(networking::Request &t_req) {
 
+  std::lock_guard<std::mutex>lock_guard (m_mutex);
   std::string rename_to = utils::PathHelpers::build_system_path(t_req);
 
   try {
@@ -75,6 +80,7 @@ void DiskManager::rename_to(networking::Request &t_req) {
 
 void DiskManager::delete_file(networking::Request &t_req) {
 
+  std::lock_guard<std::mutex>lock_guard (m_mutex);
   std::string path_to_del = utils::PathHelpers::add_to_path(
       t_req.m_disk.m_system_path, t_req.m_argument);
 
@@ -128,6 +134,7 @@ void DiskManager::print_working_directory(networking::Request &t_req) {
 
 void DiskManager::make_directory(networking::Request &t_req) {
 
+  std::lock_guard<std::mutex>lock_guard (m_mutex);
   if (utils::PathHelpers::is_absolute_path(t_req.m_argument)) {
     fs::create_directories(utils::PathHelpers::create_system_root_path() +
                            t_req.m_argument);
@@ -149,6 +156,7 @@ void DiskManager::remove_directory(networking::Request &t_req) {
 
   auto to_delete = utils::PathHelpers::build_system_path(t_req);
 
+  std::lock_guard<std::mutex>lock_guard (m_mutex);
   if (utils::PathHelpers::path_exists(to_delete)) {
     remove_directory_when_valid(t_req, to_delete);
   } else {
@@ -193,6 +201,7 @@ void DiskManager::update_paths(networking::Request &t_req,
 
 void DiskManager::remove_directory_when_valid(networking::Request &t_req,
                                               std::string &t_to_delete) {
+
   try {
     int items = count_directory_items(t_to_delete);
     if (items == 0) { // dir must have 0 items to be deleted.

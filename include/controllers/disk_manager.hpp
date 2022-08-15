@@ -2,10 +2,12 @@
 #define DISK_MANAGER_H
 #include "request.hpp"
 #include "utils.hpp"
+#include <mutex>
 
 namespace controllers {
 struct DiskManager {
   static std::string m_rename_from;
+  static  std::mutex m_mutex;
 
   /* Disk initializer */
   static void        init(disk::Disk &t_disk);

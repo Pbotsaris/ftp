@@ -14,9 +14,9 @@ template <typename T> class ThreadSafeQueue {
   std::queue<std::shared_ptr<T>> m_queue;
   std::condition_variable m_datacond;
 
-public:
   ThreadSafeQueue(){};
 
+  public:
   void push(T t_item) {
 
     std::shared_ptr<T> item(std::make_shared<T>(std::move(t_item)));
