@@ -28,6 +28,8 @@ class ThreadPool{
 
    private:
    void  worker();
+   void throttle(const int t_count);
+   void countdown(int &t_count);
 
 };
 

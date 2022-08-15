@@ -18,8 +18,9 @@ class Server {
   ServerConn               m_conn;
   Services                 m_services;
   ConnectionPoll           m_poll;
-  Futures                  m_futures;
   ThreadPool               m_tpool;
+  Futures                  m_futures;
+  int                      m_no_activity;
 
   public:
      Server(int t_port);
@@ -32,6 +33,8 @@ class Server {
 
      int         poll_futures();
      bool        is_future_ready(std::future<int> const& t_future);
+
+     void        throttle();
 
 };
  
