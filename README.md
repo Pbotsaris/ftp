@@ -1,110 +1,121 @@
 # My FTP
 
-write a description of the app here.
+An multithreaded FTP server following the [RFC959](https://www.w3.org/Protocols/rfc959/) protocol. 
 
-### File structure
+## Authentication
 
-For now, I separated the file structure between `client` and `server`. The client side is only here for testing as we still have a barebones of a server
-that CANNOT yet handle a proper FTP connection. 
+The server require users to authenticate. Below the list of default users; anonymouys does not require a password.
 
-After the server is properly implemented the client implementation will go away and we will use any FTP client out there to connect.
+| user      | password  |
+| anonymous |           |
+| pedro     |  drops    |
+| gaetan    |  qwasar   |
 
-### Server class
-For now we have a simple implementation that handles a single request. I already wrapped up the socket code in a class `src/server/server.cpp`.
-the header can be found in `include/server.h`.
+New users may be added in the `.users` config file. Each user entry has a `user` and `password` field delimited by a `:`. Users are separated by a new line(`\n`) like so
 
-### Compiling and running current implementation
+      user1:password1
+      user2:passowrd2
 
-Compile
+To create users without password set the password to `0`
+
+      user_without_password:0
+
+## The root directory 
+
+My FTP creates a directory `.root/` in the same directory as the running binary. Clients only have access to files within `.root/` while
+the remaining of the server's filesystem remain private and inaccessible. This is reflected in the path
+
+Server absolute path
+
+      /home/username/.root/file.jpg
+
+Client absolute path
+  
+     file.jpg
+
+Clients are unable to `CDUP` out of the `.root` directory.
+
+## Logging
+
+The server has 3 types of log messages: `Error`(red),`Info`(blue) and `Debug`(yellow). The `Debug` logs are somewhat noisy and they can be turned on or
+off by removing/adding the macro `#define DEBUG` to/from the `include/logger.hpp` header.
+
+## Build & run
+
+Build
 
      make
 
-The `Makefile` will produce 2 binaries – `bin/ftp`(server) and `bin/ftp_client`. First run the server
+Run
 
-      ./bin/ftp
+    ./bin/ftp <port-number>
 
-The server will hang waiting for a connection. Now, open another shell window and run the client
+Run server with unit testing
 
-      ./bin/ftp_client
+    ./bin/ftp <port-number> --test
 
-You should see the exchange of messages between the client and server in your terminal
+Clean
+
+   make clean
 
 
-      Hello from server!
-      Received!
+## Implementation details
 
-## Next Steps
+The server listens to new connections (`accept`) as well as to connected sockets control requests in the main thread. This logic is ran in a single thread using a polling system. 
+Once a request is received from a client, the server will create a `Service` object and dispatch it to a threadpool. And available thread will then call `Service.work()` to execute this request. 
 
-1. Implement a loop for the server so it can handle a multple connections. The loop should run through the whole connection lifecycle - `listen`, `accept` ,`recv` and `send`
-on every connection request.
+Note that only the control connection is managed in the main thread. Data connection are always established from a separated thread within the context of a `Service`.
 
-2. Build a server that handles 2 connections. FTP server establish 2 connections (where HTTP only a single connection) on TCP ports `20` and `21`. One connection is for the data while the second is 
-  the control connection.
+The program revolves around modifying a `Request` object that is created when the server first receives a message from
+`Connection`. This `Request` is then populated with the request info such as the socket fd of the requesting client, data received etc
+and is passed on to a `Service` that, in its turn will parse and route this request to specific controller.
 
-3. Understand the FTP protocol so we can can build a server around that standard. 
+## Thread Throttling 
 
-**Below some literature**:
+The threadpool will use all the available threads in you system with `std::thread::hardware_concurrency`. To avoid the CPU usage going out of control, the threadpool implements a simple throttling logic.
+As the server goes idle the loop will checking for new jobs will get throttle with longer and longer sleep times from 50ms all the way to 500ms.
 
-[The protocol](https://www.w3.org/Protocols/rfc959/)
-
-[wikipedia](https://en.wikipedia.org/wiki/File_Transfer_Protocol)
-
-[difference between FTP and HTTP](https://techdifferences.com/difference-between-http-and-ftp.html#:~:text=The%20basic%20difference%20between%20HTTP,as%20well%20as%20control%20connection.)
-
-[FTP explained](https://www.techtarget.com/searchnetworking/definition/File-Transfer-Protocol-FTP)
-
-[FTP tutorial](https://www.hostinger.com/tutorials/what-is-ftp)
-
-[More info](https://www.ncftp.com/libncftp/doc/ftp_overview.html)
-
-[Protocol](https://datatracker.ietf.org/doc/rfc959/)
-
-## List with FTP accepted command
+## Accepted Commands
 
 | Command | Description                                                                                                                                                                  |
 |---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|ABOR    	|	Abort an active file transfer.                                                                                                                                               |
-|ACCT    	|	Account information.                                                                                                                                                         |
-|ALLO    	|	Allocate sufficient disk space to receive a file.                                                                                                                            |
-|APPE    	|	Append (with create)                                                                                                                                                         |
-|AVBL     |	Streamlined FTP Command Extensions	Get the available space                                                                                                                  |
-|CDUP    	|	Change to Parent Directory.                                                                                                                                                  |
-|CSID     |	Streamlined FTP Command Extensions	Client / Server Identification                                                                                                           |
-|DELE    	|	Delete file.                                                                                                                                                                 |
-|DSIZ     |	Streamlined FTP Command Extensions	Get the directory size                                                                                                                   |
-|HELP    	|	Returns usage documentation on a command if specified, else a general help document is returned.                                                                             |
-|LIST    	|	Returns information of a file or directory if specified, else information of the current working directory is returned.                                                      |
-|MFCT     |	The 'MFMT', 'MFCT', and 'MFF' Command Extensions for FTP	Modify the creation time of a file.                                                                                |
-|MFF	     |  The 'MFMT', 'MFCT', and 'MFF' Command Extensions for FTP	Modify fact (the last modification time, creation time, UNIX group/owner/mode of a file).                        |
-|MFMT     |  The 'MFMT', 'MFCT', and 'MFF' Command Extensions for FTP	Modify the last modification time of a file.                                                                       |
-|MKD	     | 	Make directory.                                                                                                                                                            |
-|MODE    	|	Sets the transfer mode (Stream, Block, or Compressed).                                                                                                                       |
-|NLST    	|	Returns a list of file names in a specified directory.                                                                                                                       |
-|NOOP    	|	No operation (dummy packet; used mostly on keepalives).                                                                                                                      |
-|PASS    	|	Authentication password.                                                                                                                                                     |
-|PASV    	|	Enter passive mode.                                                                                                                                                          |
-|PORT    	|	Specifies an address and port to which the server should connect.                                                                                                            |
-|PWD	     | 	Print working directory. Returns the current directory of the host.                                                                                                        |
-|QUIT    	|	Disconnect.                                                                                                                                                                  |
-|REIN    	|	Re initializes the connection.                                                                                                                                               |
-|RETR    	|	Retrieve a copy of the file                                                                                                                                                  |
-|RMD	     | 	Remove a directory.                                                                                                                                                        |
-|RMDA     | 	Streamlined FTP Command Extensions	Remove a directory tree                                                                                                                |
-|RNFR    	|	Rename from.                                                                                                                                                                 |
-|RNTO    	|	Rename to.                                                                                                                                                                   |
-|SITE    	|	Sends site specific commands to remote server (like SITE IDLE 60 or SITE UMASK 002). Inspect SITE HELP output for complete list of supported commands.                       |
-|SMNT    	|	Mount file structure.                                                                                                                                                        |
-|SPSV     | 	FTP Extension Allowing IP Forwarding (NATs)	Use single port passive mode (only one TCP port number for both control connections and passive-mode data connections)         |
-|STAT    	|	Returns information on the server status, including the status of the current connection                                                                                     |
-|STOR    	|	Accept the data and to store the data as a file at the server site                                                                                                           |
-|STOU    	|	Store file uniquely.                                                                                                                                                         |
-|~STRU~ 	|	~Set file transfer structure.~(DO NOT IMPLEMENT)                                                                                                                               |
-|SYST    	|	Return system type.                                                                                                                                                          |
-|THMB     | 	Streamlined FTP Command Extensions	Get a thumbnail of a remote image file                                                                                                 |
-|TYPE    	|	Sets the transfer mode (ASCII/Binary).                                                                                                                                       |
-|USER    	|	Authentication username.
-
-### FTP Replies
+ | CDUP   | Change to parent directory                                                                                                                                                   |
+ | QUIT   | Disconnects from server                                                                                                                                                      |
+ | PASV   | Enter passive mode                                                                                                                                                           |
+ | PWD    | Print working directory                                                                                                                                                      |
+ | SYST   | Get server operating system                                                                                                                                                  |
+ | NOOP   | No Operation (used mostly on keepalives)                                                                                                                                     |
+ | USER   | Authenticate username                                                                                                                                                        |
+ | PASS   | Authenticate passowrd                                                                                                                                                        |
+ | CWD    | Change directory                                                                                                                                                             |
+ | PORT   | Specifies an address and port to which the server should connect                                                                                                             |
+ | TYPE   | Sets the transfer mode to ASCII or Binary(Image)                                                                                                                             |
+ | RETR   | Retrives a copy of a file                                                                                                                                                    |
+ | STOU   | Stores a file uniquely                                                                                                                                                       |
+ | RNFR   | Select the file to rename                                                                                                                                                    |
+ | RNTO   | Sets the new filename to rename to                                                                                                                                           |
+ | DELE   | Deletes a file                                                                                                                                                               |
+ | RMD    | Removes a directory                                                                                                                                                          |
+ | MKD    | Creates a directory                                                                                                                                                          |
+ | LIST   | Returns info of a file or directory if specified, else info of the current working directory                                                                                 |
+ | NLST   | Returns a list of filenames in a specified directory                                                                                                                         |
+ | STAT   | Returns the server status, including the status of the current connection                                                                                                    |
+ | HELP   | Display help of an specific command                                                                                                                                          |
+ | FEAT   | Responds with server features                                                                                                                                                |
+ | ABOR   | No support                                                                                                                                                                   |
+ | ACCT   | No support                                                                                                                                                                   |
+ | SMNT   | No support                                                                                                                                                                   |
+ | STRU   | No support                                                                                                                                                                   |
+ | MODE   | No support                                                                                                                                                                   |
+ | REIN   | No support                                                                                                                                                                   |
+ | APPE   | No support                                                                                                                                                                   |
+ | SITE   | No support                                                                                                                                                                   |
+ | ALLO   | No support                                                                                                                                                                   |
+ | LPRT   | No support                                                                                                                                                                   |
+ | LPSV   | No support                                                                                                                                                                   |
+ | REST   | No support                                                                                                                                                                   |
+                                                                                                                                                                                        
+### Replies
 
 |  Reply    | Description
 |-----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -113,7 +124,7 @@ on every connection request.
 120         |	Service ready in nnn minutes.                                                                                                                                                 |
 125         |	Data connection already open; transfer starting.                                                                                                                              |
 150         |	File status okay; about to open data connection.                                                                                                                              |
-200 series  | 	The requested action has been successfully completed.                                                                                                                       |
+200 series  |	The requested action has been successfully completed.                                                                                                                       |
 202         |	Command not implemented, superfluous at this site.                                                                                                                            |
 211         |	System status, or system help reply.                                                                                                                                          |
 212         |	Directory status.                                                                                                                                                             |
@@ -163,46 +174,4 @@ on every connection request.
 632         |	Confidentiality and integrity protected reply.                                                                                                                                |
 633         |	Confidentiality protected reply.                                                                                                                                              |
 
-
-## Datatypes
-While transfering data, the FTP supports a few datatypes. Some of them are undated and will not be mentioned here. The revelevant ones are as follows
-
-**ASCII (TYPE A)**: Used for text.  This type has optional formats that were intended for printers and not relevant to this implemtation. The program will 
-use the **Non-print** only(aka`format control of N`).
-
-**Image or Binary mode (TYPE I)** The sending machine sends each file byte by byte, and the recipient stores the bytestream as it receives it. This is our main file transfer mode.
-
-## File transfer structure
-Organizational types to be implemented is the `F` or **FILE** which is the file structure in a UNIX system. 
-
-## Log in 
-Uses the `USER` and `PASS` command for for authetication. May also provide an anonymous access.
-
-## Data Transfers
-
-**Stream mode (MODE S)**: Data is sent as a continuous stream, relieving FTP from doing any processing. Rather, all processing is left up to TCP. No End-of-file indicator is needed, unless the data is divided into records.
-
-**Block mode (MODE B)**: Designed primarily for transferring record-oriented files (STRU R), although can also be used to transfer stream-oriented (STRU F) text files. FTP puts each record (or line) of data into several blocks (block header, byte count, and data field) and then passes it on to TCP.[8]
-
-**Compressed mode (MODE C)**: Extends MODE B with data compression using run-length encoding.
-
-Most contemporary FTP clients and servers do not implement MODE B or MODE C.
-
-### Stream mode
-
-         In a record structured file EOR and EOF will each be indicated
-         by a two-byte control code.  The first byte of the control code
-         will be all ones, the escape character.  The second byte will
-         have the low order bit on and zeros elsewhere for EOR and the
-         second low order bit on for EOF; that is, the byte will have
-         value 1 for EOR and value 2 for EOF.  EOR and EOF may be
-         indicated together on the last byte transmitted by turning both
-         low order bits on (i.e., the value 3).  If a byte of all ones
-         was intended to be sent as data, it should be repeated in the
-         second byte of the control code.
-
-
-## Syntax
-
-`ftp://[user[:password]@]host[:port]/url-path`
 
