@@ -1,6 +1,6 @@
 # My FTP
 
-An multithreaded FTP server following the [RFC959](https://www.w3.org/Protocols/rfc959/) protocol. 
+A multithreaded FTP server following the [RFC959](https://www.w3.org/Protocols/rfc959/) protocol. 
 
 ## Authentication
 
@@ -63,7 +63,7 @@ Clean
 ## Implementation details
 
 The server listens to new connections (`accept`) as well as to connected sockets control requests in the main thread. This logic is ran in a single thread using a polling system. 
-Once a request is received from a client, the server will create a `Service` object and dispatch it to a threadpool. And available thread will then call `Service.work()` to execute this request. 
+Once a request is received from a client, the server will create a `Service` object and dispatch it to a threadpool. An available thread will then call `Service.work()` to execute this request. 
 
 Note that only the control connection is managed in the main thread. Data connection are always established from a separated thread within the context of a `Service`.
 
@@ -74,7 +74,7 @@ and is passed on to a `Service` that, in its turn will parse and route this requ
 ## Thread Throttling 
 
 The threadpool will use all the available threads in you system with `std::thread::hardware_concurrency`. To avoid the CPU usage going out of control, the threadpool implements a simple throttling logic.
-As the server goes idle the loop will checking for new jobs will get throttle with longer and longer sleep times from 50ms all the way to 500ms.
+As the server goes idle the loop checking for new jobs will get throttled with longer and longer sleep times from 50ms all the way to 500ms.
 
 ## Accepted Commands
 
