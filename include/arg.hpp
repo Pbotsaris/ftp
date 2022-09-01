@@ -6,6 +6,7 @@ class Arg {
   public:
     static int get_port_when_valid(int ac, char **av);
     static bool invalid_port(int port);
+    static bool run_test(int ac, char **av);
 
   private:
     static const int MIN_ARG_NUM;
