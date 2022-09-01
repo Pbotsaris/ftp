@@ -7,7 +7,7 @@ An multithreaded FTP server following the [RFC959](https://www.w3.org/Protocols/
 The server require users to authenticate. Below the list of default users; anonymouys does not require a password.
 
 | user      | password  |
-------------------------
+|-----------|-----------|
 | anonymous |           |
 | pedro     |  drops    |
 | gaetan    |  qwasar   |
