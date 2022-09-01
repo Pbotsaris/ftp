@@ -24,7 +24,7 @@ To create users without password set the password to `0`
 ## The root directory 
 
 My FTP creates a directory `.root/` in the same directory as the running binary. Clients only have access to files within `.root/` while
-the remaining of the server's filesystem remain private and inaccessible. This is reflected in the path
+the remaining of the server's filesystem remain private and inaccessible. This is reflected in perspective of what the absolute path is between the client and server.
 
 Server absolute path
 
@@ -45,19 +45,19 @@ off by removing/adding the macro `#define DEBUG` to/from the `include/logger.hpp
 
 Build
 
-     make
+      make
 
 Run
 
-    ./bin/ftp <port-number>
+     ./bin/ftp <port-number>
 
 Run server with unit testing
-
+ 
     ./bin/ftp <port-number> --test
 
 Clean
 
-   make clean
+     make clean
 
 
 ## Implementation details
